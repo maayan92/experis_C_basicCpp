@@ -14,6 +14,7 @@ enum
 	DESTROY_VECTOR,
 	PRINT,
 	MAX_VAL,
+	SORT,
 	EXIT
 };
 
@@ -34,7 +35,7 @@ size_t GetMaxVal(Vector *_vec, int *maxVal)
 
 	err = VectorGet(_vec,i,&data);
 
-	while(ERR_ILLEGAL_INPUT != err)
+	while(SUCCEEDED == err)
 	{
 		if(data > *maxVal)
 		{
@@ -56,13 +57,50 @@ size_t MaxVal(Vector *_vec, int *maxVal)
 	
 	err = VectorGet(_vec,i,&data);
 
-	if(ERR_ILLEGAL_INPUT != err)
+	if(SUCCEEDED == err)
 	{
 		*maxVal = data;
 		maxValIndx = GetMaxVal(_vec, maxVal);
 	}
 
 	return maxValIndx;
+}
+
+static void Swap(Vector *_vec, int _data1,int _data2, int _indx)
+{
+	VectorSet(_vec,_indx-1,_data2);
+	VectorSet(_vec,_indx,_data1);
+}
+
+void BubbleSort(Vector *_vec)
+{
+	int i = 1, j, data1, data2;
+	ErrCode err;
+
+	while(SUCCEEDED == VectorGet(_vec,i,&data1))
+	{
+		j = 2;
+
+		err = VectorGet(_vec,1,&data1);
+		err = VectorGet(_vec,j,&data2);
+
+		while(ERR_ILLEGAL_INPUT != err)
+		{
+			if(data1 > data2)
+			{
+				Swap(_vec,data1,data2,j);
+			}			
+			else
+			{
+				err = VectorGet(_vec,j,&data1);
+			}
+
+			++j;
+			err = VectorGet(_vec,j,&data2);
+		}
+
+		++i;
+	}
 }
 
 int main()
@@ -81,9 +119,9 @@ int main()
 			printf("4 - for removing the last data from the vector array. \n5 - for removing data by position \n");
 			printf("6 - for get data by position from the vector array.\n7 - for finding the position of a specific data \n");
 			printf("8 - for destroying the dynamic Vector \n9 - for printing the vector array\n");
-			printf("10 - for geting the max value from the Vector \n");
+			printf("10 - for geting the max value from the Vector \n11 - for sorting the vector array \n");
 		}
-		printf("11 - for exit.\n");
+		printf("12 - for exit.\n");
 		scanf("%d",&action);
 
 
@@ -315,6 +353,19 @@ int main()
 				}
 
 				printf("max value is %d in position %ld \n",maxVal,maxValIndx);
+				break;
+
+			case SORT:
+
+				BubbleSort(vector);
+
+				err = PrintArray(vector);
+
+				if(ERR_NOT_EXIST == err)
+				{
+					printf("\nVector not exist!\n");
+				}
+
 				break;
 
 			case EXIT:

@@ -79,6 +79,8 @@ ErrCode VectorAddTail(Vector* _vec, int _data)
 		return ERR_NOT_EXIST;
 	}
 
+	++_vec->m_numOfElements;
+
 	if(_vec->m_arrSize == _vec->m_numOfElements)
 	{
 		vectorArray = ReSizeVector(_vec->m_vectorArray,_vec->m_arrSize += _vec->m_blockSize);
@@ -91,7 +93,6 @@ ErrCode VectorAddTail(Vector* _vec, int _data)
 		_vec->m_vectorArray = vectorArray;
 	}
 
-	++_vec->m_numOfElements;
 	_vec->m_vectorArray[_vec->m_numOfElements] = _data;
 
 	return SUCCEEDED;

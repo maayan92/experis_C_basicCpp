@@ -104,19 +104,14 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 {
 	int *vectorArray;
 
-	if(NULL == _vec)
+	if(0 == VectorNumOfelements(_vec))
 	{
-		return ERR_NOT_EXIST;
+		return ERR_NOT_EXIST;	
 	}
 
-	if(0 > _vec->m_numOfElements)
-	{
-		return EMPTY_VECTOR_ARR;	
-	}
+	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];1
 
-	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];
-
-	if((_vec->m_arrSize - _vec->m_numOfElements) >= (_vec->m_blockSize*2) && (_vec->m_arrSize - _vec->m_blockSize) > _vec->m_initialSize)
+	if((_vec->m_arrSize - _vec->m_numOfElements) >= (_vec->m_blockSize*2) && (_vec->m_arrSize - _vec->m_blockSize) >= _vec->m_initialSize)
 	{
 		vectorArray = ReSizeVector(_vec->m_vectorArray,_vec->m_arrSize -= _vec->m_blockSize);
 
@@ -140,7 +135,7 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 		return ERR_NOT_EXIST;
 	}
 
-	if(1 > _indx || _vec->m_numOfElements < _indx)
+	if(0 == _indx || _vec->m_numOfElements < _indx)
 	{
 		return ERR_ILLEGAL_INPUT;
 	}
@@ -160,7 +155,7 @@ ErrCode VectorGet(Vector* _vec, size_t _indx, int* _data)
 		return ERR_NOT_EXIST;
 	}
 
-	if(1 > _indx || _vec->m_numOfElements < _indx)
+	if(0 == _indx || _vec->m_numOfElements < _indx)
 	{
 		return ERR_ILLEGAL_INPUT;
 	}
@@ -210,11 +205,11 @@ ErrCode PrintArray(Vector *_vec)
 	}
 
 	printf("number of elements: %ld\n",_vec->m_numOfElements);
-	printf("vector array initial size: %ld\n",_vec->m_initialSize);
-	printf("vector array size: %ld\n",_vec->m_arrSize);
-	printf("vector array block size: %ld\n",_vec->m_blockSize);
+	printf("initial size: %ld\n",_vec->m_initialSize);
+	printf("size: %ld\n",_vec->m_arrSize);
+	printf("block size: %ld\n",_vec->m_blockSize);
 
-	printf("vector array values: \n");
+	printf("values: \n");
 
 	for(i = 1;i <= _vec->m_numOfElements;++i)
 	{
@@ -225,5 +220,16 @@ ErrCode PrintArray(Vector *_vec)
 
 	return SUCCEEDED;
 }
+
+size_t VectorNumOfelements(Vector* _vec)
+{
+	if(NULL == _vec)
+	{
+		return 0;
+	}
+	
+	return _vec->m_numOfElements;
+}
+
 
 

@@ -27,43 +27,30 @@ void GetInitValues(size_t *_initialSize, size_t *_incremetBlockSize)
 	getchar();
 }
 
-size_t GetMaxVal(Vector *_vec, int *maxVal)
+ErrCode MaxVal(Vector *_vec, int *maxVal)
 {
-	int i = 2, data;
-	size_t maxValIndx = 1;
+	int data, i = 1;
 	ErrCode err;
-
-	err = VectorGet(_vec,i,&data);
+	
+	if(SUCCEEDED != (err = VectorGet(_vec,i,&data)))
+	{
+		return err;
+	}
+	
+	*maxVal = data;
 
 	while(SUCCEEDED == err)
 	{
 		if(data > *maxVal)
 		{
 			*maxVal = data;
-			maxValIndx = i;
 		}
 		
 		++i;
 		err = VectorGet(_vec,i,&data);
 	}
-	
-	return maxValIndx;
-}
 
-size_t MaxVal(Vector *_vec, int *maxVal)
-{
-	int data, i = 1, maxValIndx = 0;
-	ErrCode err;
-	
-	err = VectorGet(_vec,i,&data);
-
-	if(SUCCEEDED == err)
-	{
-		*maxVal = data;
-		maxValIndx = GetMaxVal(_vec, maxVal);
-	}
-
-	return maxValIndx;
+	return SUCCEEDED;
 }
 
 static void Swap(Vector *_vec, int _data1,int _data2, int _indx)
@@ -74,12 +61,13 @@ static void Swap(Vector *_vec, int _data1,int _data2, int _indx)
 
 void BubbleSort(Vector *_vec)
 {
-	int i = 1, j, data1, data2;
+	int i = 1, j, data1, data2, swapped = 1;
 	ErrCode err;
 
-	while(SUCCEEDED == VectorGet(_vec,i,&data1))
+	while(SUCCEEDED == VectorGet(_vec,i,&data1) && swapped)
 	{
 		j = 2;
+		swapped = 0;
 
 		err = VectorGet(_vec,1,&data1);
 		err = VectorGet(_vec,j,&data2);
@@ -89,6 +77,7 @@ void BubbleSort(Vector *_vec)
 			if(data1 > data2)
 			{
 				Swap(_vec,data1,data2,j);
+				swapped = 1;
 			}			
 			else
 			{
@@ -103,9 +92,38 @@ void BubbleSort(Vector *_vec)
 	}
 }
 
+ErrCode RemoveByIndx(Vector *_vec, size_t _position, int *_getNewData)
+{
+	int setNewData;
+	ErrCode err;
+
+	err = VectorGet(_vec,_position,_getNewData);
+
+	if(SUCCEEDED != err)
+	{
+		return err;
+	}
+
+	err = VectorRemoveTail(_vec,&setNewData);
+
+	if(SUCCEEDED != err)
+	{
+		return err;
+	}
+
+	err = VectorSet(_vec,_position,setNewData);
+
+	if(SUCCEEDED != err)
+	{
+		return err;
+	}
+
+	return SUCCEEDED;
+}
+
 int main()
 {
-	size_t initialSize, BlockSize, findPsotion, maxValIndx;
+	size_t initialSize, BlockSize, findPsotion;
 	int action, overideVector, getNewData, setNewData, position, maxVal;
 	Vector *vector = NULL;
 	ErrCode err;
@@ -175,6 +193,11 @@ int main()
 						printf("\nMemory overflow!\n");
 						break;
 
+					case ERR_ILLEGAL_INPUT:
+
+						printf("Illegal data input!");
+						break;
+
 					default:
 
 						printf("\nData added to the vector!\n");
@@ -214,19 +237,14 @@ int main()
 				break;
 
 			case REMOVE_LAST:
-				
+		
 				err = VectorRemoveTail(vector,&getNewData);
 
 				switch (err)
 				{
 					case ERR_NOT_EXIST:
 
-						printf("\nVector not exist!\n");
-						break;
-
-					case EMPTY_VECTOR_ARR:
-
-						printf("\nVector array is empty!\n");
+						printf("\nVector not exist or Vector array is empty!\n");
 						break;
 
 					case ERR_OVERFLOW:
@@ -247,26 +265,24 @@ int main()
 				printf("Please insert data position to remove:");
 				scanf("%d",&position);
 				
-				VectorGet(vector,position,&getNewData);
-				VectorRemoveTail(vector,&setNewData);
-				err = VectorSet(vector,position,setNewData);
+				err = RemoveByIndx(vector,position,&getNewData);
 
 				switch (err)
 				{
 
 					case ERR_NOT_EXIST:
 
-						printf("\nVector not exist!\n");
-						break;
-
-					case EMPTY_VECTOR_ARR:
-
-						printf("\nVector array is empty!\n");
+						printf("\nVector not exist or Vector array is empty!\n");
 						break;
 
 					case ERR_OVERFLOW:
 
 						printf("\nMemory overflow!\n");
+						break;
+
+					case ERR_FAILED:
+
+						printf("\nReduces the size failed!\n");
 						break;
 
 					default:
@@ -344,15 +360,31 @@ int main()
 
 			case MAX_VAL:
 
-				maxValIndx = MaxVal(vector,&maxVal);
+				err = MaxVal(vector,&maxVal);
 
-				if(0 == maxVal)
+				switch (err)
 				{
-					printf("\nIllegal position input!\n");
-					break;
+					case ERR_NOT_EXIST:
+
+						printf("\nVector not exist or Vector array is empty!\n");
+						break;
+
+					case ERR_ILLEGAL_INPUT:
+
+						printf("\nIllegal position input!\n");
+						break;
+
+					case ERR_FAILED:
+
+						printf("\nReduces the size failed!\n");
+						break;
+
+					default:
+
+						printf("\nmax value is %d \n",maxVal);
+						break;
 				}
 
-				printf("max value is %d in position %ld \n",maxVal,maxValIndx);
 				break;
 
 			case SORT:

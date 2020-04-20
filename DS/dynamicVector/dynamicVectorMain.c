@@ -5,14 +5,16 @@
 enum
 {
 	CREATE_VECTOR =  1,
-	INSERT_NEW_DATA = 2,
-	INSERT_BY_POSITION = 3,
-	REMOVE_LAST = 4,
-	REMOVE_BY_INDX = 5,
-	FIND_POSITION = 6,
-	DESTROY_VECTOR = 7,
-	PRINT = 8,
-	EXIT = 9
+	INSERT_NEW_DATA,
+	INSERT_BY_POSITION,
+	REMOVE_LAST,
+	REMOVE_BY_INDX,
+	GET_DATA,
+	FIND_POSITION,
+	DESTROY_VECTOR,
+	PRINT,
+	MAX_VAL,
+	EXIT
 };
 
 void GetInitValues(size_t *_initialSize, size_t *_incremetBlockSize)
@@ -24,24 +26,64 @@ void GetInitValues(size_t *_initialSize, size_t *_incremetBlockSize)
 	getchar();
 }
 
+size_t GetMaxVal(Vector *_vec, int *maxVal)
+{
+	int i = 2, data;
+	size_t maxValIndx = 1;
+	ErrCode err;
+
+	err = VectorGet(_vec,i,&data);
+
+	while(ERR_ILLEGAL_INPUT != err)
+	{
+		if(data > *maxVal)
+		{
+			*maxVal = data;
+			maxValIndx = i;
+		}
+		
+		++i;
+		err = VectorGet(_vec,i,&data);
+	}
+	
+	return maxValIndx;
+}
+
+size_t MaxVal(Vector *_vec, int *maxVal)
+{
+	int data, i = 1, maxValIndx = 0;
+	ErrCode err;
+	
+	err = VectorGet(_vec,i,&data);
+
+	if(ERR_ILLEGAL_INPUT != err)
+	{
+		*maxVal = data;
+		maxValIndx = GetMaxVal(_vec, maxVal);
+	}
+
+	return maxValIndx;
+}
+
 int main()
 {
-	size_t initialSize, BlockSize, findPsotion;
-	int action, overideVector, newData, position;
+	size_t initialSize, BlockSize, findPsotion, maxValIndx;
+	int action, overideVector, getNewData, setNewData, position, maxVal;
 	Vector *vector = NULL;
 	ErrCode err;
 
 	do
 	{
-		printf("\nPlease select action: \nfor creating dynamic Vector press 1\n");
+		printf("\nPlease select an action by pressing the suitable button: \n1 - for creating dynamic Vector.\n");
 		if(NULL != vector)
 		{
-			printf("for inserting a new data to the vector array press 2 \nfor inserting a new data in a specific position press 3\n");
-			printf("for removing the last data from the vector array press 4 \nfor removing data from specific position from the vector array press 5\n");
-			printf("for finding the position of a specific data press 6 \nfor destroying the dynamic Vector press 7 \n");
-			printf("for printing the vector array press 8\n");
+			printf("2 - for inserting a new data to the vector array.\n3 - for inserting a new data in a specific position.\n");
+			printf("4 - for removing the last data from the vector array. \n5 - for removing data by position \n");
+			printf("6 - for get data by position from the vector array.\n7 - for finding the position of a specific data \n");
+			printf("8 - for destroying the dynamic Vector \n9 - for printing the vector array\n");
+			printf("10 - for geting the max value from the Vector \n");
 		}
-		printf("for exit press 9\n");
+		printf("11 - for exit.\n");
 		scanf("%d",&action);
 
 
@@ -79,9 +121,9 @@ int main()
 			case INSERT_NEW_DATA:
 
 				printf("\nPlease insert new data:");
-				scanf("%d",&newData);
+				scanf("%d",&setNewData);
 
-				err = VectorAddTail(vector,newData);
+				err = VectorAddTail(vector,setNewData);
 
 				switch (err)
 				{
@@ -106,12 +148,12 @@ int main()
 			case INSERT_BY_POSITION:
 
 				printf("\nPlease insert new data:");
-				scanf("%d",&newData);
+				scanf("%d",&setNewData);
 
 				printf("Please insert data position:");
 				scanf("%d",&position);
 
-				err = VectorSet(vector,position,newData);
+				err = VectorSet(vector,position,setNewData);
 
 				switch (err)
 				{
@@ -135,7 +177,7 @@ int main()
 
 			case REMOVE_LAST:
 				
-				err = VectorRemoveTail(vector,&newData);
+				err = VectorRemoveTail(vector,&getNewData);
 
 				switch (err)
 				{
@@ -156,7 +198,7 @@ int main()
 
 					default:
 
-						printf("\nData %d removed!\n", newData);
+						printf("\nData %d removed!\n", getNewData);
 						break;
 				}
 
@@ -167,7 +209,9 @@ int main()
 				printf("Please insert data position to remove:");
 				scanf("%d",&position);
 				
-				err = VectorGet(vector,position,&newData);
+				VectorGet(vector,position,&getNewData);
+				VectorRemoveTail(vector,&setNewData);
+				err = VectorSet(vector,position,setNewData);
 
 				switch (err)
 				{
@@ -189,7 +233,35 @@ int main()
 
 					default:
 
-						printf("\nData %d from position %d removed!\n", newData, position);
+						printf("\nData %d position %d removed! \n", getNewData, position);
+						break;
+				}
+
+				break;
+
+			case GET_DATA:
+
+				printf("Please insert data position to remove:");
+				scanf("%d",&position);
+				
+				err = VectorGet(vector,position,&getNewData);
+
+				switch (err)
+				{
+
+					case ERR_NOT_EXIST:
+
+						printf("\nVector not exist!\n");
+						break;
+
+					case ERR_ILLEGAL_INPUT:
+
+						printf("\nIllegal position input!\n");
+						break;
+
+					default:
+
+						printf("\nData position %d is %d \n", position, getNewData);
 						break;
 				}
 
@@ -198,9 +270,9 @@ int main()
 			case FIND_POSITION:
 
 				printf("Please insert data to find:");
-				scanf("%d",&newData);
+				scanf("%d",&setNewData);
 
-				findPsotion = VectorFind(vector,newData);
+				findPsotion = VectorFind(vector,setNewData);
 
 				if(0 == findPsotion)
 				{
@@ -208,7 +280,7 @@ int main()
 					break;
 				}
 
-				printf("\nData %d is in the position %d \n", newData, position);
+				printf("\nData %d is in the position %ld \n", setNewData, findPsotion);
 				
 				break;
 
@@ -230,6 +302,19 @@ int main()
 					printf("\nVector not exist!\n");
 				}
 
+				break;
+
+			case MAX_VAL:
+
+				maxValIndx = MaxVal(vector,&maxVal);
+
+				if(0 == maxVal)
+				{
+					printf("\nIllegal position input!\n");
+					break;
+				}
+
+				printf("max value is %d in position %ld \n",maxVal,maxValIndx);
 				break;
 
 			case EXIT:

@@ -1,4 +1,8 @@
+#ifndef _VECTOR_H
+#define _VECTOR_H
+
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef int ErrCode;
 
@@ -6,12 +10,12 @@ typedef struct Vector Vector;
 
 enum
 {
-	ERR_NOT_EXIST = -1,
-	ERR_OVERFLOW = -2,
-	EMPTY_VECTOR_ARR = -3,
-	ERR_ILLEGAL_INPUT = -4,
-	ERR_FAILED = -5,
-	SUCCEEDED = 0
+	ERR_NOT_EXIST,
+	ERR_OVERFLOW,
+	EMPTY_VECTOR_ARR,
+	ERR_ILLEGAL_INPUT,
+	ERR_FAILED,
+	SUCCEEDED
 };
 
 /*
@@ -47,7 +51,8 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data);
 
 /*
 	Description: add new data to a specific position in the vector array.
-	Input: _vec - dynamic struct Vector pointer, _indx - the position where the data would be insert to , _data - the new data that would be inserted to the vector array.
+	Input: _vec - dynamic struct Vector pointer, _indx - the position where the data would be insert to , 
+		_data - the new data that would be inserted to the vector array.
 	Return value: return error code, ERR_NOT_EXIST - if the _vec is NULL, ERR_ILLEGAL_INPUT - if the _indx is smaller than 1 or bigger than the array size,
 					SUCCEEDED - on success.
 */
@@ -76,5 +81,4 @@ size_t VectorFind(Vector* _vec,  int _data);
 ErrCode PrintArray(Vector *_vec);
 
 
-
-
+#endif

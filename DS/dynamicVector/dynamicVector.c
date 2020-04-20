@@ -4,10 +4,11 @@
 
 struct Vector
 {
-	int *vectorArray;
-	size_t initialSize;
-	size_t numOfElements;
-	size_t blockSize;
+	int *m_vectorArray;
+	size_t m_initialSize;
+	size_t m_arrSize;
+	size_t m_numOfElements;
+	size_t m_blockSize;
 };
 
 /* CREATE VECTOR */
@@ -29,7 +30,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 		return NULL;
 	}
 	
-	vectorArray = (int*)calloc(_initialSize,sizeof(int));
+	vectorArray = (int*)calloc(_initialSize+1,sizeof(int));
 
 	if(NULL == vectorArray)
 	{
@@ -39,10 +40,11 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 		return NULL;
 	}
 
-	vector->vectorArray = vectorArray;
-	vector->initialSize = _initialSize;
-	vector->numOfElements = 0;
-	vector->blockSize = _blockSize;
+	vector->m_vectorArray = vectorArray;
+	vector->m_initialSize = _initialSize+1;
+	vector->m_arrSize = _initialSize+1;
+	vector->m_numOfElements = 0;
+	vector->m_blockSize = _blockSize;
 
 	return vector;
 }
@@ -53,7 +55,7 @@ void VectorDestroy(Vector* _vec)
 {
 	if(NULL != _vec)
 	{
-		free(_vec->vectorArray);
+		free(_vec->m_vectorArray);
 
 		free(_vec);
 	}
@@ -63,7 +65,7 @@ void VectorDestroy(Vector* _vec)
 
 static int * ReSizeVector(int *_vectorArray, size_t _newSize)
 {
-	_vectorArray = (int*)realloc(_vectorArray,_newSize*sizeof(int));
+	_vectorArray = (int*)realloc(_vectorArray,(_newSize+1)*sizeof(int));
 
 	return _vectorArray;
 }
@@ -77,21 +79,20 @@ ErrCode VectorAddTail(Vector* _vec, int _data)
 		return ERR_NOT_EXIST;
 	}
 
-	++_vec->numOfElements;
-
-	if(_vec->initialSize <= _vec->numOfElements)
+	if(_vec->m_arrSize == _vec->m_numOfElements)
 	{
-		vectorArray = ReSizeVector(_vec->vectorArray,_vec->initialSize += _vec->blockSize);
+		vectorArray = ReSizeVector(_vec->m_vectorArray,_vec->m_arrSize += _vec->m_blockSize);
 
 		if(NULL == vectorArray)
 		{
 			return ERR_OVERFLOW;
 		}
 		
-		_vec->vectorArray = vectorArray;
+		_vec->m_vectorArray = vectorArray;
 	}
 
-	_vec->vectorArray[_vec->numOfElements] = _data;
+	++_vec->m_numOfElements;
+	_vec->m_vectorArray[_vec->m_numOfElements] = _data;
 
 	return SUCCEEDED;
 }
@@ -107,23 +108,23 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 		return ERR_NOT_EXIST;
 	}
 
-	if(0 > _vec->numOfElements)
+	if(0 > _vec->m_numOfElements)
 	{
 		return EMPTY_VECTOR_ARR;	
 	}
 
-	(*_data) = _vec->vectorArray[_vec->numOfElements--];
+	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];
 
-	if((_vec->initialSize - _vec->numOfElements) >= (_vec->blockSize*2))
+	if((_vec->m_arrSize - _vec->m_numOfElements) >= (_vec->m_blockSize*2) && (_vec->m_arrSize - _vec->m_blockSize) > _vec->m_initialSize)
 	{
-		vectorArray = ReSizeVector(_vec->vectorArray,_vec->initialSize -= _vec->blockSize);
+		vectorArray = ReSizeVector(_vec->m_vectorArray,_vec->m_arrSize -= _vec->m_blockSize);
 
 		if(NULL == vectorArray)
 		{
 			return ERR_FAILED;
 		}
 		
-		_vec->vectorArray = vectorArray;
+		_vec->m_vectorArray = vectorArray;
 	}
 
 	return SUCCEEDED;
@@ -138,12 +139,12 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 		return ERR_NOT_EXIST;
 	}
 
-	if(1 > _indx || _vec->numOfElements < _indx)
+	if(1 > _indx || _vec->m_numOfElements < _indx)
 	{
 		return ERR_ILLEGAL_INPUT;
 	}
 
-	_vec->vectorArray[_indx] = _data;
+	_vec->m_vectorArray[_indx] = _data;
 
 	return SUCCEEDED;
 }
@@ -152,23 +153,18 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 
 ErrCode VectorGet(Vector* _vec, size_t _indx, int* _data)
 {
-	ErrCode err;
-	int saveLast;
 
 	if(NULL == _vec)
 	{
 		return ERR_NOT_EXIST;
 	}
 
-	err = VectorRemoveTail(_vec,&saveLast);
-
-	if(SUCCEEDED != err)
+	if(1 > _indx || _vec->m_numOfElements < _indx)
 	{
-		return err;
+		return ERR_ILLEGAL_INPUT;
 	}
 
-	(*_data) = _vec->vectorArray[_indx];
-	VectorSet(_vec,_indx,saveLast);
+	*_data = _vec->m_vectorArray[_indx];
 
 	return SUCCEEDED;
 }
@@ -179,9 +175,9 @@ static size_t searchIndex(Vector* _vec,  int _data)
 {
 	size_t i;
 
-	for(i = 1;i <= _vec->numOfElements;++i)
+	for(i = 1;i <= _vec->m_numOfElements;++i)
 	{
-		if(_data == _vec->vectorArray[i])
+		if(_data == _vec->m_vectorArray[i])
 		{
 			return i;
 		}
@@ -192,7 +188,7 @@ static size_t searchIndex(Vector* _vec,  int _data)
 
 size_t VectorFind(Vector* _vec,  int _data)
 {
-
+	
 	if(NULL == _vec)
 	{
 		return 0;
@@ -212,15 +208,16 @@ ErrCode PrintArray(Vector *_vec)
 		return ERR_NOT_EXIST;
 	}
 
-	printf("number of elements: %ld\n",_vec->numOfElements);
-	printf("vector array size: %ld\n",_vec->initialSize);
-	printf("vector array block size: %ld\n",_vec->blockSize);
+	printf("number of elements: %ld\n",_vec->m_numOfElements);
+	printf("vector array initial size: %ld\n",_vec->m_initialSize);
+	printf("vector array size: %ld\n",_vec->m_arrSize);
+	printf("vector array block size: %ld\n",_vec->m_blockSize);
 
 	printf("vector array values: \n");
 
-	for(i = 1;i <= _vec->numOfElements;++i)
+	for(i = 1;i <= _vec->m_numOfElements;++i)
 	{
-		printf("%d ",_vec->vectorArray[i]);
+		printf("%d ",_vec->m_vectorArray[i]);
 	}
 	
 	printf("\n");

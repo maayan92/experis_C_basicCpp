@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../dynamicVector/dynamicVector.h"
+#include "ADTErrors.h"
 
 typedef struct Stack Stack;
 
@@ -29,20 +29,28 @@ Stack* StackCreate(size_t _initialSize, size_t _blockSize);
 void StackDestroy(Stack* _stack);
 
 /*
-	Description: add new data to the end of the vector array, resize (increases the size) the vector array in case that it's full.
+	Description: add new data to the top of the stack, resize (increases the size) the stack in case that it's full.
 	Input: _stack - dynamic stack pointer, _data - the new data that would be inserted to the end stack.
-	Return value: return error code, ERR_NOT_EXIST - if the _stack is NULL, ERR_OVERFLOW - if the resize fails because there is a memory overflow,
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _stack is NULL, ERR_OVERFLOW - if the resize fails because there is a memory overflow,
 					SUCCEEDED - on success.
 */
 ErrCode  StackPush(Stack* _stack, int data);
 
 /*
-	Description: remove the last data from the vector array, resize (reduces the size) the vector array in case there is too much empty space.
+	Description: remove the last data from the stack, resize (reduces the size) the stack in case there is too much empty space.
 	Input: _stack - dynamic stack pointer, _data - the data that would be removed from the end of the stack.
-	Return value: return error code, ERR_NOT_EXIST - if the _stack is NULL or if the stack is empty, ERR_FAILED - if the realloc fails,
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _stack is NULL or if the stack is empty, ERR_FAILED - if the realloc fails,
 					SUCCEEDED - on success.
 */
 ErrCode StackPop(Stack* _stack, int* _data);
+
+/*
+	Description: give the last data from the stack, resize (reduces the size) the stack in case there is too much empty space.
+	Input: _stack - dynamic stack pointer, _data - the data that .
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _stack is NULL or if the stack is empty, ERR_FAILED - if the realloc fails,
+					SUCCEEDED - on success.
+*/
+ErrCode StackTop(Stack* _stack, int* _data);
 
 /*
 	Description: gives the number of elements in the stack.
@@ -61,7 +69,7 @@ int StackIsEmpty(Stack* _stack);
 /*
 	Description: print the stack.
 	Input: _stack - dynamic stack pointer.
-	Return value: return error code, ERR_NOT_EXIST - if the _stack is NULL, SUCCEEDED - on success.
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _stack is NULL, SUCCEEDED - on success.
 */
 ErrCode PrintStack(Stack* _stack);
 

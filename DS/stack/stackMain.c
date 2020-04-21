@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stack.h"
+#include "ADTErrors.h"
 
 enum
 {
 	CREATE_STACK = 1,
 	INSERT_DATA,
 	REMOVE_DATA,
+	GET_DATA,
 	GET_SIZE,
 	IS_EMPTY,
 	PRINT,
@@ -35,9 +37,9 @@ int main()
 	{
 		printf("\nPlease select an action by pressing the suitable button: \n1 - for creating dynamic stack.\n");
 		printf("2 - for inserting a new data to the stack.\n3 - for removing the last data from the stack. \n");
-		printf("4 - for get the number of elements in the stack.\n5 - for checking if the stack is empty \n");
-		printf("6 - for printing the stack \n7 - for destroying the dynamic stack \n");
-		printf("8 - for exit.\n");
+		printf("4 - for getting the top data of the stack \n5 - for get the number of elements in the stack.\n");
+		printf("6 - for checking if the stack is empty \n7 - for printing the stack \n");
+		printf("8 - for destroying the dynamic stack \n9 - for exit.\n");
 
 		scanf("%d", &action);
 
@@ -68,7 +70,7 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nstack not exist!\n");
 						break;
@@ -98,19 +100,38 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nstack not exist or stack is empty!\n");
 						break;
 
 					case ERR_OVERFLOW:
 
-						printf("\nMemory overflow!\n");
+						printf("\nMemory underflow!\n");
 						break;
 
 					default:
 
 						printf("\nData %d removed!\n", NewData);
+						break;
+				}
+
+				break;
+
+			case GET_DATA:
+
+				err = StackTop(stack,&NewData);
+
+					switch (err)
+				{
+					case ERR_NOT_INITIALIZE:
+
+						printf("\nstack not exist or stack is empty!\n");
+						break;
+
+					default:
+
+						printf("\nTop data is %d \n", NewData);
 						break;
 				}
 
@@ -148,7 +169,7 @@ int main()
 
 				err = PrintStack(stack);
 	
-				if(ERR_NOT_EXIST == err)
+				if(ERR_NOT_INITIALIZE == err)
 				{
 					printf("\nstack not exist!\n");
 				}

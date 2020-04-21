@@ -4,6 +4,7 @@
 
 struct Vector
 {
+	size_t m_MagicNumber;
 	int *m_vectorArray;
 	size_t m_initialSize;
 	size_t m_arrSize;
@@ -18,7 +19,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 	Vector *vector;
 	int *vectorArray;
 
-	if(0 == _initialSize || 0 == _blockSize)
+	if(0 == _initialSize && 0 == _blockSize)
 	{
 		return NULL;
 	}
@@ -45,6 +46,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 	vector->m_arrSize = _initialSize+1;
 	vector->m_numOfElements = 0;
 	vector->m_blockSize = _blockSize;
+	vector->m_MagicNumber = MAGIC_NUMBER;
 
 	return vector;
 }
@@ -53,8 +55,10 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 
 void VectorDestroy(Vector* _vec)
 {
-	if(NULL != _vec)
+	if(NULL != _vec && _vec->m_MagicNumber == MAGIC_NUMBER)
 	{
+		_vec->m_MagicNumber = NO_MAGIC_NUMBER;
+
 		free(_vec->m_vectorArray);
 
 		free(_vec);
@@ -74,9 +78,9 @@ ErrCode VectorAddTail(Vector* _vec, int _data)
 {
 	int *vectorArray;
 
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
-		return ERR_NOT_EXIST;
+		return ERR_NOT_INITIALIZE;
 	}
 
 	++_vec->m_numOfElements;
@@ -106,7 +110,7 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 
 	if(0 == VectorNumOfelements(_vec))
 	{
-		return ERR_NOT_EXIST;	
+		return ERR_NOT_INITIALIZE;	
 	}
 
 	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];
@@ -130,9 +134,9 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 
 ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 {
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
-		return ERR_NOT_EXIST;
+		return ERR_NOT_INITIALIZE;
 	}
 
 	if(0 == _indx || _vec->m_numOfElements < _indx)
@@ -150,9 +154,9 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 ErrCode VectorGet(Vector* _vec, size_t _indx, int* _data)
 {
 
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
-		return ERR_NOT_EXIST;
+		return ERR_NOT_INITIALIZE;
 	}
 
 	if(0 == _indx || _vec->m_numOfElements < _indx)
@@ -185,7 +189,7 @@ static size_t searchIndex(Vector* _vec,  int _data)
 size_t VectorFind(Vector* _vec,  int _data)
 {
 	
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
 		return 0;
 	}
@@ -199,9 +203,9 @@ ErrCode PrintArray(Vector *_vec)
 {
 	int i;
 
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
-		return ERR_NOT_EXIST;
+		return ERR_NOT_INITIALIZE;
 	}
 
 	printf("number of elements: %ld\n",_vec->m_numOfElements);
@@ -223,7 +227,7 @@ ErrCode PrintArray(Vector *_vec)
 
 size_t VectorNumOfelements(Vector* _vec)
 {
-	if(NULL == _vec)
+	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
 	{
 		return 0;
 	}

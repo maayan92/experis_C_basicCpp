@@ -34,6 +34,7 @@ Result TestCreateCycQue_size0()
 		return SUCCESS;
 	}
 
+	QueueDestroy(que);
 	return FAILED;
 }
 
@@ -46,6 +47,7 @@ Result TestCreateCycQue_sizeHUGE()
 		return SUCCESS;
 	}
 
+	QueueDestroy(que);
 	return FAILED;
 }
 

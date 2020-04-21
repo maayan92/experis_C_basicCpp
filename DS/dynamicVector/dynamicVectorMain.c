@@ -125,7 +125,7 @@ int main()
 {
 	size_t initialSize, BlockSize, findPsotion;
 	int action, overideVector, getNewData, setNewData, position, maxVal;
-	Vector *vector = NULL;
+	Vector *vector;
 	ErrCode err;
 
 	do
@@ -183,7 +183,7 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist!\n");
 						break;
@@ -218,7 +218,7 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist!\n");
 						break;
@@ -242,7 +242,7 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist or Vector array is empty!\n");
 						break;
@@ -270,7 +270,7 @@ int main()
 				switch (err)
 				{
 
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist or Vector array is empty!\n");
 						break;
@@ -303,7 +303,7 @@ int main()
 				switch (err)
 				{
 
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist!\n");
 						break;
@@ -351,7 +351,7 @@ int main()
 
 				err = PrintArray(vector);
 
-				if(ERR_NOT_EXIST == err)
+				if(ERR_NOT_INITIALIZE == err)
 				{
 					printf("\nVector not exist!\n");
 				}
@@ -364,7 +364,7 @@ int main()
 
 				switch (err)
 				{
-					case ERR_NOT_EXIST:
+					case ERR_NOT_INITIALIZE:
 
 						printf("\nVector not exist or Vector array is empty!\n");
 						break;
@@ -393,7 +393,7 @@ int main()
 
 				err = PrintArray(vector);
 
-				if(ERR_NOT_EXIST == err)
+				if(ERR_NOT_INITIALIZE == err)
 				{
 					printf("\nVector not exist!\n");
 				}

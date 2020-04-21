@@ -35,14 +35,18 @@ static int CompareBrackets(Stack *_stack, int _ch1)
 
 			break;	
 
-		default:
-
+		case '[':
+		
 			if(']' == _ch1)
 			{
 				return true;
 			}
 
 			break;	
+
+		default:
+
+			break;
 	}
 
 	return false;
@@ -81,6 +85,16 @@ int ValidBrackets(char *_str)
 		++i;
 	}
 
+	if(false = StackIsEmpty(stack))
+	{
+		isValid = false;
+	}
+
+	free(stack);
+	stack = NULL;
+
 	return isValid;
 
 }
+
+

@@ -109,7 +109,7 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 		return ERR_NOT_EXIST;	
 	}
 
-	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];1
+	*_data = _vec->m_vectorArray[_vec->m_numOfElements--];
 
 	if((_vec->m_arrSize - _vec->m_numOfElements) >= (_vec->m_blockSize*2) && (_vec->m_arrSize - _vec->m_blockSize) >= _vec->m_initialSize)
 	{

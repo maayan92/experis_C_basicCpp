@@ -37,6 +37,8 @@ void StackDestroy(Stack* _stack)
 	if(NULL != _stack)
 	{
 		VectorDestroy(_stack->m_vec);
+	
+		_stack->m_vec = NULL;
 
 		free(_stack);
 	}
@@ -82,7 +84,7 @@ int StackIsEmpty(Stack* _stack)
 		return 0;
 	}
 
-	return VectorNumOfelements(_stack->m_vec) ? false : true; /*TODO*/
+	return VectorNumOfelements(_stack->m_vec) ? false : true;
 }
 
 ErrCode PrintStack(Stack* _stack)

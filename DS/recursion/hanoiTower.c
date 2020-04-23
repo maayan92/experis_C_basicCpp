@@ -7,7 +7,7 @@
 	Return value: nothing returns.
 
 */
-void FillStack(Stack *_from, size_t _numOfDisks)
+static void FillStack(Stack *_from, size_t _numOfDisks)
 {
 	while(_numOfDisks)
 	{
@@ -22,14 +22,12 @@ void FillStack(Stack *_from, size_t _numOfDisks)
 	Return value: nothing returns.
 */
 
-void MoveDisksR(size_t _numOfDisks, Stack *_from, Stack *_to, Stack *_via)
+static void MoveDisksR(size_t _numOfDisks, Stack *_from, Stack *_to, Stack *_via)
 {
 	int data1, data2;
 
-
 	if(1 == _numOfDisks)
 	{
-
 		if(SUCCEEDED == StackTop(_from,&data1) && SUCCEEDED == StackTop(_to,&data2))
 		{
 			if(data1 > data2)
@@ -49,7 +47,7 @@ void MoveDisksR(size_t _numOfDisks, Stack *_from, Stack *_to, Stack *_via)
 	MoveDisksR(_numOfDisks-1,_via,_to,_from);
 }
 
-void PrintAllstack(Stack *_from, Stack *_to, Stack *_via)
+static void PrintAllstack(Stack *_from, Stack *_to, Stack *_via)
 {
 	printf("stack from: \n");
 	PrintStack(_from);

@@ -34,12 +34,25 @@ int RecFactorial(int _num)
 
 size_t Fibonacci(size_t _num)
 {
+
 	if(1 >= _num)
 	{
 		return _num;
 	}
-
+	
 	return Fibonacci(_num-1) + Fibonacci(_num-2);
+}
+
+void PrintFiboR(int _num)
+{
+	if(0 > _num)
+	{
+		return;
+	}
+
+	PrintFiboR(_num-1);
+
+	printf("%ld ", Fibonacci(_num));
 }
 
 int main()
@@ -67,8 +80,8 @@ int main()
 	printf("Factorial number -> \nplease insert a number: ");
 	scanf("%d", &num);
 
-	printf("the fibonacci of %d = %ld \n",num, Fibonacci(num));
-
+	PrintFiboR(num);
+	printf("\n");
 
 	return 0;
 }

@@ -2,16 +2,29 @@
 #include "stack.h"
 
 /*
-	Description: fill the stack with values from 1 to _numOfDisks,
+	Description: create 3 stacks and fill the first stack with values from 1 to _numOfDisks,
 	Input:	_from - stack pointer the fun fills , _numOfDisks - amount and values that would be insert.
 	Return value: nothing returns.
 
 */
-static void FillStack(Stack *_from, size_t _numOfDisks)
+static void CreateAndFillStack(Stack **_stack, size_t _numOfDisks)
 {
+	_stack[0] = StackCreate(_numOfDisks,0);
+	_stack[1] = StackCreate(_numOfDisks,0);
+	_stack[2] = StackCreate(_numOfDisks,0);
+	
+	if(NULL == _stack[0] || NULL == _stack[1] || NULL == _stack[2])
+	{
+		StackDestroy(_stack[0]);
+		StackDestroy(_stack[1]);
+		StackDestroy(_stack[2]);
+		printf("error \n");
+		return;
+	}
+
 	while(_numOfDisks)
 	{
-		StackPush(_from,_numOfDisks--);
+		StackPush(_stack[0],_numOfDisks--);
 	}
 }
 
@@ -47,46 +60,33 @@ static void MoveDisksR(size_t _numOfDisks, Stack *_from, Stack *_to, Stack *_via
 	MoveDisksR(_numOfDisks-1,_via,_to,_from);
 }
 
-static void PrintAllstack(Stack *_from, Stack *_to, Stack *_via)
+static void PrintAllstack(Stack **_stack)
 {
 	printf("stack from: \n");
-	PrintStack(_from);
+	PrintStack(_stack[0]);
 	printf("\nstack to: \n");
-	PrintStack(_to);
+	PrintStack(_stack[1]);
 	printf("\nstack via: \n");
-	PrintStack(_via);
+	PrintStack(_stack[2]);
 }
 
 int main()
 {
 	size_t numOfDisks;
-	Stack *from, *to, *via;
+	Stack *stack[3];
 
 	printf("please enter a number of disks: ");
 	scanf("%lu",&numOfDisks);
 
-	from = StackCreate(numOfDisks,0);
-	to = StackCreate(numOfDisks,0);
-	via = StackCreate(numOfDisks,0);
-	
-	if(NULL == from || NULL == to || NULL == via)
-	{
-		StackDestroy(from);
-		StackDestroy(to);
-		StackDestroy(via);
-		printf("error \n");
-		return 0;
-	}
-
-	FillStack(from,numOfDisks);
+	CreateAndFillStack(stack,numOfDisks);
 
 	printf("\n----before the hanoi tower game----s\n");
-	PrintAllstack(from,to,via);
+	PrintAllstack(stack);
 	
-	MoveDisksR(numOfDisks,from,to,via);
+	MoveDisksR(numOfDisks,stack[0],stack[1],stack[2]);
 
 	printf("----after the hanoi tower game----\n\n");
-	PrintAllstack(from,to,via);
+	PrintAllstack(stack);
 	
 
 	return 0;

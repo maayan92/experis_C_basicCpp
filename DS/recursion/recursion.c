@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "stack.h"
 
 void RecPrintNumbers(int _numOfNums)
 {
@@ -32,32 +33,26 @@ int RecFactorial(int _num)
 	return _num*RecFactorial(_num-1);
 }
 
-size_t Fibonacci(size_t _num)
+void Fibonacci(size_t _num,size_t _previous, Stack *_stack)
 {
+	int sum;
 
 	if(1 >= _num)
 	{
-		return _num;
-	}
-	
-	return Fibonacci(_num-1) + Fibonacci(_num-2);
-}
-
-void PrintFiboR(int _num)
-{
-	if(0 > _num)
-	{
+		StackPush(_stack, _num);
 		return;
 	}
 
-	PrintFiboR(_num-1);
+	StackTop(_stack,&sum);
+	
+	StackPush(_stack, Fibonacci(_num-1,Fibonacci(_num-2,_stack),_stack) + sum);
 
-	printf("%ld ", Fibonacci(_num));
 }
 
 int main()
 {
 	int num, k;
+	Stack *stack;
 
 	printf("Print numbers -> \nplease insert a number: ");
 	scanf("%d", &num);
@@ -80,7 +75,18 @@ int main()
 	printf("Factorial number -> \nplease insert a number: ");
 	scanf("%d", &num);
 
-	PrintFiboR(num);
+	stack = StackCreate(num,0);
+	
+	if(NULL == stack)
+	{
+		StackDestroy(stack);
+		printf("error \n");
+		return 0;
+	}
+
+
+	Fibonacci(num,0,stack);
+	PrintStack(stack);
 	printf("\n");
 
 	return 0;

@@ -585,7 +585,7 @@ int main()
 	res = TestInsertByKeyExist();
 	printf("\nTestInsertByKeyExist result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
-	/*Insert by key*/
+	/*Remove by key*/
 	/*POS*/
 	res = TestRemoveByKey_CreatePer();
 	printf("\nTestRemoveByKey_CreatePer result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");

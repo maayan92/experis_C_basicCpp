@@ -3,19 +3,19 @@
 #include "queue.h"
 #include "dynamicVector.h"
 
-#define Is_NOT_EXIST(_que) (NULL == _que || _que->m_MagicNumber != MAGIC_NUMBER);
+#define IS_NOT_EXIST(_que) (NULL == _que || (*_que).m_MagicNumber != MAGIC_NUMBER)
 
 struct CyclicQueue
 {
 	size_t m_MagicNumber;
-	Vector *m_vec;
 	size_t m_head;
 	size_t m_tail;
 	size_t m_initialSize;
 	size_t m_numOfElements;
+	Vector *m_vec;
 };
 
-void fillQueue(CyclicQueue *_que)
+static void fillQueue(CyclicQueue *_que)
 {
 	while(VectorNumOfelements(_que->m_vec) < _que->m_initialSize)
 	{
@@ -55,7 +55,7 @@ CyclicQueue * QueueCreate(size_t _initialSize)
 
 void QueueDestroy(CyclicQueue *_que)
 {
-	if(NULL != _que && _que->m_MagicNumber == MAGIC_NUMBER)
+	if(!IS_NOT_EXIST(_que))
 	{
 		_que->m_MagicNumber = NO_MAGIC_NUMBER;
 
@@ -65,22 +65,9 @@ void QueueDestroy(CyclicQueue *_que)
 	}
 }
 
-static ErrCode InsertData(CyclicQueue *_que, int _data)
-{
-	if(VectorNumOfelements(_que->m_vec) < _que->m_initialSize)
-	{
-		return VectorAddTail(_que->m_vec,_data);
-	}	
-
-	return VectorSet(_que->m_vec,_que->m_tail,_data);
-	
-}
-
 ErrCode QueueEnQueue(CyclicQueue *_que, int _data)
 {
-	ErrCode err;
-
-	if(Is_NOT_EXIST(_que))
+	if(IS_NOT_EXIST(_que))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
@@ -102,7 +89,7 @@ ErrCode QueueDeQueue(CyclicQueue *_que, int *_data)
 {
 	ErrCode err;
 
-	if(Is_NOT_EXIST(_que))
+	if(IS_NOT_EXIST(_que))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
@@ -133,7 +120,7 @@ int QueueIsEmpty(CyclicQueue *_que)
 size_t QueueNumOfElements(CyclicQueue *_que)
 {
 
-	if(Is_NOT_EXIST(_que))
+	if(IS_NOT_EXIST(_que))
 	{
 		return 0;
 	}

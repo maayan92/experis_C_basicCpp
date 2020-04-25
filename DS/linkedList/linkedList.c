@@ -11,8 +11,7 @@ struct Person
 	size_t m_id;
 	char m_name[LENGTH];
 	size_t m_age;
-	struct Person *m_next; 
-
+	Person *m_next; 
 };
 
 Person* CreatePerson(size_t _id, char *_name, size_t _age)

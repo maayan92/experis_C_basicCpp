@@ -125,7 +125,7 @@ int main()
 {
 	size_t initialSize, BlockSize, findPsotion;
 	int action, overideVector, getNewData, setNewData, position, maxVal;
-	Vector *vector;
+	Vector *vector = NULL;
 	ErrCode err;
 
 	do

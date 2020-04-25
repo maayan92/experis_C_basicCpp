@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "stack.h"
+#include "dynamicVector.h"
 
 void RecPrintNumbers(int _numOfNums)
 {
@@ -33,26 +33,33 @@ int RecFactorial(int _num)
 	return _num*RecFactorial(_num-1);
 }
 
-void Fibonacci(size_t _num,size_t _previous, Stack *_stack)
+size_t Fibonacci(size_t _num, Vector *_vector)
 {
-	int sum;
+	int sum, data;
 
 	if(1 >= _num)
 	{
-		StackPush(_stack, _num);
-		return;
+		if(SUCCEEDED != VectorGet(_vector,_num,&data))
+		{
+			VectorAddTail(_vector,_num);
+		}
+		return _num;
 	}
 
-	StackTop(_stack,&sum);
+	sum = Fibonacci(_num-2,_vector) + Fibonacci(_num-1,_vector);
 	
-	StackPush(_stack, Fibonacci(_num-1,Fibonacci(_num-2,_stack),_stack) + sum);
-
+	if(SUCCEEDED != VectorGet(_vector,_num,&data))
+	{
+		VectorAddTail(_vector,sum);
+	}
+	
+	return sum;
 }
 
 int main()
 {
 	int num, k;
-	Stack *stack;
+	Vector *vector;
 
 	printf("Print numbers -> \nplease insert a number: ");
 	scanf("%d", &num);
@@ -75,18 +82,17 @@ int main()
 	printf("Factorial number -> \nplease insert a number: ");
 	scanf("%d", &num);
 
-	stack = StackCreate(num,0);
+	vector = VectorCreate(num,0);
 	
-	if(NULL == stack)
+	if(NULL == vector)
 	{
-		StackDestroy(stack);
 		printf("error \n");
 		return 0;
 	}
 
 
-	Fibonacci(num,0,stack);
-	PrintStack(stack);
+	Fibonacci(num,vector);
+	PrintArray(vector);
 	printf("\n");
 
 	return 0;

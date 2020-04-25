@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "dynamicVector.h"
 
+#define IS_NOT_EXIST(_que) (NULL == _que || (*_que).m_MagicNumber != MAGIC_NUMBER)
+
 struct Vector
 {
 	size_t m_MagicNumber;
@@ -55,7 +57,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 
 void VectorDestroy(Vector* _vec)
 {
-	if(NULL != _vec && _vec->m_MagicNumber == MAGIC_NUMBER)
+	if(!IS_NOT_EXIST(_vec))
 	{
 		_vec->m_MagicNumber = NO_MAGIC_NUMBER;
 
@@ -78,7 +80,7 @@ ErrCode VectorAddTail(Vector* _vec, int _data)
 {
 	int *vectorArray;
 
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
@@ -134,7 +136,7 @@ ErrCode VectorRemoveTail(Vector* _vec, int* _data)
 
 ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 {
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
@@ -154,7 +156,7 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data)
 ErrCode VectorGet(Vector* _vec, size_t _indx, int* _data)
 {
 
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
@@ -189,7 +191,7 @@ static size_t searchIndex(Vector* _vec,  int _data)
 size_t VectorFind(Vector* _vec,  int _data)
 {
 	
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return 0;
 	}
@@ -203,15 +205,10 @@ ErrCode PrintArray(Vector *_vec)
 {
 	int i;
 
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
-
-	printf("number of elements: %ld\n",_vec->m_numOfElements);
-	printf("initial size: %ld\n",_vec->m_initialSize);
-	printf("size: %ld\n",_vec->m_arrSize);
-	printf("block size: %ld\n",_vec->m_blockSize);
 
 	printf("values: \n");
 
@@ -227,7 +224,7 @@ ErrCode PrintArray(Vector *_vec)
 
 size_t VectorNumOfelements(Vector* _vec)
 {
-	if(NULL == _vec || _vec->m_MagicNumber != MAGIC_NUMBER)
+	if(IS_NOT_EXIST(_vec))
 	{
 		return 0;
 	}

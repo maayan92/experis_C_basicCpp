@@ -40,14 +40,14 @@ ErrCode DLListPushTail(List* _list, int _data);
 /*
 	Description: remove data from the head of the list.
 	Input: _list - pointer to the list, _data - a pointer to the head data that would remove, NULL if the _list is NULL. 
-	Return value: return error code, ERR_NOT_INITIALIZE - if the _list is NULL, SUCCEEDED - on success.
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _list is NULL, ERR_UNDERFLOW - if the list is empty, SUCCEEDED - on success.
 */
 ErrCode DLListPopHead(List* _list, int *_data);
 
 /*
 	Description: remove data from the tail of the list.
 	Input: _list - pointer to the list, _data - a pointer to the tail data that would remove, NULL if the _list is NULL. 
-	Return value: return error code, ERR_NOT_INITIALIZE - if the _list is NULL, SUCCEEDED - on success.
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _list is NULL, ERR_UNDERFLOW - if the list is empty, SUCCEEDED - on success.
 */
 ErrCode DLListPopTail(List* _list, int *_data);
 

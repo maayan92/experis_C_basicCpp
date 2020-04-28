@@ -120,15 +120,18 @@ Result TestInsertHead_CreatePers()
 		listHead = ListInsertHead(listHead,newPerson);
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
 
 	if(newPerson != listHead)
 	{
+		DestroyListR(listHead);
 		return FAILED;
 	}
 	
+	DestroyListR(listHead);
 	return SUCCEDD;
 }
 
@@ -147,15 +150,18 @@ Result TestInsertHeadNULL()
 	listHead = ListInsertHead(listHead,newPerson);
 	if(NULL == listHead)
 	{
-			return FAILED;
+		DestroyListR(newPerson);
+		return FAILED;
 	}
 
 	checkPerson = ListInsertHead(listHead,NULL);
 	if(checkPerson == listHead)
 	{
+		DestroyListR(listHead);
 		return SUCCEDD;
 	}
 
+	DestroyListR(listHead);
 	return FAILED;
 }
 
@@ -180,6 +186,7 @@ Result TestRemovetHead_CreatePers()
 		listHead = ListInsertHead(listHead,newPerson);
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
@@ -188,9 +195,12 @@ Result TestRemovetHead_CreatePers()
 
 	if(removePerson != listHead || newPerson == removePerson)
 	{
+		DestroyListR(listHead);
+		DestroyListR(removePerson);
 		return FAILED;
 	}
 
+	DestroyListR(listHead);
 	return SUCCEDD;	
 }
 
@@ -209,6 +219,7 @@ Result TestRemovetHeadNULL_CreatePers()
 		return SUCCEDD;	
 	}
 
+	DestroyListR(listHead);
 	return FAILED;
 }
 
@@ -235,6 +246,7 @@ Result TestInsertByKey_CreatePers()
 		listArr[detailsArr[i].m_id] = newPerson;
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
@@ -245,10 +257,12 @@ Result TestInsertByKey_CreatePers()
 
 		if(removePerson != listArr[i])
 		{
+			DestroyListR(listHead);
 			return FAILED;
 		}	
 	}
 	
+	DestroyListR(newPerson);
 	return SUCCEDD;
 }
 
@@ -265,9 +279,11 @@ Result TestInsertByKeyNULL()
 	listHead = ListInsertByKey(listHead,0,NULL);
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return FAILED;
 	}
 
+	DestroyListR(listHead);
 	return SUCCEDD;
 }
 
@@ -282,6 +298,7 @@ Result TestInsertByKeyExist()
 	listHead = ListInsertByKey(listHead,details.m_id,newPerson);
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return FAILED;
 	}
 	
@@ -289,10 +306,11 @@ Result TestInsertByKeyExist()
 	
 	if(listHead != newPerson)
 	{
+		DestroyListR(listHead);
 		return FAILED;
 	}
 	
-
+	DestroyListR(listHead);
 	return SUCCEDD;
 }
 
@@ -319,6 +337,7 @@ Result TestRemoveByKey_CreatePer()
 		listArr[detailsArr[i].m_id] = newPerson;
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
@@ -329,28 +348,34 @@ Result TestRemoveByKey_CreatePer()
 
 		if(removePerson != listArr[i])
 		{
+			DestroyListR(listHead);
+			DestroyListR(removePerson);
 			return FAILED;
 		}	
 	}
 	
+	DestroyListR(newPerson);
 	return SUCCEDD;
 }
 
 Result TestRemoveByKeyNULL()
 {
-	Person *listHead, *removePerson;
+	Person *listHead, *newPerson, *removePerson;
 
 	Details details = {12,25,"may"};
 
-	listHead = CreatePerson(details.m_id,details.m_name,details.m_age);
+	newPerson = CreatePerson(details.m_id,details.m_name,details.m_age);
+	listHead = newPerson;
 
 	listHead = ListRemoveByKey(NULL,0,&removePerson);
 
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return SUCCEDD;	
 	}
 
+	DestroyListR(listHead);
 	return FAILED;
 }
 
@@ -368,9 +393,11 @@ Result TestRemoveByKeyNotExist()
 
 	if(listHead == newPerson)
 	{
+		DestroyListR(listHead);
 		return SUCCEDD;
 	}
 
+	DestroyListR(newPerson);
 	return FAILED;
 }
 /* INSERT BY KEY RECURSION */
@@ -396,6 +423,7 @@ Result TestInsertByKey_CreatePersR()
 		listArr[detailsArr[i].m_id] = newPerson;
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
@@ -406,10 +434,13 @@ Result TestInsertByKey_CreatePersR()
 
 		if(removePerson != listArr[i])
 		{
+			DestroyListR(listHead);
+			DestroyListR(removePerson);
 			return FAILED;
 		}	
 	}
 	
+	DestroyListR(newPerson);
 	return SUCCEDD;
 }
 
@@ -426,9 +457,11 @@ Result TestInsertByKeyNULLR()
 	listHead = ListInsertByKeyRec(listHead,0,NULL);
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return FAILED;
 	}
 
+	DestroyListR(listHead);
 	return SUCCEDD;
 }
 
@@ -443,6 +476,7 @@ Result TestInsertByKeyExistR()
 	listHead = ListInsertByKeyRec(listHead,details.m_id,newPerson);
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return FAILED;
 	}
 	
@@ -450,10 +484,11 @@ Result TestInsertByKeyExistR()
 	
 	if(listHead != newPerson)
 	{
+		DestroyListR(listHead);
 		return FAILED;
 	}
 	
-
+	DestroyListR(listHead);
 	return SUCCEDD;
 }
 
@@ -480,6 +515,7 @@ Result TestRemoveByKey_CreatePerR()
 		listArr[detailsArr[i].m_id] = newPerson;
 		if(NULL == listHead)
 		{
+			DestroyListR(newPerson);
 			return FAILED;
 		}
 	}
@@ -490,28 +526,34 @@ Result TestRemoveByKey_CreatePerR()
 
 		if(removePerson != listArr[i])
 		{
+			DestroyListR(listHead);
+			DestroyListR(removePerson);
 			return FAILED;
 		}	
 	}
 	
+	DestroyListR(newPerson);
 	return SUCCEDD;
 }
 
 Result TestRemoveByKeyNULLR()
 {
-	Person *listHead, *removePerson;
+	Person *listHead, *newPerson, *removePerson;
 
 	Details details = {12,25,"may"};
 
-	listHead = CreatePerson(details.m_id,details.m_name,details.m_age);
+	newPerson = CreatePerson(details.m_id,details.m_name,details.m_age);
+	listHead = newPerson;
 
 	listHead = ListRemoveByKeyRec(NULL,0,&removePerson);
 
 	if(NULL == listHead)
 	{
+		DestroyListR(newPerson);
 		return SUCCEDD;	
 	}
 
+	DestroyListR(listHead);
 	return FAILED;
 }
 
@@ -529,9 +571,11 @@ Result TestRemoveByKeyNotExistR()
 
 	if(listHead == newPerson)
 	{
+		DestroyListR(listHead);
 		return SUCCEDD;
 	}
 
+	DestroyListR(newPerson);
 	return FAILED;
 }
 

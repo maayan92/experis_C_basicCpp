@@ -12,7 +12,13 @@ typedef enum
 	ERR_UNDERFLOW,
 	EMPTY_VECTOR_ARR,
 	ERR_ILLEGAL_INPUT,
-	ERR_FAILED
-} ErrCode;
+	ERR_FAILED,
+
+	ERR_FILE_EMPTY,
+	ERR_FAILED_TO_OPEN
+
+}ErrCode;
+
+
 
 #endif

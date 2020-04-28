@@ -16,7 +16,14 @@ struct Person
 
 Person* CreatePerson(size_t _id, char *_name, size_t _age)
 {
-	Person *newPers = (Person *)malloc(sizeof(Person));
+	Person *newPers;
+
+	if(NULL == _name)
+	{
+		return NULL;
+	}
+
+	*newPers = (Person *)malloc(sizeof(Person));
 
 	if(NULL == newPers)
 	{
@@ -32,6 +39,13 @@ Person* CreatePerson(size_t _id, char *_name, size_t _age)
 	return newPers;
 }
 
+static void DestroyPerson(Person *_head)
+{
+	_head->m_MagicNumber = NO_MAGIC_NUMBER;
+	free(_head);
+	_head = NULL;
+}
+
 void DestroyListR(Person *_head)
 {
 	if(IS_NOT_EXIST(_head))
@@ -40,9 +54,7 @@ void DestroyListR(Person *_head)
 	}
 
 	DestroyListR(_head->m_next);
-
-	_head->m_MagicNumber = NO_MAGIC_NUMBER;
-	free(_head);
+	DestroyPerson(_head);
 }
 
 Person* ListInsertHead(Person *_head, Person *_newPers)
@@ -64,10 +76,34 @@ Person* RemoveHead(Person *_head, Person **_item)
 		return NULL;
 	}
 
+	if(NULL == _item)
+	{
+		return _head;
+	}
+
 	*_item = _head;
 	_head = _head->m_next;
+	*_item->m_next = NULL;
 
 	return _head;
+}
+
+static Person* FindPosition(Person* _head, size_t _key)
+{
+	Person *temp = _head;
+	
+	while(!IS_NOT_EXIST(temp->m_next) && temp->m_next->m_id < _key)
+	{
+		temp = temp->m_next;
+	}
+
+	if(IS_NOT_EXIST(temp->m_next))
+	{
+		temp->m_next = _p;
+		return _head;
+	}
+
+	return temp;
 }
 
 Person* ListInsertByKey(Person* _head, size_t _key, Person* _p)
@@ -84,16 +120,8 @@ Person* ListInsertByKey(Person* _head, size_t _key, Person* _p)
 		return ListInsertHead(_head,_p);
 	}
 
-	temp = _head;
-
-	while(!IS_NOT_EXIST(temp->m_next) && temp->m_next->m_id < _key)
+	if((temp = FindPosition(_head,_key)) == _head)
 	{
-		temp = temp->m_next;
-	}
-
-	if(IS_NOT_EXIST(temp->m_next))
-	{
-		temp->m_next = _p;
 		return _head;
 	}
 
@@ -150,6 +178,7 @@ Person* ListRemoveByKey(Person* _head, size_t _key, Person* *_p)
 	{
 		*_p = temp->m_next;
 		temp->m_next = (*_p)->m_next;
+		*_p->m_next = NULL;
 	}
 
 	return _head;

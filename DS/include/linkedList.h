@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "ADTErrors.h"
 
-#define LENGTH 50
+#define LENGTH 128
 
 typedef struct Person Person;
 
@@ -25,7 +25,7 @@ void DestroyListR(Person *_head);
 
 /*
 	Description: insert a new person to the head of the list (can't be used with insert/remove by key).
-	Input: _head - the head pointer of the list, _newPers - the new person that woulb be inserted, if its not NULL.
+	Input: _head - the head pointer of the list, _newPers - the new person that would be inserted, if its not NULL.
 	Return value: return a pointer to the head of the list, or NULL if _newPers and the head are NULL.
 */
 Person* ListInsertHead(Person *_head, Person *_newPers);

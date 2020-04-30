@@ -23,7 +23,7 @@ Person* CreatePerson(size_t _id, char *_name, size_t _age)
 		return NULL;
 	}
 
-	*newPers = (Person *)malloc(sizeof(Person));
+	newPers = (Person *)malloc(sizeof(Person));
 
 	if(NULL == newPers)
 	{
@@ -83,12 +83,12 @@ Person* RemoveHead(Person *_head, Person **_item)
 
 	*_item = _head;
 	_head = _head->m_next;
-	*_item->m_next = NULL;
+	(*_item)->m_next = NULL;
 
 	return _head;
 }
 
-static Person* FindPosition(Person* _head, size_t _key)
+static Person* FindPosition(Person* _head, size_t _key, Person* _p)
 {
 	Person *temp = _head;
 	
@@ -97,7 +97,7 @@ static Person* FindPosition(Person* _head, size_t _key)
 		temp = temp->m_next;
 	}
 
-	if(IS_NOT_EXIST(temp->m_next))
+	if(IS_NOT_EXIST(temp->m_next) && temp->m_id < _key)
 	{
 		temp->m_next = _p;
 		return _head;
@@ -120,7 +120,7 @@ Person* ListInsertByKey(Person* _head, size_t _key, Person* _p)
 		return ListInsertHead(_head,_p);
 	}
 
-	if((temp = FindPosition(_head,_key)) == _head)
+	if((temp = FindPosition(_head,_key,_p)) == _head)
 	{
 		return _head;
 	}
@@ -141,6 +141,11 @@ Person* ListInsertByKeyRec(Person* _head, size_t _key, Person* _p)
 	if(IS_NOT_EXIST(_head) || _head->m_id > _key)
 	{
 		return ListInsertHead(_head,_p);
+	}
+	
+	if(_key == _head->m_id)
+	{
+		return _head;
 	}
 
 	temp = ListInsertByKeyRec(_head->m_next,_key,_p);
@@ -178,7 +183,7 @@ Person* ListRemoveByKey(Person* _head, size_t _key, Person* *_p)
 	{
 		*_p = temp->m_next;
 		temp->m_next = (*_p)->m_next;
-		*_p->m_next = NULL;
+		(*_p)->m_next = NULL;
 	}
 
 	return _head;

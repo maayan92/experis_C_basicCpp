@@ -274,7 +274,7 @@ Result TestInsertByKeyNULL()
 
 	newPerson = CreatePerson(details.m_id,details.m_name,details.m_age);
 
-	listHead = ListInsertByKey(newPerson,details.m_id,newPerson);
+	listHead = ListInsertByKey(listHead,details.m_id,newPerson);
 
 	listHead = ListInsertByKey(listHead,0,NULL);
 	if(NULL == listHead)
@@ -452,7 +452,7 @@ Result TestInsertByKeyNULLR()
 
 	newPerson = CreatePerson(details.m_id,details.m_name,details.m_age);
 
-	listHead = ListInsertByKeyRec(newPerson,details.m_id,newPerson);
+	listHead = ListInsertByKeyRec(listHead,details.m_id,newPerson);
 
 	listHead = ListInsertByKeyRec(listHead,0,NULL);
 	if(NULL == listHead)
@@ -644,26 +644,26 @@ int main()
 	/*Insert by key recursion*/
 	/*POS*/
 	res = TestInsertByKey_CreatePersR();
-	printf("\nTestInsertByKey_CreatePers result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestInsertByKey_CreatePersR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	/*NEG*/
 	res = TestInsertByKeyNULLR();
-	printf("\nTestInsertByKeyNULL result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestInsertByKeyNULLR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestInsertByKeyExistR();
-	printf("\nTestInsertByKeyExist result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestInsertByKeyExistR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	/*Remove by key recurtion*/
 	/*POS*/
 	res = TestRemoveByKey_CreatePerR();
-	printf("\nTestRemoveByKey_CreatePer result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestRemoveByKey_CreatePerR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	/*NEG*/
 	res = TestRemoveByKeyNULLR();
-	printf("\nTestRemoveByKeyNULL result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestRemoveByKeyNULLR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestRemoveByKeyNotExistR();
-	printf("\nTestRemoveByKeyNotExist result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\nTestRemoveByKeyNotExistR result: %s \n", (SUCCEDD == res) ? "succedded" : "failed");
 
 	return 0;
 }

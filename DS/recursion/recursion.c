@@ -1,5 +1,14 @@
 #include <stdio.h>
-#include "dynamicVector.h"
+#include "stack.h"
+#include "linkedList.h"
+
+typedef struct Details
+{
+	size_t m_id;
+	size_t m_age;
+	char m_name[50];
+
+}Details;
 
 void RecPrintNumbers(int _numOfNums)
 {
@@ -33,33 +42,59 @@ int RecFactorial(int _num)
 	return _num*RecFactorial(_num-1);
 }
 
-size_t Fibonacci(size_t _num, Vector *_vector)
+size_t Fibonacci(size_t _num, Stack *_stack)
 {
-	int sum, data;
+	int sum;
 
 	if(1 >= _num)
 	{
-		if(SUCCEEDED != VectorGet(_vector,_num,&data))
+		if(StackNumOfelements(_stack) == _num)
 		{
-			VectorAddTail(_vector,_num);
+			StackPush(_stack,_num);
 		}
 		return _num;
 	}
 
-	sum = Fibonacci(_num-2,_vector) + Fibonacci(_num-1,_vector);
+	sum = Fibonacci(_num-2,_stack) + Fibonacci(_num-1,_stack);
 	
-	if(SUCCEEDED != VectorGet(_vector,_num,&data))
+	if(StackNumOfelements(_stack) <= _num)
 	{
-		VectorAddTail(_vector,sum);
+		StackPush(_stack,sum);
 	}
 	
 	return sum;
 }
 
+Person* CreatePersonsList()
+{
+	Person *listHead = NULL, *newPerson;
+	int size = 4, i;
+
+	Details detailsArr[4] = {{1,25,"may"},{3,5,"lia"},{0,25,"yos"},{2,25,"mosh"}};
+
+	for(i = 0;i < size;++i)
+	{
+		newPerson = CreatePerson(detailsArr[i].m_id,detailsArr[i].m_name,detailsArr[i].m_age);
+		if(NULL == newPerson)
+		{
+			return NULL;
+		}
+
+		listHead = ListInsertHead(listHead,newPerson);
+		if(NULL == listHead)
+		{
+			DestroyListR(newPerson);
+			return NULL;
+		}
+	}
+
+	return listHead;
+}
+
 int main()
 {
 	int num, k;
-	Vector *vector;
+	Stack *stack;
 
 	printf("Print numbers -> \nplease insert a number: ");
 	scanf("%d", &num);
@@ -82,17 +117,16 @@ int main()
 	printf("Factorial number -> \nplease insert a number: ");
 	scanf("%d", &num);
 
-	vector = VectorCreate(num,0);
+	stack = StackCreate(num,0);
 	
-	if(NULL == vector)
+	if(NULL == stack)
 	{
 		printf("error \n");
 		return 0;
 	}
 
-
-	Fibonacci(num,vector);
-	PrintArray(vector);
+	Fibonacci(num,stack);
+	PrintStack(stack);
 	printf("\n");
 
 	return 0;

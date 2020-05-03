@@ -1,0 +1,24 @@
+#ifndef _ADT_ERROR_H
+#define _ADT_ERROR_H
+
+#define MAGIC_NUMBER 0xbeefbeef
+#define NO_MAGIC_NUMBER 0xdeadbeef
+
+typedef enum
+{	
+	SUCCEEDED,
+	ERR_NOT_INITIALIZE,
+	ERR_OVERFLOW,
+	ERR_UNDERFLOW,
+	EMPTY_VECTOR_ARR,
+	ERR_ILLEGAL_INPUT,
+	ERR_FAILED,
+
+	ERR_FILE_EMPTY,
+	ERR_FAILED_TO_OPEN
+
+}ErrCode;
+
+
+
+#endif

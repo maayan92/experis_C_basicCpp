@@ -101,15 +101,17 @@ ErrCode CountChars(char *_fileName)
 		return ERR_FAILED_TO_OPEN;
 	}
 
+	ch = fgetc(file);
+
 	while(!feof(file))
 	{
-		ch = fgetc(file);
-
 		if((-1) != (position = GetPosition(ch)))
 		{
 			letterArr[position] = ch;
 			countArr[position]++;
-		}		
+		}	
+
+		ch = fgetc(file);	
 	}
 
 	PrintResult(letterArr,countArr,52);
@@ -120,6 +122,23 @@ ErrCode CountChars(char *_fileName)
 }
 
 /* count all words */
+
+static ListWord* NewWord(char *_word, ListWord *_listWord)
+{
+	ListWord *newWord;
+
+	newWord = (ListWord *)malloc(sizeof(ListWord));
+	if(NULL == newWord)
+	{
+		return NULL;
+	}
+
+	strcpy(newWord->m_word,word);
+	newWord->m_next = _listWord;
+	newWord->m_count = 1;
+
+	return newWord;
+}
 
 static ListWord* CheckIfExist(char *_word, ListWord *_listWord)
 {
@@ -149,16 +168,7 @@ static ListWord* ScanFile(FILE *_file, ListWord *_listWord)
 
 		if(NULL == newWord)
 		{
-			newWord = (ListWord *)malloc(sizeof(ListWord));
-			if(NULL == newWord)
-			{
-				return NULL;
-			}
-
-			strcpy(newWord->m_word,word);
-			newWord->m_next = _listWord;
-			newWord->m_count = 1;
-			_listWord = newWord;
+			_listWord = NewWord(word, _listWord);
 		}
 		else
 		{
@@ -197,9 +207,8 @@ static void DestroyListR(ListWord *_listWord)
 
 ErrCode CountAllWords(char *_fileName)
 {
-	ListWord *listWord;
+	ListWord *listWord = NULL;
 	FILE *file;
-	char word[LENGTH];
 
 	file = fopen(_fileName, "r");
 	if(NULL == file)
@@ -207,22 +216,10 @@ ErrCode CountAllWords(char *_fileName)
 		return ERR_FAILED_TO_OPEN;
 	}
 
-	listWord = (ListWord *)malloc(sizeof(ListWord));
-
-	if(NULL == listWord)
-	{
-		return ERR_OVERFLOW;
-	}
-
 	if(feof(file))
 	{
-		return ERR_FILE_EMPTY;		
+		return ERR_FILE_EMPTY;
 	}
-
-	fscanf(file, "%s",word);
-	strcpy(listWord->m_word,word);
-	listWord->m_count = 1;
-	listWord->m_next = NULL;
 
 	listWord = ScanFile(file,listWord);
 

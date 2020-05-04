@@ -17,7 +17,7 @@ ErrCode Squeeze(char *_str1, const char *_str2);
 	Input: _str1 - the string to to be scanned, _str2 - the string to scan in _str1.
 	Return value: returns the position of the first occurence or -1 if _str1 doesn't contains _str2.
 */
-int Location(char *_str1, char *_str2);
+int Location(const char *_str1, const char *_str2);
 
 
 #endif

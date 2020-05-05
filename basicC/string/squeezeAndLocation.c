@@ -42,25 +42,7 @@ ErrCode Squeeze(char *_str1, const char *_str2)
 }
 
 /* LOCATION */
-/*
-static int IsExist(char *_str1, char *_str2, int _position, int _size)
-{
-	int i = 0, size2 = strlen(_str2);
 
-	while(i < size2 && '\n' != _str2[i] && _position < _size)
-	{
-		if(_str1[_position] != _str2[i])
-		{
-			return false;
-		}
-
-		++_position;
-		++i;
-	}
-	
-	return true;
-}
-*/
 static int FindPosition(const char *_str1, const char *_str2)
 {
 	int i = 0, size = strlen(_str1), size2 = strlen(_str2); 
@@ -77,6 +59,7 @@ static int FindPosition(const char *_str1, const char *_str2)
 			{
 				return i;
 			}
+			res[0] = '\0';
 		}
 
 		++i;

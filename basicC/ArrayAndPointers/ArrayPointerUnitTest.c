@@ -247,6 +247,7 @@ int main()
 	printf("\n%-40s %s \n", "TestLotto_NotValidDoubleVal: ", (SUCCEDD == res) ? "succedded" : "failed");
 
 	/*POS*/
+	printf("\nLotto card: \n");
 	FillArrayRand(arr,LOTTO_LENGTH);
 	PrintArray(arr,LOTTO_LENGTH);
 	Lotto(arr);

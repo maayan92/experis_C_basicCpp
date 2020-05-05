@@ -46,7 +46,7 @@ static int SearchElement(int *_arr, int _size, int _element)
 		{
 			return i;
 		}
-		else if(_element < _arr[i])
+		if(_element < _arr[i])
 		{
 			end = i-1;
 		}

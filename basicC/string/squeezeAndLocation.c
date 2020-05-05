@@ -8,6 +8,8 @@ enum
 	true
 };
 
+/* SQUEEZE */
+ 
 static void CatString(char *_str1, const char *_str2)
 {
 	char newStr[LENGTH] = "", *token;
@@ -39,6 +41,8 @@ ErrCode Squeeze(char *_str1, const char *_str2)
 	return SUCCEEDED;
 }
 
+/* LOCATION */
+/*
 static int IsExist(char *_str1, char *_str2, int _position, int _size)
 {
 	int i = 0, size2 = strlen(_str2);
@@ -56,17 +60,20 @@ static int IsExist(char *_str1, char *_str2, int _position, int _size)
 	
 	return true;
 }
-
-static int FindPosition(char *_str1, char *_str2)
+*/
+static int FindPosition(const char *_str1, const char *_str2)
 {
-	int i = 0, size = strlen(_str1);
+	int i = 0, size = strlen(_str1), size2 = strlen(_str2); 
+	char *res;
+	res = memchr(_str1,_str1[0],size);
 
 	while(i < size && '\n' != _str1[i])
 	{
+		
 		if(_str1[i] == _str2[0])
 		{
-			
-			if(IsExist(_str1,_str2,i,size))
+			res = memchr(res,_str2[0],size);
+			if(!strncmp(res,_str2,size2))
 			{
 				return i;
 			}
@@ -78,7 +85,7 @@ static int FindPosition(char *_str1, char *_str2)
 	return -1;
 }
 
-int Location(char *_str1, char *_str2)
+int Location(const char *_str1, const char *_str2)
 {
 
 	if(NULL == _str1 || NULL == _str2)
@@ -87,7 +94,6 @@ int Location(char *_str1, char *_str2)
 	}
 
 	return FindPosition(_str1, _str2);
-	
 }
 
 

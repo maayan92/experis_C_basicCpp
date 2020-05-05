@@ -204,6 +204,147 @@ Result TestCompress_NotValid()
 	return FAILED;
 }
 
+/* SET BITS INT */
+
+Result TestSetBitsInt_ValidOne()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,5,17,1);
+
+	if(262113 != afterSet)
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestSetBitsInt_ValidZero()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,5,17,0);
+
+	if(1 != afterSet)
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestSetBitsInt_NotValidSmallerTo()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,5,3,0);
+
+	if(beforeSet == afterSet)
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
+
+Result TestSetBitsInt_NotValidBiggerFrom()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,25,17,0);
+
+	if(beforeSet == afterSet)
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
+
+Result TestSetBitsInt_NotValidTo()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,5,32,0);
+
+	if(beforeSet == afterSet)
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
+
+Result TestSetBitsInt_NotValidFrom()
+{
+	unsigned int afterSet, beforeSet = 100001;
+
+	afterSet = SetBitsInt(beforeSet,33,17,0);
+
+	if(beforeSet == afterSet)
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
+
+/* COMPRESS STRING BIT FIELD */
+
+Result TestCompressBitF_ValidEvenSize()
+{
+	char str[] = "cjba";
+
+	if(SUCCEEDED != CompressBitF(str))
+	{
+		return FAILED;
+	}
+
+	if(':' != str[0])
+	{
+		return FAILED;
+	}
+	if('!' != str[1])
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestCompressBitF_ValidOddSize()
+{
+	char str[] = "bhg";
+
+	if(SUCCEEDED != CompressBitF(str))
+	{
+		return FAILED;
+	}
+
+	if('(' != str[0])
+	{
+		return FAILED;
+	}
+	if('p' != str[1])
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestCompressBitF_NotValid()
+{
+	char str[] = "abAcd";
+
+	if(ERR_ILLEGAL_INPUT == CompressBitF(str))
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
 
 int main()
 {
@@ -223,7 +364,6 @@ int main()
 	res = TestInvertBits_Valid();
 	printf("\n%-40s %s \n", "TestInvertBits_Valid: ", (SUCCEDD == res) ? "succedded" : "failed");
 
-	
 	/*Rotate bits*/
 	/*POS*/
 	res = TestRotateRightBits_Valid();
@@ -263,7 +403,40 @@ int main()
 	
 	/*NEG*/
 	res = TestCompress_NotValid();
-	printf("\n%-40s %s \n", "TestSetBits_N9P5: ", (SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s %s \n", "TestCompress_NotValid: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	/*Compress string*/
+	/*POS*/
+	res = TestSetBitsInt_ValidOne();
+	printf("\n%-40s %s \n", "TestSetBitsInt_ValidOne: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestSetBitsInt_ValidZero();
+	printf("\n%-40s %s \n", "TestSetBitsInt_ValidZero: ", (SUCCEDD == res) ? "succedded" : "failed");
+	
+	/*NEG*/
+	res = TestSetBitsInt_NotValidSmallerTo();
+	printf("\n%-40s %s \n", "TestSetBitsInt_NotValidSmallerTo: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestSetBitsInt_NotValidBiggerFrom();
+	printf("\n%-40s %s \n", "TestSetBitsInt_NotValidBiggerFrom: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestSetBitsInt_NotValidTo();
+	printf("\n%-40s %s \n", "TestSetBitsInt_NotValidTo: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestSetBitsInt_NotValidFrom();
+	printf("\n%-40s %s \n", "TestSetBitsInt_NotValidFrom: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	/*Compress string with bit field*/
+	/*POS*/
+	res = TestCompressBitF_ValidEvenSize();
+	printf("\n%-40s %s \n", "TestCompressBitF_ValidEvenSize: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestCompressBitF_ValidOddSize();
+	printf("\n%-40s %s \n", "TestCompressBitF_ValidOddSize: ", (SUCCEDD == res) ? "succedded" : "failed");
+	
+	/*NEG*/
+	res = TestCompressBitF_NotValid();
+	printf("\n%-40s %s \n", "TestCompressBitF_NotValid: ", (SUCCEDD == res) ? "succedded" : "failed");
 
 
 	return 0;

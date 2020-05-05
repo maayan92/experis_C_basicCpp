@@ -12,9 +12,9 @@ typedef enum
 
 Result TestSqueeze_Valid()
 {
-	char str1[LENGTH] = "Characters squeeze from string";
-	char str2[LENGTH] = "csa";
-	char res[LENGTH] = "Chrter queeze from tring";
+	char str1[] = "Characters squeeze from string";
+	char str2[] = "csa";
+	char res[] = "Chrter queeze from tring";
 
 	if(SUCCEEDED != Squeeze(str1,str2))
 	{
@@ -31,7 +31,7 @@ Result TestSqueeze_Valid()
 
 Result TestSqueeze_NULLfirstStr()
 {
-	char str[LENGTH] = "od";
+	char str[] = "od";
 
 	if(ERR_NOT_INITIALIZE == Squeeze(NULL,str))
 	{
@@ -43,7 +43,7 @@ Result TestSqueeze_NULLfirstStr()
 
 Result TestSqueeze_NULLsecondStr()
 {
-	char str[LENGTH] = "Characters squeeze from string";
+	char str[] = "Characters squeeze from string";
 
 	if(SUCCEEDED == Squeeze(str,NULL))
 	{
@@ -57,11 +57,13 @@ Result TestSqueeze_NULLsecondStr()
 
 Result TestLocation_Valid()
 {
-	char str1[LENGTH] = "string search in another string";
-	char str2[LENGTH] = "another";
+	char str1[] = "string search in another string";
+	char str2[] = "another";
+	int l;
 
-	if(17 != Location(str1,str2))
+	if(17 != (l = Location(str1,str2)))
 	{
+		printf("%d \n",l);
 		return FAILED;
 	}
 
@@ -70,8 +72,8 @@ Result TestLocation_Valid()
 
 Result TestLocation_NotExist()
 {
-	char str1[LENGTH] = "string search in another string";
-	char str2[LENGTH] = "anotherr";
+	char str1[] = "string search in another string";
+	char str2[] = "anotherr";
 
 	if(-1 == Location(str1,str2))
 	{
@@ -83,7 +85,7 @@ Result TestLocation_NotExist()
 
 Result TestLocation_NULLfirstStr()
 {
-	char str[LENGTH] = "another";
+	char str[] = "another";
 
 	if(-1 == Location(NULL,str))
 	{
@@ -95,7 +97,7 @@ Result TestLocation_NULLfirstStr()
 
 Result TestLocation_NULLsecondStr()
 {
-	char str[LENGTH] = "string search in another string";
+	char str[] = "string search in another string";
 
 	if(-1 == Location(str,NULL))
 	{

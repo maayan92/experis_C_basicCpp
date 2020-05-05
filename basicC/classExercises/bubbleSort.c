@@ -20,7 +20,8 @@ void Swap(int *_a, int *_b)
 
 void BubbleSort(int *_arr, int _size)
 {
-	int i, j, swapped = 1;
+	register int i, j;
+	int swapped = 1;
 
 	for(i = 0;i < _size-1 && swapped;++i)
 	{

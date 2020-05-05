@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "ArrayPointerExercise.h"
 
 #define LENGTH 10
-#define LOTTO_LENGTH 6
 
 typedef enum
 {
@@ -15,9 +15,9 @@ typedef enum
 
 Result TestBinarySearch_Valid()
 {
-	int arr[LENGTH] = {2,5,7,12,25,30,34,39,47,52};
+	int arr[] = {2,5,7,12,25,30,34,39,47,52};
 
-	if(4 != BinarySearch(arr,LENGTH,25))
+	if(4 != BinarySearch(arr,sizeof(arr)/sizeof(int),25))
 	{
 		return FAILED;
 	}
@@ -25,11 +25,35 @@ Result TestBinarySearch_Valid()
 	return SUCCEDD;
 }
 
+Result TestBinarySearch_ValidOne()
+{
+	int arr[] = {2};
+
+	if(0 != BinarySearch(arr,sizeof(arr)/sizeof(int),2))
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestBinarySearch_OneNotExist()
+{
+	int arr[] = {2};
+
+	if(-1 == BinarySearch(arr,sizeof(arr)/sizeof(int),25))
+	{
+		return SUCCEDD;
+	}
+
+	return FAILED;
+}
+
 Result TestBinarySearch_NotExistBig()
 {
-	int arr[LENGTH] = {2,5,7,12,25,30,34,39,47,52};
+	int arr[] = {2,5,7,12,25,30,34,39,47,52};
 
-	if(-1 == BinarySearch(arr,LENGTH,55))
+	if(-1 == BinarySearch(arr,sizeof(arr)/sizeof(int),55))
 	{
 		return SUCCEDD;
 	}
@@ -39,9 +63,9 @@ Result TestBinarySearch_NotExistBig()
 
 Result TestBinarySearch_NotExistSmall()
 {
-	int arr[LENGTH] = {2,5,7,12,25,30,34,39,47,52};
+	int arr[] = {2,5,7,12,25,30,34,39,47,52};
 
-	if(-1 == BinarySearch(arr,LENGTH,0))
+	if(-1 == BinarySearch(arr,sizeof(arr)/sizeof(int),0))
 	{
 		return SUCCEDD;
 	}
@@ -51,9 +75,9 @@ Result TestBinarySearch_NotExistSmall()
 
 Result TestBinarySearch_NotExistMiddle()
 {
-	int arr[LENGTH] = {2,5,7,12,25,30,34,39,47,52};
+	int arr[] = {2,5,7,12,25,30,34,39,47,52};
 
-	if(-1 == BinarySearch(arr,LENGTH,32))
+	if(-1 == BinarySearch(arr,sizeof(arr)/sizeof(int),32))
 	{
 		return SUCCEDD;
 	}
@@ -63,7 +87,7 @@ Result TestBinarySearch_NotExistMiddle()
 
 Result TestBinarySearch_NULLArray()
 {
-	
+
 	if(-1 == BinarySearch(NULL,LENGTH,32))
 	{
 		return SUCCEDD;
@@ -86,13 +110,34 @@ static void PrintArray(int *_arr, int _size)
 	printf("\n");
 }
 
-static void FillArrayRand(int *_arr, int _size)
+static int IsExist(int *_arr, int _size, int _element)
 {
 	int i;
 
 	for(i = 0;i < _size;++i)
 	{
-		_arr[i] = rand()%50;
+		if(_arr[i] == _element)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static void FillArrayRand(int *_arr, int _size)
+{
+	int i = 0, temp;
+	time_t t;
+	srand((unsigned)time(&t));
+
+	while(i < _size)
+	{
+		if(!IsExist(_arr,_size,(temp = 1 + rand()%50)))
+		{
+			_arr[i] = temp;
+			++i;
+		}
 	}
 }
 
@@ -164,8 +209,14 @@ int main()
 	/*POS*/
 	res = TestBinarySearch_Valid();
 	printf("\n%-40s %s \n", "TestBinarySearch_Valid: ", (SUCCEDD == res) ? "succedded" : "failed");
+
+	res = TestBinarySearch_ValidOne();
+	printf("\n%-40s %s \n", "TestBinarySearch_ValidOne: ", (SUCCEDD == res) ? "succedded" : "failed");
 	
 	/*NEG*/
+	res = TestBinarySearch_OneNotExist();
+	printf("\n%-40s %s \n", "TestBinarySearch_OneNotExist: ", (SUCCEDD == res) ? "succedded" : "failed");
+
 	res = TestBinarySearch_NotExistBig();
 	printf("\n%-40s %s \n", "TestBinarySearch_NotExistBig: ", (SUCCEDD == res) ? "succedded" : "failed");
 	

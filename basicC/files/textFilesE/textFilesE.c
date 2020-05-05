@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include "textFilesE.h"
 
+#define LINE_LENGTH 50
+
+#define IS_NOT_EXIST(_listWord) (NULL == _listWord || (*_listWord).m_MagicNumber != MAGIC_NUMBER)
+
 typedef struct ListWord
 {
+	size_t m_MagicNumber;
 	char m_word[LENGTH];
 	int m_count;
 	struct ListWord *m_next;
@@ -73,7 +78,6 @@ static int GetPosition(char _ch)
 	}
 	
 	return -1;
-
 }
 
 static void PrintResult(char *_letterArr, int *_countArr, int _size)
@@ -89,33 +93,51 @@ static void PrintResult(char *_letterArr, int *_countArr, int _size)
 	}
 }
 
+static void CheckLineChars(char *_ch,char *_letterArr, int *_countArr)
+{
+	int position, i, size = strlen(_ch);
+
+	for(i = 0;i < size;++i)
+	{
+		if((-1) != (position = GetPosition(_ch[i])))
+		{
+			_letterArr[position] = _ch[i];
+			_countArr[position]++;
+		}	
+	}
+
+}
+
+static void ScanFileChars(FILE *file)
+{
+	char letterArr[52], ch[LINE_LENGTH];
+	int countArr[52] = {0};
+	
+	fgets(ch,LINE_LENGTH,file);
+
+	while(!feof(file))
+	{
+		CheckLineChars(ch,letterArr,countArr);
+		
+		fgets(ch,LINE_LENGTH,file);
+	}
+
+	PrintResult(letterArr,countArr,52);
+
+}
+
 ErrCode CountChars(char *_fileName)
 {
 	FILE *file;
-	char letterArr[52], ch;
-	int countArr[52] = {0}, position;
-
+	
 	file = fopen(_fileName,"r");
 	if(NULL == file)
 	{
 		return ERR_FAILED_TO_OPEN;
 	}
 
-	ch = fgetc(file);
-
-	while(!feof(file))
-	{
-		if((-1) != (position = GetPosition(ch)))
-		{
-			letterArr[position] = ch;
-			countArr[position]++;
-		}	
-
-		ch = fgetc(file);	
-	}
-
-	PrintResult(letterArr,countArr,52);
-
+	ScanFileChars(file);
+	
 	fclose(file);
 
 	return SUCCEEDED;
@@ -123,26 +145,9 @@ ErrCode CountChars(char *_fileName)
 
 /* count all words */
 
-static ListWord* NewWord(char *_word, ListWord *_listWord)
-{
-	ListWord *newWord;
-
-	newWord = (ListWord *)malloc(sizeof(ListWord));
-	if(NULL == newWord)
-	{
-		return NULL;
-	}
-
-	strcpy(newWord->m_word,word);
-	newWord->m_next = _listWord;
-	newWord->m_count = 1;
-
-	return newWord;
-}
-
 static ListWord* CheckIfExist(char *_word, ListWord *_listWord)
 {
-	while(_listWord)
+	while(_listWord && (0 >= strcmp(_listWord->m_word,_word)))
 	{
 		if(!strcmp(_listWord->m_word,_word))
 		{
@@ -155,6 +160,63 @@ static ListWord* CheckIfExist(char *_word, ListWord *_listWord)
 	return NULL;
 }
 
+static ListWord* SetAtPosition(ListWord *_listWord, ListWord *_newWord)
+{
+	ListWord *temp = _listWord;
+
+	if(IS_NOT_EXIST(_listWord) || (0 < strcmp(_listWord->m_word,_newWord->m_word)))
+	{
+		_newWord->m_next = _listWord;
+		return _newWord;
+	}
+
+	while(!IS_NOT_EXIST(temp->m_next) && (0 > strcmp(temp->m_next->m_word,_newWord->m_word)))
+	{
+		temp = temp->m_next;
+	}
+
+	if(!IS_NOT_EXIST(temp->m_next))
+	{
+		_newWord->m_next = temp->m_next;
+	}
+	
+	temp->m_next = _newWord; 
+
+	return _listWord;
+}
+
+static ListWord* CreateNewWord(char *_word, ListWord *_listWord)
+{
+	ListWord *newWord;
+
+	newWord = (ListWord *)malloc(sizeof(ListWord));
+	if(NULL == newWord)
+	{
+		return NULL;
+	}
+
+	strcpy(newWord->m_word,_word);
+	newWord->m_next = NULL;
+	newWord->m_count = 1;
+	newWord->m_MagicNumber = MAGIC_NUMBER;
+
+	return SetAtPosition(_listWord,newWord);
+}
+
+static void DestroyListR(ListWord *_listWord)
+{
+	if(IS_NOT_EXIST(_listWord))
+	{
+		return;
+	}
+
+	DestroyListR(_listWord->m_next);
+
+	_listWord->m_MagicNumber = NO_MAGIC_NUMBER;
+	free(_listWord);
+	
+}
+
 static ListWord* ScanFile(FILE *_file, ListWord *_listWord)
 {
 	ListWord *newWord;
@@ -165,10 +227,13 @@ static ListWord* ScanFile(FILE *_file, ListWord *_listWord)
 		fscanf(_file, "%s",word);
 
 		newWord = CheckIfExist(word, _listWord);
-
 		if(NULL == newWord)
 		{
-			_listWord = NewWord(word, _listWord);
+			_listWord = CreateNewWord(word, _listWord);
+			if(NULL == _listWord)
+			{
+				return NULL;
+			}
 		}
 		else
 		{
@@ -183,7 +248,7 @@ static ListWord* ScanFile(FILE *_file, ListWord *_listWord)
 
 static void PrintListR(ListWord *_listWord)
 {
-	if(NULL == _listWord)
+	if(IS_NOT_EXIST(_listWord))
 	{
 		return;
 	}
@@ -191,18 +256,6 @@ static void PrintListR(ListWord *_listWord)
 	printf("%-10s \t %d \n", _listWord->m_word, _listWord->m_count);
 
 	PrintListR(_listWord->m_next);
-}
-
-static void DestroyListR(ListWord *_listWord)
-{
-	if(NULL == _listWord)
-	{
-		return;
-	}
-
-	DestroyListR(_listWord->m_next);
-
-	free(_listWord);
 }
 
 ErrCode CountAllWords(char *_fileName)
@@ -223,7 +276,7 @@ ErrCode CountAllWords(char *_fileName)
 
 	listWord = ScanFile(file,listWord);
 
-	if(NULL == listWord)
+	if(IS_NOT_EXIST(listWord))
 	{
 		return ERR_OVERFLOW;
 	}
@@ -234,14 +287,5 @@ ErrCode CountAllWords(char *_fileName)
 
 	return SUCCEEDED; 
 }
-
-
-
-
-
-
-
-
-
 
 

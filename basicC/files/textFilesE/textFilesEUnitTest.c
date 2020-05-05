@@ -141,42 +141,42 @@ int main()
 	/*Count word*/
 	/*POS*/
 	res = TestCountWordValid_SmallFile();
-	printf("\nTestCountWordValid_SmallFile: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountWordValid_SmallFile:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestCountWordValid_BigFile();
-	printf("\nTestCountWordValid_SmallFile: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountWordValid_SmallFile:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	/*NEG*/
 	res = TestCountWord_FileNameNValid();
-	printf("\nTestCountWord_FileNameNValid: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountWord_FileNameNValid:",(SUCCEDD == res) ? "succedded" : "failed");
 	
 	res = TestCountWordNULL();
-	printf("\nTestCountWordNULL: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountWordNULL:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestCountWordNotExist();
-	printf("\nTestCountWordNotExist: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountWordNotExist:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	/*Count all chars*/
 	/*NEG*/
 	res = TestCountChar_FileNameNValid();
-	printf("\nTestCountWord_FileNameNValid: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountChar_FileNameNValid:",(SUCCEDD == res) ? "succedded" : "failed");
 	
 	res = TestCountCharNULL();
-	printf("\nTestCountWordNULL: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountCharNULL:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestCountCharNotExist();
-	printf("\nTestCountWordNotExist: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountCharNotExist:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	/*Count all words*/
 	/*NEG*/
 	res = TestCountAllWords_FileNameNValid();
-	printf("\nTestCountWord_FileNameNValid: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountAllWords_FileNameNValid:",(SUCCEDD == res) ? "succedded" : "failed");
 	
 	res = TestCountAllWordsNULL();
-	printf("\nTestCountWordNULL: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountAllWordsNULL:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	res = TestCountAllWordsNotExist();
-	printf("\nTestCountWordNotExist: \t %s \n",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n %-40s %s \n", "TestCountAllWordsNotExist:",(SUCCEDD == res) ? "succedded" : "failed");
 
 	/*Count all chars*/
 	/*POS*/

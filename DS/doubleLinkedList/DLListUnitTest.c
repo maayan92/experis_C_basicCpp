@@ -581,107 +581,68 @@ int main()
 	
 	/*Create list*/
 	/*POS*/
-	res = TestDLListCreate();
-	printf("\n%-40s \t %s \n", "TestDLListCreate:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListCreate:",(SUCCEDD == TestDLListCreate()) ? "succedded" : "failed");
 
 	/*Destroy list*/
 	/*POS*/
-	res = TestDLListDestroy();
-	printf("\n%-40s \t %s \n", "TestDLListDestroy:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListDestroy:",(SUCCEDD == TestDLListDestroy()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListDestroyNULL();
-	printf("\n%-40s \t %s \n" ,"TestDLListDestroyNULL:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListDoubleDestroy();
-	printf("\n%-40s \t %s \n", "TestDLListDoubleDestroy:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListDestroyNULL:",(SUCCEDD == TestDLListDestroyNULL()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListDoubleDestroy:",(SUCCEDD == TestDLListDoubleDestroy()) ? "succedded" : "failed");
 
 	/*Insert head*/
 	/*POS*/
-	res = TestDLListPushHeadValidOne();
-	printf("\n%-40s \t %s \n", "TestDLListPushHeadValidOne:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPushHeadValid();
-	printf("\n%-40s \t %s \n", "TestDLListPushHeadValid:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPushHeadValidOne:",(SUCCEDD == TestDLListPushHeadValidOne()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPushHeadValid:",(SUCCEDD == TestDLListPushHeadValid()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListPushHead_NULLList();
-	printf("\n%-40s \t %s \n", "TestDLListPushHead_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPushHead_NULLList:",(SUCCEDD == TestDLListPushHead_NULLList()) ? "succedded" : "failed");
 
 	/*Insert tail*/
 	/*POS*/
-	res = TestDLListPushTailValidOne();
-	printf("\n%-40s \t %s \n", "TestDLListPushTailValidOne:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPushTailValid();
-	printf("\n%-40s \t %s \n" ,"TestDLListPushTailValid:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPushTailValidOne:",(SUCCEDD == TestDLListPushTailValidOne()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPushTailValid:",(SUCCEDD == TestDLListPushTailValid()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListPushTail_NULLList();
-	printf("\n%-40s \t %s \n", "TestDLListPushTail_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPushTail_NULLList:",(SUCCEDD == TestDLListPushTail_NULLList()) ? "succedded" : "failed");
 
 	/*Remove head*/
 	/*POS*/
-	res = TestDLListPopHeadValidOne();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopHeadValidOne:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopHeadValid();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopHeadValid:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopHeadValidOne:",(SUCCEDD == TestDLListPopHeadValidOne()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopHeadValid:",(SUCCEDD == TestDLListPopHeadValid()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListPopHead_NULLList();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopHead_EmptyList();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_EmptyList:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopHead_NULLPointer();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_NULLPointer:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_NULLList:",(SUCCEDD == TestDLListPopHead_NULLList()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_EmptyList:",(SUCCEDD == TestDLListPopHead_EmptyList()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopHead_NULLPointer:",(SUCCEDD == TestDLListPopHead_NULLPointer()) ? "succedded" : "failed");
 
 	/*Remove tail*/
 	/*POS*/
-	res = TestDLListPopTailValidOne();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopTailValidOne:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopTailValid();
-	printf("\n%-40s \t %s \n" ,"TestDLListPopTailValid:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopTailValidOne:",(SUCCEDD == TestDLListPopTailValidOne()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestDLListPopTailValid:",(SUCCEDD == TestDLListPopTailValid()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListPopTail_NULLList();
-	printf("\n%-40s \t %s \n", "TestDLListPopTail_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopTail_EmptyList();
-	printf("\n%-40s \t %s \n", "TestDLListPopTail_EmptyList:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListPopTail_NULLPointer();
-	printf("\n%-40s \t %s \n", "TestDLListPopTail_NULLPointer:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPopTail_NULLList:",(SUCCEDD == TestDLListPopTail_NULLList()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPopTail_EmptyList:",(SUCCEDD == TestDLListPopTail_EmptyList()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListPopTail_NULLPointer:",(SUCCEDD == TestDLListPopTail_NULLPointer()) ? "succedded" : "failed");
 
 	/*Count list*/
 	/*POS*/
-	res = TestDLListCountItems();
-	printf("\n%-40s \t %s \n", "TestDLListCountItems:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListCountItems0();
-	printf("\n%-40s \t %s \n", "TestDLListCountItems0:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListCountItems:",(SUCCEDD == TestDLListCountItems()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListCountItems0:",(SUCCEDD == TestDLListCountItems0()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListCountItems_NULLList();
-	printf("\n%-40s \t %s \n", "TestDLListCountItems_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListCountItems_NULLList:",(SUCCEDD == TestDLListCountItems_NULLList()) ? "succedded" : "failed");
 
 	/*Is empty*/
 	/*POS*/
-	res = TestDLListIsEmpty0();
-	printf("\n%-40s \t %s \n", "TestDLListIsEmpty0:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListIsEmptyN();
-	printf("\n%-40s \t %s \n", "TestDLListIsEmptyN:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestDLListIsEmpty_InsertRemove();
-	printf("\n%-40s \t %s \n", "TestDLListIsEmpty_InsertRemove:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListIsEmpty0:",(SUCCEDD == TestDLListIsEmpty0()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListIsEmptyN:",(SUCCEDD == TestDLListIsEmptyN()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListIsEmpty_InsertRemove:",(SUCCEDD == TestDLListIsEmpty_InsertRemove()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestDLListIsEmpty_NULLList();
-	printf("\n%-40s \t %s \n", "TestDLListIsEmpty_NULLList:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestDLListIsEmpty_NULLList:",(SUCCEDD == TestDLListIsEmpty_NULLList()) ? "succedded" : "failed");
 
 	return 0;
 }

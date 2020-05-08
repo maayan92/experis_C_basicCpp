@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "doubleLinkedList.h"
 
-#define IS_NOT_EXIST(_list) (NULL == _list || _list->m_magicNumber != MAGIC_NUMBER)
+#define DLL_MAGIC_NUMBER 0xbeefbeea
+#define IS_NOT_EXIST(_list) (NULL == _list || _list->m_magicNumber != DLL_MAGIC_NUMBER)
 
 typedef struct Node
 {
@@ -18,24 +19,6 @@ struct DoubleLinkedList
 	Node m_tail;	
 };
 
-List* DLListCreate()
-{
-	List *list = (List *)malloc(sizeof(List));
-
-	if(NULL == list)
-	{
-		return NULL;
-	}
-
-	(list->m_head).m_prev = NULL;
-	(list->m_head).m_next = &(list->m_tail);
-	(list->m_tail).m_prev = &(list->m_head);
-	(list->m_tail).m_next = NULL;
-	list->m_magicNumber = MAGIC_NUMBER;
-
-	return list;
-}
-
 static void DestroyNode(Node *_node)
 {
 	if(NULL != _node)
@@ -44,23 +27,6 @@ static void DestroyNode(Node *_node)
 		_node = NULL;
 	}
 } 
-
-void DLListDestroy(List* _list)
-{
-	if(IS_NOT_EXIST(_list))
-	{
-		return;
-	}
-	
-	while(_list->m_head.m_next != &(_list->m_tail))
-	{
-		DestroyNode((_list->m_head).m_next);
-		_list->m_head = *((_list->m_head).m_next);
-	}
-
-	_list->m_magicNumber = NO_MAGIC_NUMBER;
-	free(_list);
-}
 
 static ErrCode AddData(List* _list, Node *_node, int _data)
 {
@@ -83,6 +49,76 @@ static ErrCode AddData(List* _list, Node *_node, int _data)
 	return SUCCEEDED;
 }
 
+static size_t CountItemsR(Node *_node)
+{
+	if(NULL == _node->m_next)
+	{
+		return 0;
+	}
+
+	return CountItemsR(_node->m_next)+1;
+}
+
+static void PrintNodesR(Node *_node)
+{
+	if(NULL == _node->m_next)
+	{
+		return;
+	} 	
+
+	printf("%d ", _node->m_data);
+
+	PrintNodesR(_node->m_next);
+}
+
+static void RemoveData(List* _list, Node *_node, int *_data)
+{
+	Node *temp;
+
+	*_data = _node->m_next->m_data;
+	temp = _node->m_next;
+	_node->m_next = _node->m_next->m_next;
+	_node->m_next->m_prev = _node;
+
+	DestroyNode(temp);
+	temp = NULL;
+}
+
+List* DLListCreate()
+{
+	List *list = (List *)malloc(sizeof(List));
+
+	if(NULL == list)
+	{
+		return NULL;
+	}
+
+	(list->m_head).m_prev = NULL;
+	(list->m_head).m_next = &(list->m_tail);
+	(list->m_tail).m_prev = &(list->m_head);
+	(list->m_tail).m_next = NULL;
+	list->m_magicNumber = DLL_MAGIC_NUMBER;
+
+	return list;
+}
+
+void DLListDestroy(List* _list)
+{
+	if(IS_NOT_EXIST(_list))
+	{
+		return;
+	}
+	
+	while(_list->m_head.m_next != &(_list->m_tail))
+	{
+		DestroyNode((_list->m_head).m_next);
+		_list->m_head = *((_list->m_head).m_next);
+	}
+
+	_list->m_magicNumber = 0;
+	free(_list);
+}
+
 ErrCode DLListPushHead(List* _list, int _data)
 {
 	if(IS_NOT_EXIST(_list))
@@ -101,19 +137,6 @@ ErrCode DLListPushTail(List* _list, int _data)
 	}
 
 	return AddData(_list,_list->m_tail.m_prev,_data);
-}
-
-void RemoveData(List* _list, Node *_node, int *_data)
-{
-	Node *temp;
-
-	*_data = _node->m_next->m_data;
-	temp = _node->m_next;
-	_node->m_next = _node->m_next->m_next;
-	_node->m_next->m_prev = _node;
-
-	DestroyNode(temp);
-	temp = NULL;
 }
 
 ErrCode DLListPopHead(List* _list, int *_data)
@@ -152,16 +175,6 @@ ErrCode DLListPopTail(List* _list, int *_data)
 	return SUCCEEDED;
 }
 
-static size_t CountItemsR(Node *_node)
-{
-	if(NULL == _node->m_next)
-	{
-		return 0;
-	}
-
-	return CountItemsR(_node->m_next)+1;
-}
-
 size_t DLListCountItems(List* _list)
 {
 	if(IS_NOT_EXIST(_list))
@@ -180,18 +193,6 @@ int DLListIsEmpty(List* _list)
 	}
 	
 	return (&(_list->m_tail) == _list->m_head.m_next);
-}
-
-static void PrintNodesR(Node *_node)
-{
-	if(NULL == _node->m_next)
-	{
-		return;
-	} 	
-
-	printf("%d ", _node->m_data);
-
-	PrintNodesR(_node->m_next);
 }
 
 void DLListPrint(List *_list)

@@ -1,16 +1,29 @@
 #include <stdio.h>
 #include "binaryTree.h"
 
-#define SIZE 7
-
 typedef enum
 {
 	SUCCEDD,
 	FAILED
 }Result;
 
-/* CREATE TREE */
+static Result FillArr(Tree *_tree, int *_arr, int _size)
+{
+	int i;
+	ErrCode err;
 
+	for(i = 0;i < _size;++i)
+	{
+		err = TreeInsert(_tree,_arr[i]);
+		if(ERR_NOT_INITIALIZE == err || ERR_OVERFLOW == err)
+		{
+			return FAILED;
+		}
+	}
+	return SUCCEDD;
+}
+
+/* CREATE TREE */
 Result TestTreeCreate()
 {
 	Tree *tree = TreeCreate();
@@ -18,13 +31,32 @@ Result TestTreeCreate()
 	{
 		return FAILED;
 	}
-
 	return SUCCEDD;
 }
 
 /* DESTROY TREE */
 
 Result TestTreeDestroy()
+{
+	int arr[] = {5,9,3,1,4,11,8};
+
+	Tree *tree = TreeCreate();
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+
+	if(FAILED == FillArr(tree,arr,7))
+	{
+		TreeDestroy(tree);
+		return FAILED;
+	}		
+
+	TreeDestroy(tree);
+	return SUCCEDD;
+}
+
+Result TestTreeDestroy_Empty()
 {
 	Tree *tree = TreeCreate();
 	if(NULL == tree)
@@ -49,7 +81,6 @@ Result TestTreeDoubleDestroy()
 	{
 		return FAILED;
 	}
-
 	TreeDestroy(tree);
 	TreeDestroy(tree);
 	return SUCCEDD;
@@ -57,35 +88,20 @@ Result TestTreeDoubleDestroy()
 
 /* INSERT DATA */
 
-static Result FillArr(Tree *_tree)
-{
-	int arr[] = {3,5,4,9,1,7,2}, i;
-
-	for(i = 0;i < SIZE;++i)
-	{
-		if(SUCCEEDED != TreeInsert(_tree,arr[i]))
-		{
-			return FAILED;
-		}
-	}
-
-	return SUCCEDD;
-}
-
 Result TestTreeInsert_Valid()
 {
+	int arr[] = {5,9,3,1,4,11,8};
+
 	Tree *tree = TreeCreate();
 	if(NULL == tree)
 	{
 		return FAILED;
 	}
-
-	if(FAILED == FillArr(tree))
+	if(FAILED == FillArr(tree,arr,7))
 	{
 		TreeDestroy(tree);
 		return FAILED;
 	}
-
 	
 	TreeDestroy(tree);
 	return SUCCEDD;
@@ -93,19 +109,20 @@ Result TestTreeInsert_Valid()
 
 Result TestTreeInsert_Duplicate()
 {
+	int arr[] = {5,9,3,1,4,11,8};
+
 	Tree *tree = TreeCreate();	
 	if(NULL == tree)
 	{
 		return FAILED;
 	}
-
-	if(FAILED == FillArr(tree))
+	if(FAILED == FillArr(tree,arr,7))
 	{
 		TreeDestroy(tree);
 		return FAILED;
 	}
 	
-	if(ERR_ILLEGAL_INPUT == TreeInsert(tree,2))
+	if(ERR_ILLEGAL_INPUT == TreeInsert(tree,9))
 	{
 		TreeDestroy(tree);
 		return SUCCEDD;
@@ -129,18 +146,18 @@ Result TestTreeInsert_NULL()
 
 Result TestTreeIsDataFound_Exist()
 {
+	int arr[] = {5,9,3,1,4,11,8};
+
 	Tree *tree = TreeCreate();
 	if(NULL == tree)
 	{
 		return FAILED;
 	}
-
-	if(FAILED == FillArr(tree))
+	if(FAILED == FillArr(tree,arr,7))
 	{
 		TreeDestroy(tree);
 		return FAILED;
 	}
-
 	if(!TreeIsDataFound(tree,1))
 	{
 		TreeDestroy(tree);
@@ -153,13 +170,14 @@ Result TestTreeIsDataFound_Exist()
 
 Result TestTreeIsDataFound_NotExist()
 {
+	int arr[] = {5,9,3,1,4,11,8};
+
 	Tree *tree = TreeCreate();	
 	if(NULL == tree)
 	{
 		return FAILED;
 	}
-
-	if(FAILED == FillArr(tree))
+	if(FAILED == FillArr(tree,arr,7))
 	{
 		TreeDestroy(tree);
 		return FAILED;
@@ -175,61 +193,113 @@ Result TestTreeIsDataFound_NotExist()
 	return FAILED;
 }
 
+Result TestTreeIsDataFound_Empty()
+{
+	Tree *tree = TreeCreate();	
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+
+	if(!TreeIsDataFound(tree,2))
+	{
+		return SUCCEDD;
+	}
+	return FAILED;
+}
+
+
 Result TestTreeIsDataFound_NULL()
 {
 	if(!TreeIsDataFound(NULL,2))
 	{
 		return SUCCEDD;
 	}
-
 	return FAILED;
 }
 
 int main()
 {
-	Result res;
+	Tree *tree1, *tree2 ;
+	int arr1[] = {5,9,3,1,4,11,8};
+	int arr2[] = {5,9,3,2,4,11,7,6,8};
 	
 	/*Create tree*/
 	/*POS*/
-	res = TestTreeCreate();
-	printf("\n%-40s \t %s \n", "TestTreeCreate:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeCreate:",(SUCCEDD == TestTreeCreate()) ? "succedded" : "failed");
 
 	/*Destroy tree*/
 	/*POS*/
-	res = TestTreeDestroy();
-	printf("\n%-40s \t %s \n", "TestTreeDestroy:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeDestroy:",(SUCCEDD == TestTreeDestroy()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeDestroy_Empty:",(SUCCEDD == TestTreeDestroy_Empty()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestTreeDestroyNULL();
-	printf("\n%-40s \t %s \n" ,"TestTreeDestroyNULL:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestTreeDoubleDestroy();
-	printf("\n%-40s \t %s \n", "TestTreeDoubleDestroy:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestTreeDestroyNULL:",(SUCCEDD == TestTreeDestroyNULL()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeDoubleDestroy:",(SUCCEDD == TestTreeDoubleDestroy()) ? "succedded" : "failed");
 
 	/*Insert data*/
 	/*POS*/
-	res = TestTreeInsert_Valid();
-	printf("\n%-40s \t %s \n", "TestTreeInsert_Valid:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeInsert_Valid:",(SUCCEDD == TestTreeInsert_Valid()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestTreeInsert_Duplicate();
-	printf("\n%-40s \t %s \n", "TestTreeInsert_Duplicate:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestTreeInsert_NULL();
-	printf("\n%-40s \t %s \n", "TestTreeInsert_NULL:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeInsert_Duplicate:",(SUCCEDD == TestTreeInsert_Duplicate()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeInsert_NULL:",(SUCCEDD == TestTreeInsert_NULL()) ? "succedded" : "failed");
 
 	/*found data*/
 	/*POS*/
-	res = TestTreeIsDataFound_Exist();
-	printf("\n%-40s \t %s \n", "TestTreeIsDataFound_Exist:",(SUCCEDD == res) ? "succedded" : "failed");
-
-	res = TestTreeIsDataFound_NotExist();
-	printf("\n%-40s \t %s \n" ,"TestTreeIsDataFound_NotExist:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeIsDataFound_Exist:",(SUCCEDD == TestTreeIsDataFound_Exist()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n" ,"TestTreeIsDataFound_NotExist:",(SUCCEDD == TestTreeIsDataFound_NotExist()) ? "succedded" : "failed");
 
 	/*NEG*/
-	res = TestTreeInsert_NULL();
-	printf("\n%-40s \t %s \n", "TestTreeInsert_NULL:",(SUCCEDD == res) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeIsDataFound_Empty:",(SUCCEDD == TestTreeIsDataFound_Empty()) ? "succedded" : "failed");
+	printf("\n%-40s \t %s \n", "TestTreeInsert_NULL:",(SUCCEDD == TestTreeInsert_NULL()) ? "succedded" : "failed");
 
+	/*Print*/
+	tree1 = TreeCreate();	
+	if(NULL == tree1)
+	{
+		return FAILED;
+	}
+	tree2 = TreeCreate();	
+	if(NULL == tree2)
+	{
+		return FAILED;
+	}
+
+	printf("\ntree level -> %d \n",TreeLevel(tree1));
+	printf("is full -> %d \n",IsFullTree(tree1));
+	printf("is similar -> %d \n",AreSimilar(tree1,tree2));
+
+	if(SUCCEDD == FillArr(tree1,arr1,7))
+	{
+		TreePrint(tree1,PRE_ORDER);
+		TreePrint(tree1,IN_ORDER);
+		TreePrint(tree1,POST_ORDER);
+	}
+	
+	printf("\nis similar -> %d \n",AreSimilar(tree1,tree2));
+
+	if(SUCCEDD == FillArr(tree2,arr2,9))
+	{
+		TreePrint(tree2,PRE_ORDER);
+		TreePrint(tree2,IN_ORDER);
+		TreePrint(tree2,POST_ORDER);	
+	}
+
+	printf("\ntree level -> %d \n",TreeLevel(tree1));
+	printf("is full -> %d \n",IsFullTree(tree1));
+	printf("is similar -> %d \n",AreSimilar(tree1,tree2));
+	printf("is perfect tree1 -> %d \n",IsPerfectTree(tree1));
+	printf("is perfect tree2 -> %d \n",IsPerfectTree(tree2));
 
 	return 0;
 }
+
+
+
+
+
+
+
+
+

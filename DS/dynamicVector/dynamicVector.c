@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include "dynamicVector.h"
 
-#define IS_NOT_EXIST(_que) (NULL == _que || (*_que).m_MagicNumber != MAGIC_NUMBER)
+#define VEC_MAGIC_NUMBER 0xbeefbeee
+
+#define IS_NOT_EXIST(_que) (NULL == _que || (*_que).m_MagicNumber != VEC_MAGIC_NUMBER)
 
 struct Vector
 {
@@ -48,7 +50,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize)
 	vector->m_arrSize = _initialSize+1;
 	vector->m_numOfElements = 0;
 	vector->m_blockSize = _blockSize;
-	vector->m_MagicNumber = MAGIC_NUMBER;
+	vector->m_MagicNumber = VEC_MAGIC_NUMBER;
 
 	return vector;
 }
@@ -59,7 +61,7 @@ void VectorDestroy(Vector* _vec)
 {
 	if(!IS_NOT_EXIST(_vec))
 	{
-		_vec->m_MagicNumber = NO_MAGIC_NUMBER;
+		_vec->m_MagicNumber = 0;
 
 		free(_vec->m_vectorArray);
 

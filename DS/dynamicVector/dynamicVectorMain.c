@@ -295,7 +295,7 @@ int main()
 
 			case GET_DATA:
 
-				printf("Please insert data position to remove:");
+				printf("Please insert data position to get:");
 				scanf("%d",&position);
 				
 				err = VectorGet(vector,position,&getNewData);

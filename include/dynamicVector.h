@@ -9,7 +9,7 @@ typedef struct Vector Vector;
 
 
 /*
-	Description: create dynamic struct Vector, and inside dynamic vector array (int array).
+	Description: create dynamic struct Vector.
 	Input: _initialSize - initial size of vector array, _blockSize - block size to increase the vector array when it's full, both should to be positive.
 	Return value: return pointer to allocated Vector, or NULL in case it fails.
 */
@@ -17,7 +17,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize);
 
 
 /*
-	Description: destroy the Vector, and the vector array, after calling this function the Vector pointer should be reset with NULL.
+	Description: destroy the Vector, after calling this function the Vector pointer should be reset with NULL.
 	Input: _vec - dynamic struct Vector pointer.
 	Return value: nothing returns.
 */
@@ -51,7 +51,7 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, int _data);
 /*
 	Description: remove data from a specific position in the vector array, resize (reduces the size) the vector array in case there is too much empty space.
 	Input: _vec - dynamic struct Vector pointer, _indx - the position where the data would be removed from , _data - pointer to the data that would be removed.
-	Return value: return error code, ERR_NOT_INITIALIZE - if the _vec is NULL or if the vector array is empty, ERR_FAILED - if the realloc fails,
+	Return value: return error code, ERR_NOT_INITIALIZE - if the _vec is NULL or if the vector array is empty,
 					ERR_ILLEGAL_INPUT - if the _indx is 0 or bigger than the array size, SUCCEEDED - on success.
 */
 ErrCode VectorGet(Vector* _vec, size_t _indx, int* _data);

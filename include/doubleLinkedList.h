@@ -1,7 +1,6 @@
 #ifndef _DLLIST_H
 #define _DLLIST_H
 
-#include <stdio.h>
 #include "ADTErrors.h"
 
 typedef struct DoubleLinkedList List;
@@ -52,7 +51,7 @@ ErrCode DLListPopHead(List* _list, int *_data);
 ErrCode DLListPopTail(List* _list, int *_data);
 
 /*
-	Description: count the number of data in the list.
+	Description: count the number of data in the list, O(n).
 	Input: _list - pointer to the list. 
 	Return value: return the number of data in the list, 0 if there is no data or if the _list is NULL.
 */

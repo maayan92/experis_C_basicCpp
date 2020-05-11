@@ -23,9 +23,11 @@ Result TestBubbleSort_Empty()
 
 	if(SUCCEEDED != BubbleSort(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 
@@ -51,9 +53,11 @@ Result TestShakeSort_Empty()
 
 	if(SUCCEEDED != ShakeSort(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 
@@ -79,9 +83,11 @@ Result TestQuickSortRec_Empty()
 
 	if(SUCCEEDED != QuickSortRec(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 
@@ -107,9 +113,11 @@ Result TestQuickSortIter_Empty()
 
 	if(SUCCEEDED != QuickSortIter(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 
@@ -135,9 +143,11 @@ Result TestInsertionSort_Empty()
 
 	if(SUCCEEDED != InsertionSort(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 
@@ -163,9 +173,11 @@ Result TestShellSort_Empty()
 
 	if(SUCCEEDED != ShellSort(vec))
 	{
+		VectorDestroy(vec);
 		return FAILED;
 	}
 
+	VectorDestroy(vec);
 	return SUCCEDD;
 }
 

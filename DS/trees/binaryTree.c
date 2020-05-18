@@ -43,6 +43,10 @@ static int NodeLevel(Node *_node);
 static int CheckNodes(Node *_node1, Node *_node2);
 /**/
 static int IsPerfectNode(Node *_node);
+/**/
+static void MirrorNode(Node *_node);
+/**/
+static void Swap(Node *_node);
 
 
 Tree* TreeCreate()
@@ -80,7 +84,7 @@ ErrCode TreeInsert(Tree* _tree, int _data)
 		_tree->m_root = CreateNode(_data,NULL);
 		if(NULL == _tree->m_root)
 		{
-			return ERR_OVERFLOW;
+			return ERR_ALLOCATION_FAILED;
 		}
 
 		return SUCCEEDED;
@@ -178,6 +182,18 @@ int IsPerfectTree(Tree *_tree)
 	return IsPerfectNode(_tree->m_root);
 }
 
+ErrCode MirrorTree(Tree *_tree)
+{
+	if(IS_NOT_EXIST(_tree))
+	{
+		return ERR_NOT_INITIALIZE;
+	}
+
+	MirrorNode(_tree->m_root);
+
+	return SUCCEEDED;
+}
+
 
 /* SUB FUNCTIONS */
 
@@ -236,7 +252,7 @@ static ErrCode InsertNode(Tree* _tree,int _data)
 	newNode  = CreateNode(_data,temp);
 	if(NULL == newNode)
 	{
-		return ERR_OVERFLOW;
+		return ERR_ALLOCATION_FAILED;
 	}
 	if(_data > temp->m_data)
 	{
@@ -336,5 +352,25 @@ static int IsPerfectNode(Node *_node)
 	}
 	
 	return (IsPerfectNode(_node->m_left) && IsPerfectNode(_node->m_right));
+}
+
+static void Swap(Node *_node)
+{
+	Node *temp = _node->m_left;
+	_node->m_left = _node->m_right;
+	_node->m_right = temp;
+}
+
+static void MirrorNode(Node *_node)
+{
+	if(!_node)
+	{
+		return;
+	}
+	
+	MirrorNode(_node->m_left);
+	MirrorNode(_node->m_right);
+
+	Swap(_node);
 }
 

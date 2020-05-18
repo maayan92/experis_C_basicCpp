@@ -2,6 +2,7 @@
 #include "sortingAlgorithms.h"
 #include "stack.h"
 
+
 /*swap if needed*/
 static int Swap(Vector *_vec, int data1, int data2, int _i, int _j);
 /*get the values and swap if needed*/
@@ -127,6 +128,270 @@ ErrCode ShellSort(Vector* _vec)
 	SortByGap(_vec,VectorNumOfelements(_vec)/2);
 
 	return SUCCEEDED;
+}
+
+static int FindMinIndex(Vector* _vec, int _start)
+{
+	int data ,min, index = _start;
+
+	VectorGet(_vec,_start,&data);
+	min = data;
+
+	while(_start < VectorNumOfelements(_vec))
+	{
+		VectorGet(_vec,++_start,&data);
+
+		if(data < min)
+		{
+			min = data;
+			index = _start;
+		}
+	}
+
+	return index;
+}
+
+ErrCode SelectionSort(Vector* _vec)
+{
+	int i, minIndex;
+
+	if(NULL == _vec)
+	{
+		return ERR_NOT_INITIALIZE;
+	}
+
+	for(i = 1;i <= VectorNumOfelements(_vec);++i)
+	{
+		minIndex = FindMinIndex(_vec,i);
+		if(i != minIndex)
+		{
+			GetAndSwap(_vec,i,minIndex);
+		}
+	}
+
+	return SUCCEEDED;
+}
+
+static void CopyVecToArr(Vector* _vec, int *_arr, size_t _begin, size_t _end)
+{
+	int data;
+
+	while(_begin <= _end)
+	{
+		VectorGet(_vec,_begin,&data);
+		_arr[_begin++] = data;
+	}
+}
+
+static void Merge(Vector* _vec, int *_arr, size_t _begin1, size_t _end1, size_t _begin2, size_t _end2)
+{
+	int i = _begin1;
+
+	while(_begin1 <= _end1 && _begin2 <= _end2)
+	{
+		if(_arr[_begin1] < _arr[_begin2])
+		{
+			VectorSet(_vec,i++,_arr[_begin1]);
+			++_begin1;
+		}
+		else
+		{
+			VectorSet(_vec,i++,_arr[_begin2]);
+			++_begin2;
+		}
+	}
+
+	while(_begin1 <= _end1)
+	{
+		VectorSet(_vec,i++,_arr[_begin1]);
+		++_begin1;
+	}
+	while(_begin2 <= _end2)
+	{
+		VectorSet(_vec,i++,_arr[_begin2]);
+		++_begin2;
+	}
+}
+
+static void MergeSortRec(Vector* _vec, int *_arr, size_t _begin, size_t _end)
+{
+	size_t newBegin, newEnd;
+
+	if(_begin >= _end)
+	{
+		return;
+	}
+
+	newBegin = ((_begin + _end)/2) + 1;
+	newEnd = (_begin + _end)/2;
+
+	MergeSortRec(_vec,_arr,_begin,newEnd);
+	MergeSortRec(_vec,_arr,newBegin,_end);
+
+	Merge(_vec,_arr,_begin,newEnd,newBegin,_end);
+	CopyVecToArr(_vec,_arr,_begin,_end);
+}
+
+ErrCode MergeSort(Vector* _vec)
+{
+	int *arr;
+
+	if(NULL == _vec)
+	{
+		return ERR_NOT_INITIALIZE;
+	}
+	
+	arr = (int*)malloc(sizeof(int)*(VectorNumOfelements(_vec)+1));
+	if(NULL == arr)
+	{
+		return ERR_ALLOCATION_FAILED;
+	}
+
+	CopyVecToArr(_vec,arr,1,VectorNumOfelements(_vec));
+	MergeSortRec(_vec,arr,1,VectorNumOfelements(_vec));
+
+	free(arr);
+	return SUCCEEDED;
+}
+/*********************/
+static int GetPositionRadix(int _data, int _digit)
+{
+	_data = _data % _digit;
+
+	return _data /= (_digit /= 10);
+}
+
+static int GetPositionCount(int _data, int _digit)
+{
+	return _data;
+}
+
+static void FillVector(Vector* _vec, int *_arr)
+{
+	int i;
+	
+	for(i = 1;i <= VectorNumOfelements(_vec);++i)
+	{
+		VectorSet(_vec,i,_arr[i]);
+	}
+}
+
+static ErrCode PullFromArrToVec(Vector* _vec, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(int,int), int _digit)
+{
+	int i = VectorNumOfelements(_vec), data, *tempArr;
+
+	tempArr = (int*)calloc((VectorNumOfelements(_vec) + 1),sizeof(int));
+	if(NULL == tempArr)
+	{
+		return ERR_ALLOCATION_FAILED;
+	}
+
+	while(i > 0)
+	{
+		VectorGet(_vec,i--,&data);
+		tempArr[_arr[(*ptrFun)((data - _minValue),_digit)]--] = data;
+	}
+
+	FillVector(_vec,tempArr);
+
+	free(_arr);
+	free(tempArr);
+	return SUCCEEDED;
+}
+
+static void FillAndDecreace(Vector* _vec, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(int,int), int _digit)
+{
+	int i = 1, data;
+
+	while(i <= VectorNumOfelements(_vec))
+	{
+		VectorGet(_vec,i++,&data);
+		++_arr[(*ptrFun)((data - _minValue),_digit)];
+	}
+
+	for(i = 1;i <= (_maxValue - _minValue);++i)
+	{
+		_arr[i] = _arr[i] + _arr[i-1];
+	}
+
+}
+
+static ErrCode CountingSortAlgo(Vector* _vec, int _minValue, int _maxValue, int(*ptrFun)(int,int), int _digit)
+{
+	int *arr = (int*)calloc((_maxValue - _minValue)+1,sizeof(int));
+
+	if(NULL == arr)
+	{
+		return ERR_ALLOCATION_FAILED;
+	}	
+
+	FillAndDecreace(_vec,arr,_minValue,_maxValue,ptrFun,_digit);
+	
+	return PullFromArrToVec(_vec,arr,_minValue,_maxValue,ptrFun,_digit);
+}
+
+ErrCode CountingSort(Vector* _vec, int _minValue, int _maxValue)
+{
+	if(NULL == _vec)
+	{
+		return ERR_NOT_INITIALIZE;
+	}
+
+	return CountingSortAlgo(_vec,_minValue,_maxValue,GetPositionCount,1);
+}
+
+ErrCode RadixSort(Vector* _vec, int _nDigits)
+{
+	int digit = 10;
+
+	if(NULL == _vec)
+	{
+		return ERR_NOT_INITIALIZE;
+	}
+
+	while(_nDigits)
+	{
+		CountingSortAlgo(_vec,0,9,GetPositionRadix,digit);
+		--_nDigits;
+		digit *= 10;
+	}
+
+	return SUCCEEDED; 
+}
+
+int SearchWithImprove(int *_arr, size_t _size, int _numToSearch)
+{
+	size_t i;
+	int temp;
+
+	if(_arr[_size-1] == _numToSearch)
+	{
+		return true;
+	}
+
+	temp = _arr[_size-1];
+	_arr[_size-1] = _numToSearch;
+
+	for(i = 0; _arr[i] != _numToSearch; ++i);
+	
+	_arr[_size-1] = temp;
+		
+	return (i == _size-1) ? false : true;
+}
+
+int SearchNoImprove(int *_arr, size_t _size, int _numToSearch)
+{
+	size_t i;
+
+	for(i = 0;i < _size; ++i)
+	{
+		if(_arr[i] == _numToSearch)
+		{
+			return true;
+		}
+	}
+		
+	return false;
 }
 
 /* SUB FUNCTIONS */
@@ -288,9 +553,9 @@ static void SortByGap(Vector* _vec, int _gap)
 
 	while(_gap)
 	{
-		for(i = 1;i < VectorNumOfelements(_vec);++i)
+		for(i = _gap+1;i <= VectorNumOfelements(_vec);++i)
 		{
-			MoveToPosition(_vec,i+_gap,_gap);
+			MoveToPosition(_vec,i,_gap);
 		}
 
 		_gap /= 2;

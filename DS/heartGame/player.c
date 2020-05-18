@@ -22,19 +22,14 @@ struct Player
 };
  
 /*Sort*/
-/*give the rank value*/
-static int PositionByRank(Card _card); 
-/*give the suite value*/
-static int PositionBySuite(Card _card);
 /*fill the player cards*/
 static void FillCards(Player *_player, Card *_arr);
-/**/
-static ErrCode PullFromArrToVec(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card));
-/**/
-static void FillAndDecreace(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card));
-/**/
-static ErrCode CountingSortAlgo(Player *_player, int _minValue, int _maxValue, int(*ptrFun)(Card));
+/*pull value from array to the player's hand*/
+static ErrCode PullFromArrToPlayer(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card));
+/*fill the array and sum it up*/
+static void FillAndSum(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card));
 /*Sort*/
+
 /*remove the card in position _index*/
 static void RemoveTheCard(Player *_player, int _index);
 
@@ -54,6 +49,11 @@ Player* CreatePlayer(char *_name, size_t _id, size_t _computerPlayer)
 	player->m_cardsInitSize = 0;
 	player->m_numOfLostCards = 0;
 	player->m_computerPlayer = _computerPlayer;
+	
+	if(!player->m_computerPlayer)
+	{
+		GetReallPlayerName(player->m_name);
+	}
 
 	player->m_cards = NULL;
 	player->m_magicNumber = PLAYER_MAGIC_NUMBER;
@@ -75,7 +75,12 @@ void DestroyPlayer(Player *_player)
 	}
 }
 
-ErrCode SetPoint(Player *_player, size_t _newPoints)
+char* GetName(Player *_player)
+{
+	return _player->m_name;
+}
+
+ErrCode SetPoints(Player *_player, size_t _newPoints)
 {
 	if(IS_NOT_EXIST(_player))
 	{
@@ -87,7 +92,7 @@ ErrCode SetPoint(Player *_player, size_t _newPoints)
 	return SUCCEEDED;
 }
 
-size_t GetPoint(Player *_player)
+size_t GetPoints(Player *_player)
 {
 	if(IS_NOT_EXIST(_player))
 	{
@@ -105,28 +110,6 @@ size_t GetNumOfCards(Player *_player)
 	}
 
 	return _player->m_numOfCards;
-}
-
-ErrCode SetNumOfLostCards(Player *_player, size_t _numOfCards)
-{
-	if(IS_NOT_EXIST(_player))
-	{
-		return ERR_NOT_INITIALIZE;
-	}
-
-	_player->m_numOfLostCards = _numOfCards;
-	
-	return SUCCEEDED;
-}
-
-size_t GetNumOfLostCards(Player *_player)
-{
-	if(IS_NOT_EXIST(_player))
-	{
-		return 0;
-	}
-
-	return _player->m_numOfLostCards;
 }
 
 size_t IsComputer(Player *_player)
@@ -218,46 +201,43 @@ int IsCardExist(Player *_player, int(*prtStrategy)(Card*,size_t,Card), Card *_ca
 
 /* SORT */
 
-ErrCode SortCards(Player *_player)
+ErrCode CountingSortAlgo(Player *_player, int _minValue, int _maxValue, int(*ptrFun)(Card))
 {
-	ErrCode err;
-	
+	int *arr = (int*)calloc((_maxValue - _minValue)+1,sizeof(int));
+
 	if(IS_NOT_EXIST(_player))
 	{
 		return ERR_NOT_INITIALIZE;
 	}
-	
-	if(SUCCEEDED != (err = CountingSortAlgo(_player,0,NUM_OF_RANKS,PositionByRank)))
+
+	if(NULL == arr)
 	{
-		return err;
-	}
+		return ERR_ALLOCATION_FAILED;
+	}	
+
+	FillAndSum(_player,arr,_minValue,_maxValue,ptrFun);
 	
-	return CountingSortAlgo(_player,0,NUM_OF_SUITES,PositionBySuite);
+	return PullFromArrToPlayer(_player,arr,_minValue,_maxValue,ptrFun);
 }
 
 /*Print player*/
 
 void PrintPlayer(Player *_player)
 {	
-	PrintPlayerDetails(_player->m_id, _player->m_name, _player->m_points);
+	PrintPlayerName(_player->m_name);
 	
+	PrintPlayerPoints(_player->m_points);
+}
+
+void PrintPlayerCards(Player *_player)
+{	
 	PrintCardsArr(_player->m_cards,_player->m_numOfCards);
 }
 
 
 /* SUB FUNCTIONS */
 
-/* SORT */
-
-static int PositionByRank(Card _card)
-{
-	return _card.m_rank;
-}
-
-static int PositionBySuite(Card _card)
-{
-	return _card.m_suite;
-}
+/*sort functions*/
 
 static void FillCards(Player *_player, Card *_arr)
 {
@@ -269,7 +249,7 @@ static void FillCards(Player *_player, Card *_arr)
 	}
 }
 
-static ErrCode PullFromArrToVec(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card))
+static ErrCode PullFromArrToPlayer(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card))
 {
 	int i = (_player->m_numOfCards)-1;
 	Card *tempArr;
@@ -293,7 +273,7 @@ static ErrCode PullFromArrToVec(Player *_player, int *_arr, int _minValue, int _
 	return SUCCEEDED;
 }
 
-static void FillAndDecreace(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card))
+static void FillAndSum(Player *_player, int *_arr, int _minValue, int _maxValue, int(*ptrFun)(Card))
 {
 	int i = 0;
 
@@ -308,21 +288,6 @@ static void FillAndDecreace(Player *_player, int *_arr, int _minValue, int _maxV
 	}
 
 }
-
-static ErrCode CountingSortAlgo(Player *_player, int _minValue, int _maxValue, int(*ptrFun)(Card))
-{
-	int *arr = (int*)calloc((_maxValue - _minValue)+1,sizeof(int));
-
-	if(NULL == arr)
-	{
-		return ERR_ALLOCATION_FAILED;
-	}	
-
-	FillAndDecreace(_player,arr,_minValue,_maxValue,ptrFun);
-	
-	return PullFromArrToVec(_player,arr,_minValue,_maxValue,ptrFun);
-}
-
 
 /* remove card from the array */
 

@@ -3,14 +3,42 @@
 
 #include "ui.h"
 
+void GetReallPlayerName(char *_name)
+{
+	int choose;
+	
+	printf("if you want to choose a name please press 1 else press 0:");
+	scanf("%d", &choose);
+	getchar();
+		
+	if(choose)
+	{
+		printf("\nplease enter your name:");
+		scanf("%s", _name);
+		getchar();
+		
+	}
+}
+
+void PrintPlayerName(char *_name)
+{
+	printf("\nname = %s \n", _name);
+}
+
+void PrintPlayerPoints(size_t _points)
+{
+	printf("points = %ld \n", _points);
+}
+
 void PrintCardsArr(Card *_card, int _size)
 {
 	int i;
 	
+	printf("\n");
+	
 	for(i = 0;i < _size;++i)
 	{
 		PrintCard(_card[i]);
-		
 	}
 	
 	printf("\n");
@@ -36,34 +64,48 @@ void PrintCard(Card _card)
 			printf("\xE2\x99\xA3 ");
 			break;
 	}
-	printf("%d \t",  (_card.m_rank+2));
-}
-
-void PrintPlayerDetails(size_t _id, char *_name, size_t _points)
-{
-	printf("\nid = %ld, name = %s, points = %ld \n", _id, _name, _points);
-}
-
-void PlayAnotherHand(int *_anotherHand)
-{
-	printf("\nthe game is over! if you want to play another hand press 1 else press 0:");
-	scanf("%d",_anotherHand);
-	printf("\n");
-}
-
-void GetReallPlayerName(char *_name)
-{
-	printf("\nplease enter your name:");
-	fgets(_name,sizeof(char),stdin);
 	
-	strtok(_name, "\n");
-	printf("\n");
+	switch(_card.m_rank)
+	{
+		case PRINCE:
+			printf("PRINCE ");
+			break;
+		
+		case QUEEN:
+			printf("QUEEN ");
+			break;
+			
+		case KING:
+			printf("KING ");
+			break;
+			
+		case AS:
+			printf("AS ");
+			break;
+				
+		default:
+			printf("%d ",  (_card.m_rank+2));
+			break;
+	}
 }
 
-void GetRealPlayerCard(int *_index)
+void PrintChoose3Cards(int _n)
 {
-	printf("\nplease enter your card's index position:");
-	scanf("%d", _index);
+	printf("\nplease select card number %d to pass \n", _n);
+}
+
+void GetRealPlayerCard(size_t *_suite, size_t *_rank)
+{
+	char ch;
+	
+	printf("\nplease enter your card:\n");
+	
+	printf("\nplease enter suite:");
+	scanf("%lu", _suite);
+	printf("\nplease enter rank:");
+	scanf("%lu", _rank);
+	
+	while((ch = getchar()) != '\n' && ch != EOF );
 	
 	printf("\n");
 }
@@ -74,12 +116,26 @@ void NotValidCard()
 
 }
 
+void PrintWinner(int _roundNum, int _isEndGame)
+{
 
+	if(_isEndGame)
+	{
+		printf("------ wins the game ------\n\n");
+	}
+	else
+	{		
+		printf("------ wins hand %d ------ \n\n", _roundNum + 1);
+	}
 
+}
 
-
-
-
+void PrintAnotherHand(int _endGame, int *_anotherHand)
+{
+	printf("\nthe game is over! if you want to play another %s press 1 else press 0:", (_endGame) ? "game" : "hand");
+	scanf("%d",_anotherHand);
+	printf("\n");
+}
 
 
 

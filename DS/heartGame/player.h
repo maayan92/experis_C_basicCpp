@@ -28,18 +28,25 @@ Player* CreatePlayer(char *_name, size_t _id, size_t _computerPlayer);
 void DestroyPlayer(Player *_player);
 
 /*
+	Description: give the player's name.
+	Input: _player - pointer to the player.
+	Return Value: return the player's name.
+*/
+char* GetName(Player *_player);
+
+/*
 	Description: set a new number of points to the player.
 	Input: _player - pointer to the player, _newPoints - new number of points.
 	Return Value: return error code, ERR_NOT_INITIALIZE - if the _player is not exist, SUCCEEDED - on success.
 */
-ErrCode SetPoint(Player *_player, size_t _newPoints);
+ErrCode SetPoints(Player *_player, size_t _newPoints);
 
 /*
 	Description: get the number of points of the _player.
 	Input: _player - pointer to the player.
 	Return Value: return the number of points.
 */
-size_t GetPoint(Player *_player);
+size_t GetPoints(Player *_player);
 
 /*
 	Description: get the number of cards in the _player's hand.
@@ -47,22 +54,6 @@ size_t GetPoint(Player *_player);
 	Return Value: return the number of card in the player's hand.
 */
 size_t GetNumOfCards(Player *_player);
-
-/*TODO*/
-/*
-	Description: set a new number of cards the _player got from loosing in the game.
-	Input: _player - pointer to the player, 
-	Return Value: return error code, ERR_NOT_INITIALIZE - if the _player is not exist, SUCCEEDED - on success.
-*/
-ErrCode SetNumOfLostCards(Player *_player, size_t _numOfCards);
-
-/*
-	Description: get the number of cards the _player got from loosing in the game.
-	Input: _player - pointer to the player.
-	Return Value: return the number of lost card in the player's hand.
-*/
-size_t GetNumOfLostCards(Player *_player);
-/*TODO*/
 
 /*
 	Description: check if the player is computer or a real player.
@@ -101,11 +92,11 @@ ErrCode RemoveCardByIndex(Player *_player, int(*prtStrategy)(Card*,size_t,Card),
 int IsCardExist(Player *_player, int(*prtStrategy)(Card*,size_t,Card), Card *_card);
 
 /*
-	Description: sort the cards in the player's hand, by its rank and then by its suite 
-	Input: _player - pointer to the player.
+	Description: sort the cards in the player's hand, by the value of (*ptrFun) function.
+	Input: _player - pointer to the player, _minValue - start range value, _maxValue - end range value, (*ptrFun) - by which value to sort.
 	Return Value: return error code, ERR_NOT_INITIALIZE - if the _player is not exist, ERR_ALLOCATION_FAILED - if the allocation fails, SUCCEEDED - on success. 
 */
-ErrCode SortCards(Player *_player);
+ErrCode CountingSortAlgo(Player *_player, int _minValue, int _maxValue, int(*ptrFun)(Card));
 
 /*
 	Description: print the player's details.
@@ -114,7 +105,12 @@ ErrCode SortCards(Player *_player);
 */
 void PrintPlayer(Player *_player);
 
-
+/*
+	Description: print the player's cards.
+	Input: _player - pointer to the player.
+	Return Value: nothing returns.
+*/
+void PrintPlayerCards(Player *_player);
 
 
 

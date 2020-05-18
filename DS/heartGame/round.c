@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "round.h"
 #include "deck.h"
 
@@ -36,6 +38,14 @@ static void CreatePlayers(Round *_round);
 static void PlayNewHand(Round *_round);
 /*Hand new cards to the players*/
 static void HandCards(Round *_round);
+
+/*pointer function to the suite value*/
+static int PositionBySuite(Card _card);
+/*pointer function to the rank value*/
+static int PositionByRank(Card _card);
+/*sort the player's hand*/
+static ErrCode SortCards(Player *_player);
+
 /*get 3 cards from the players and divide them*/
 static void TransferCards(Round *_round);
 /*divide the 3 cards by the round number*/
@@ -61,7 +71,7 @@ static void GetCardFromRealP(Round *_round, Player *_player);
 /*check validation of the real player's card*/
 static int RealPlayerCardValid(Round *_round, Player *_player, Card _card);
 /*get card index position from the playre*/
-static int GetCardFromRealPlayer(Card *_cardsArr, size_t _size, Card _card);
+static Card GetCardFromRealPlayer();
 /*check if there is a card with the same suite of _card in the _cardsArr*/
 static int checkIfsuiteExist(Card *_cardsArr, size_t _size, Card _card);
 /*check if the player have a card that is not with HEART suite*/
@@ -87,14 +97,23 @@ static int GetCardBySuite(Card *_cardsArr, size_t _size, Card _card);
 /*strategy*/
 
 /*set the table cards with points to the loser player*/
-static void SetLostCardsPoints(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int _loserPlayer);
-/*set the players num of lost cards to zero*/
-static void RemovePlayersLostCards(Round *_round);
+static void SetLostCardsPoints(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int _loserPlayer, int *_lossNumOfCards, int *_PointsPerRound);
+/*add the points from the round that ended*/
+static int EndRoundSetPoint(Round *_round, int *_PointsPerRound);
+
+/*check end of round or game and print winner/s*/
+static int EndGameOrRound(Round *_round, int *_lossNumOfCards, int *_pointsPerRound, Card _lostCards[][NUM_OF_RANKS+1]);
+/*get all game winner/s name/s*/
+static void CheckGameWinner(Round *_round, int _minScore);
+/*get round winner/s name/s*/
+static void CheckRoundWinner(Round *_round, int *_lossNumOfCards, int _minScore);
+/*check if one player got to the m_maxPoints -> the game is over*/
+static int CheckIfGameEnd(Round *_round, int *_pointsPerRound);
 
 /*print the palyers*/
-static void PrintAllPlayers(Round *_round);
-/*print the game, the table cards, the players details and the real player's hand*/
-static void PrintGame(Round *_round);
+static void PrintAllPlayers(Round *_round, int *_pointsPerRound);
+/*print the result of the round*/
+static void PrintScore(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int *_lossNumOfCards);
 
 /* create a new round */
 
@@ -141,9 +160,8 @@ void DestroyRound(Round *_round)
 
 void StartRound(Round *_round)
 {
-	int i, startPlayer, playAnotherHand;
-	Card card;
-	Card lostCards[PLAYERS_NUM][NUM_OF_RANKS+1];
+	int i, startPlayer, playAnotherHand, lossNumOfCards[PLAYERS_NUM] = {0}, pointsPerRound[PLAYERS_NUM] = {0};
+	Card card, lostCards[PLAYERS_NUM][NUM_OF_RANKS+1];
 	
 	if(IS_NOT_EXIST(_round))
 	{
@@ -160,28 +178,56 @@ void StartRound(Round *_round)
 		{
 			GetCardToTable(_round,_round->m_players[startPlayer%PLAYERS_NUM]);
 			++startPlayer;
+			PrintCardsArr(_round->m_tableCards,_round->m_numOfTCards);
 		}
-		PrintGame(_round);
-		
 		_round->m_loser = (FindTableMax(_round->m_tableCards,_round->m_numOfTCards,&card) + startPlayer) % PLAYERS_NUM;
 		
-		SetLostCardsPoints(_round,lostCards,_round->m_loser);
+		SetLostCardsPoints(_round,lostCards,_round->m_loser,lossNumOfCards,pointsPerRound);
+		
+		PrintAllPlayers(_round,pointsPerRound);
 		
 		_round->m_numOfTCards = 0;
 		
 	}while(GetNumOfCards(_round->m_players[startPlayer%PLAYERS_NUM]));
 	
+	playAnotherHand = EndGameOrRound(_round,lossNumOfCards,pointsPerRound,lostCards);
+	
 	++_round->m_numOfRound;
 	_round->m_loser = -1;
 	_round->m_heartUsed = 0;
-	RemovePlayersLostCards(_round);
 	
-	PlayAnotherHand(&playAnotherHand);
 	if(playAnotherHand)
 	{
 		StartRound(_round);
 	}
 }
+
+static int EndGameOrRound(Round *_round, int *_lossNumOfCards, int *_pointsPerRound, Card _lostCards[][NUM_OF_RANKS+1])
+{
+	int minScore, playAnotherHand, isGameEnd = 0;
+	
+	if(-1 != (minScore = CheckIfGameEnd(_round,_pointsPerRound)))
+	{
+		isGameEnd = 1;
+		_round->m_numOfRound = 0;
+		
+		CheckGameWinner(_round,minScore);
+	}
+	else
+	{
+		minScore = EndRoundSetPoint(_round,_pointsPerRound);
+		
+		CheckRoundWinner(_round,_lossNumOfCards,minScore);
+	}
+	
+	PrintWinner(_round->m_numOfRound,isGameEnd);
+	PrintScore(_round,_lostCards,_lossNumOfCards);
+	
+	PrintAnotherHand(isGameEnd,&playAnotherHand);
+	
+	return playAnotherHand;
+}
+
 
 /* SUB FUNCTIOS */
 
@@ -189,7 +235,7 @@ void StartRound(Round *_round)
 
 static void CreatePlayers(Round *_round)
 {
-	int i;
+	int i = 0;
 	
 	for(i = 0;i < PLAYERS_NUM;++i)
 	{
@@ -199,14 +245,16 @@ static void CreatePlayers(Round *_round)
 
 static void PlayNewHand(Round *_round)
 {	
+	int pointsPerRound[PLAYERS_NUM] = {0};
+	
 	FillDeck(_round->m_decks);
 	mixDeck(_round->m_decks);
 
 	HandCards(_round);
-	PrintAllPlayers(_round);
+	PrintAllPlayers(_round,pointsPerRound);
 	
 	TransferCards(_round);
-	PrintAllPlayers(_round);	
+	PrintAllPlayers(_round,pointsPerRound);
 }
 
 static int FindWhoStart(Round *_round)
@@ -214,7 +262,7 @@ static int FindWhoStart(Round *_round)
 	int isExist = 0, i = 0;
 	Card card = {CLOVER,TWO};
 	
-	do
+	do	
 	{
 		isExist = IsCardExist(_round->m_players[i],GetSpecificCard,&card);
 		++i;
@@ -233,13 +281,37 @@ static void HandCards(Round *_round)
 	{
 		for(j = 0;j < PLAYER_NUM_OF_CARDS;++j)
 		{
-			if(RemoveCard(_round->m_decks,&card))
+			if(SUCCEEDED == RemoveCard(_round->m_decks,&card))
 			{
 				SetCard(_round->m_players[i],card);
 			}	
 		}
 		SortCards(_round->m_players[i]);
 	}
+}
+
+/*sort the players hand*/
+
+static int PositionByRank(Card _card)
+{
+	return _card.m_rank;
+}
+
+static int PositionBySuite(Card _card)
+{
+	return _card.m_suite;
+}
+
+static ErrCode SortCards(Player *_player)
+{
+	ErrCode err;
+	
+	if(SUCCEEDED != (err = CountingSortAlgo(_player,0,NUM_OF_RANKS,PositionByRank)))
+	{
+		return err;
+	}
+	
+	return CountingSortAlgo(_player,0,NUM_OF_SUITES,PositionBySuite);
 }
 
 /* Tranfer 3 cards */
@@ -292,8 +364,21 @@ static void TransferCards(Round *_round)
 	{
 		for(j = 0;j < TRANFER_CARDS;++j)
 		{
-			(!IsComputer(_round->m_players[i])) ? RemoveCardByIndex(_round->m_players[i],GetCardFromRealPlayer,&card) : RemoveCardByIndex(_round->m_players[i],GetMaxCard,&card);
-			
+			if(!IsComputer(_round->m_players[i]))
+			{
+				PrintChoose3Cards(j+1);
+				card = GetCardFromRealPlayer();
+				while(!IsCardExist(_round->m_players[i],GetSpecificCard,&card))
+				{
+					NotValidCard();
+					card = GetCardFromRealPlayer();
+				}
+				RemoveCardByIndex(_round->m_players[i],GetSpecificCard,&card);
+			}
+			else
+			{
+				RemoveCardByIndex(_round->m_players[i],GetMaxCard,&card);
+			} 
 			tranfer[i][j] = card;
 		}
 	}
@@ -405,8 +490,10 @@ static void GetCardToTable(Round *_round, Player *_player)
 static void GetCardFromRealP(Round *_round, Player *_player)
 {
 	Card card;
+	
+	card = GetCardFromRealPlayer();
 
-	while(!IsCardExist(_player,GetCardFromRealPlayer,&card) || !RealPlayerCardValid(_round,_player,card))
+	while(!IsCardExist(_player,GetSpecificCard,&card) && !RealPlayerCardValid(_round,_player,card))
 	{
 		NotValidCard();
 	}
@@ -425,10 +512,10 @@ static int RealPlayerCardValid(Round *_round, Player *_player, Card _card)
 	{
 		if(CLOVER == _card.m_suite && TWO == _card.m_rank)
 		{
-			return 1;
+			return true;
 		}
 		
-		return 0;
+		return false;
 	}
 	
 	if(0 != _round->m_numOfTCards)
@@ -437,30 +524,40 @@ static int RealPlayerCardValid(Round *_round, Player *_player, Card _card)
 		{
 			if(IsCardExist(_player,checkIfsuiteExist,&tablCard))
 			{
-				return 0;
+				return false;
 			}
 			else
 			{
-				return 1;
+				return true;
 			}
 		}
 	}
 			
 	if(_card.m_suite == HEART && !_round->m_heartUsed && IsCardExist(_player,IfHasCardNotHeart,&_card))
 	{
-		return 0;
+		return false;
 	}
 	
-	return 1;
+	return true;
 }
 
-static int GetCardFromRealPlayer(Card *_cardsArr, size_t _size, Card _card)
+static Card GetCardFromRealPlayer()
 {
-	int index = -1;
+	size_t suite, rank;
+	Card card;
 	
-	GetRealPlayerCard(&index);
+	GetRealPlayerCard(&suite,&rank);
+	
+	while(!(suite >= HEART && suite < NUM_OF_SUITES) && (suite >= TWO && suite < NUM_OF_RANKS))
+	{
+		NotValidCard();
+		GetRealPlayerCard(&suite,&rank);
+	}
+	
+	card.m_suite = suite;
+	card.m_rank = rank;
 
-	return (index >= 0 && index < _size) ? index : -1;
+	return card;
 }
 
 static int checkIfsuiteExist(Card *_cardsArr, size_t _size, Card _card)
@@ -546,11 +643,11 @@ static int FindSmallestCard(Card *_cardsArr, size_t _size, Card _minCard, int _i
 
 static int GetSmallestCard(Card *_cardsArr, size_t _size, Card _minCard)
 {
-	int i = 1, index;
+	int i = 0, index;
 
 	index = FindSmallestCard(_cardsArr,_size,_cardsArr[0],i);
 
-	return (-1 == index) ? 0 : index;
+	return index;
 }
 
 static int GetSmallestNotHeart(Card *_cardsArr, size_t _size, Card _card)
@@ -627,57 +724,121 @@ static int GetCardBySuite(Card *_cardsArr, size_t _size, Card _card)
 
 /* set table cards to loser */
 
-static void RemovePlayersLostCards(Round *_round)
+static int EndRoundSetPoint(Round *_round, int *_pointsPerRound)
 {
-	int i;
+	int i, minScore = _round->m_maxPoints;
 	
 	for(i = 0;i < PLAYERS_NUM;++i)
 	{
-		SetNumOfLostCards(_round->m_players[i],0);
+		SetPoints(_round->m_players[i], GetPoints(_round->m_players[i]) + _pointsPerRound[i]);
+		
+		if(minScore > _pointsPerRound[i])
+		{
+			minScore = _pointsPerRound[i];
+		}
 	}
+	
+	return minScore;
 }
 
-static void SetLostCardsPoints(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int _loserPlayer)
+static void SetLostCardsPoints(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int _loserPlayer, int *_lossNumOfCards, int *_pointsPerRound)
 {
-	int i, size = GetNumOfLostCards(_round->m_players[_loserPlayer]);
+	int i;
 	
 	for(i = 0;i < TABLE_CARDS_NUM;++i)
 	{
 		if(HEART == _round->m_tableCards[i].m_suite || (LEAF == _round->m_tableCards[i].m_suite && QUEEN == _round->m_tableCards[i].m_rank))
 		{
-			SetPoint(_round->m_players[_loserPlayer], (HEART == _round->m_tableCards[i].m_suite) ? 1 : 13);
-			_lostCards[_loserPlayer][size++] = _round->m_tableCards[i];
+			_pointsPerRound[_loserPlayer] += (HEART == _round->m_tableCards[i].m_suite) ? 1 : 13 ;
+			_lostCards[_loserPlayer][_lossNumOfCards[_loserPlayer]++] = _round->m_tableCards[i];
 		}
 	}
-	
-	SetNumOfLostCards(_round->m_players[_loserPlayer],size);
 }
 
-/* Print players */
 
-static void PrintAllPlayers(Round *_round)
+/* end game / round */
+
+static void CheckRoundWinner(Round *_round, int *_lossNumOfCards, int _minScore)
 {
 	int i;
 	
 	for(i = 0;i < PLAYERS_NUM;++i)
 	{
-		PrintPlayer(_round->m_players[i]);
+		if(_lossNumOfCards[i] == _minScore)
+		{
+			PrintPlayerName(GetName(_round->m_players[i]));
+		}
+	}
+
+}
+
+static void CheckGameWinner(Round *_round, int _minScore)
+{
+	int i;
+	
+	for(i = 0;i < PLAYERS_NUM;++i)
+	{
+		if(_minScore == GetPoints(_round->m_players[i]))
+		{
+			PrintPlayerName(GetName(_round->m_players[i]));
+		}
+		
+		SetPoints(_round->m_players[i],0);
+	}
+	
+}
+
+static int CheckIfGameEnd(Round *_round, int *_pointsPerRound)
+{
+	int i, end = 0, minScore = _round->m_maxPoints;
+
+	for(i = 0;i < PLAYERS_NUM;++i)
+	{
+		if(_round->m_maxPoints <= (GetPoints(_round->m_players[i]) + _pointsPerRound[i]))
+		{
+			end = 1;
+		}
+		
+		if(minScore > GetPoints(_round->m_players[i]))
+		{
+			minScore = GetPoints(_round->m_players[i]);
+		}
+	}
+	
+	return end ? minScore : -1;
+}
+
+
+/* Print */
+
+static void PrintAllPlayers(Round *_round, int *_pointsPerRound)
+{
+	int i;
+	
+	for(i = 0;i < PLAYERS_NUM;++i)
+	{
+		PrintPlayerName(GetName(_round->m_players[i]));
+		PrintPlayerPoints(_pointsPerRound[i]);
+		
+		if(!IsComputer(_round->m_players[i]))
+		{
+			PrintPlayerCards(_round->m_players[i]);
+		}
 	}
 }
 
-static void PrintGame(Round *_round)
+static void PrintScore(Round *_round, Card _lostCards[][NUM_OF_RANKS+1], int *_lossNumOfCards)
 {
-	PrintAllPlayers(_round);
+	int i;
 	
-	PrintCardsArr(_round->m_tableCards,_round->m_numOfTCards);
-
+	for(i = 0;i < PLAYERS_NUM;++i)
+	{	
+		PrintPlayer(_round->m_players[i]);
+		
+		PrintCardsArr(_lostCards[i],_lossNumOfCards[i]);
+	}
+	
 }
-
-
-
-
-
-
 
 
 

@@ -11,7 +11,6 @@ struct Game
 	size_t m_magicNumber;
 	Player **m_players;
 	Round *m_round;
-	int m_maxPoints;
 	size_t m_numOfPlayers;
 };
 
@@ -33,7 +32,6 @@ Game* CreateGame(char **_names, size_t _numOfComputerPlayers, size_t _numOfRealP
 	}
 
 	game->m_numOfPlayers = _numOfComputerPlayers + _numOfRealPlayers;
-	game->m_maxPoints = _maxPoints;
 	game->m_magicNumber = GAME_MAGIC_NUMBER;
 		
 	if(!(game->m_players = CreateAllPlayers(_names,game->m_numOfPlayers,_numOfComputerPlayers)))

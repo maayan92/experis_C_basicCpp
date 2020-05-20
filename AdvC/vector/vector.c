@@ -5,7 +5,6 @@
 #define VEC_MAGIC_NUMBER 0xbeefbeee
 
 #define IS_NOT_EXIST(_que) (NULL == _que || (*_que).m_MagicNumber != VEC_MAGIC_NUMBER)
-#define SWAP(_a,_b) { void *temp = _a; _a = _b; _b = temp; }
 
 struct Vector
 {
@@ -69,6 +68,8 @@ void VectorDestroy(Vector* _vec, void(*ptrDestroy)(void*))
 	
 	if(!IS_NOT_EXIST(_vec))
 	{
+		_vec->m_MagicNumber = 0;
+
 		if(NULL != ptrDestroy)
 		{
 			for(i = 1; i <= _vec->m_numOfElements;++i)
@@ -78,7 +79,6 @@ void VectorDestroy(Vector* _vec, void(*ptrDestroy)(void*))
 		}
 		
 		free(_vec->m_vectorArray);
-		_vec->m_MagicNumber = 0;
 
 		free(_vec);
 	}
@@ -160,13 +160,8 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, void* _data)
 	{
 		return ERR_NOT_INITIALIZE;
 	}
-	
-	if(NULL == _data)
-	{
-		return ERR_ILLEGAL_INPUT;
-	}
 
-	if(0 == _indx || _vec->m_numOfElements < _indx)
+	if(0 == _indx || _vec->m_numOfElements < _indx || NULL == _data)
 	{
 		return ERR_ILLEGAL_INPUT;
 	}
@@ -178,7 +173,7 @@ ErrCode VectorSet(Vector* _vec, size_t _indx, void* _data)
 
 /* REMOVE ELEMENT BY INDX */
 
-ErrCode VectorGet(Vector* _vec, size_t _indx, void** _data)
+ErrCode VectorGet(const Vector* _vec, size_t _indx, void** _data)
 {
 	if(IS_NOT_EXIST(_vec))
 	{
@@ -208,6 +203,24 @@ size_t VectorFind(const Vector* _vec,  void* _data)
 }
 
 /* PRINT VECTOR */
+
+size_t VectorForEach(const Vector* _vec, ActionFunction _action, void* _context)
+{
+	int i = 0;
+	void *data;
+	
+	if(IS_NOT_EXIST(_vec) || NULL == _action || NULL == _context)
+	{
+		return 0;
+	}
+	
+	while(ERR_ILLEGAL_INPUT != VectorGet(_vec,i+1,&data) && _action(data,_context))
+	{
+		++i;
+	}
+	
+	return i;
+}
 
 ErrCode PrintArray(const Vector *_vec, void(*ptrPrint)(void*))
 {
@@ -239,26 +252,6 @@ size_t VectorNumOfelements(const Vector* _vec)
 	}
 	
 	return _vec->m_numOfElements;
-}
-
-void BubbleSort(Vector* _vec, int(*ptrIfToSwap)(void*,void*))
-{
-	register int i, j;
-	int swapped = 1;
-
-	for(i = 1;i < _vec->m_numOfElements && swapped;++i)
-	{
-		swapped = 0;
-
-		for(j = 1;j <= _vec->m_numOfElements-i;++j)
-		{
-			if((*ptrIfToSwap)(_vec->m_vectorArray[j],_vec->m_vectorArray[j+1]))
-			{
-				SWAP(_vec->m_vectorArray[j],_vec->m_vectorArray[j+1]);
-				swapped = 1;
-			}
-		}
-	}
 }
 
 /* SUB FUNCTINS */

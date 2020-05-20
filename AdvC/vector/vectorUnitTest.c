@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "vector.h"
+#include "sortVector.h"
 
 #define INI_SIZE 3
 #define BLK_SIZE 2
@@ -36,6 +38,11 @@ static void DestroyElementsData(void* _data)
 	free((Data *)_data);
 }
 
+void PrintElementsInt(void* _data)
+{
+	printf("%d \t", *(int*)_data);
+}
+
 static void PrintElementsData(void* _data)
 {
 	switch(((Data*)_data)->m_type)
@@ -55,7 +62,16 @@ static void PrintElementsData(void* _data)
 			printf("%s \t", ((Data*)_data)->m_val.s_data);
 			break;
 	}
+}
+
+static Bool IfToSwap(void* _a, void* _b)
+{
+	if(*(int*)_a > *(int*)_b)
+	{
+		return true;
+	}
 	
+	return false;
 }
 
 /* CREATE VECTOR */
@@ -614,41 +630,23 @@ Result TestVectorNumOfelements_VecNULL()
 /* PRINT */
 
 /*sort*/
-static int IfToSwap(void* _a, void* _b)
-{
-	if(((Data*)_a)->m_val.i_data > ((Data*)_b)->m_val.i_data)
-	{
-		return 1;
-	}
-	
-	return 0;
-}
 
 Result TestBubbleSort()
 {
 	#define SIZE 5
 	Vector *vec = VectorCreate(INI_SIZE,BLK_SIZE);
 	int i;
-	Data data[SIZE];
+	int data[SIZE];
 	
 	if(!vec)
 	{
 		return FAILED;
 	}
 	
-	data[0].m_type = INT;
-	data[0].m_val.i_data = 8;
-	data[1].m_type = INT;
-	data[1].m_val.i_data = 3;
-	data[2].m_type = INT;
-	data[2].m_val.i_data = 6;
-	data[3].m_type = INT;
-	data[3].m_val.i_data = 1;
-	data[4].m_type = INT;
-	data[4].m_val.i_data = 0;
-	
 	for(i = 0;i < SIZE;++i)
 	{
+		data[i] = rand() % 50;
+	
 		if(SUCCEEDED != VectorAddTail(vec,&data[i]))
 		{
 			VectorDestroy(vec,NULL);
@@ -659,7 +657,7 @@ Result TestBubbleSort()
 	BubbleSort(vec,IfToSwap);
 	
 	printf("\nvalues: \n");
-	PrintArray(vec,PrintElementsData);
+	PrintArray(vec,PrintElementsInt);
 	printf("\n\n");
 	VectorDestroy(vec,NULL);
 	return SUCCESS;

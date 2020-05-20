@@ -2,13 +2,14 @@
 
 TARGET= heartGameMain.out 
 CC= gcc -I../../include
-CFLAGS= -ansi -g -pedantic -Wall
+CFLAGS= -ansi -g -pedantic -Wall -Werror
+INC= ../../include
 OBJS= heartGame.o player.o round.o deck.o ui.o heartGameMain.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
 		
-heartGame.o: heartGame.c heartGame.h 
+heartGame.o: heartGame.c heartGame.h $(INC)
 	$(CC) $(CFLAGS) -c heartGame.c
 
 heartGameMain.o: heartGameMain.c

@@ -165,7 +165,6 @@ Result TestHeapBuild_ValidInt()
 {
 	int arr[] = {3,8,11,4,9,7}, removeArr[] = {11,9,8,7,4,3};
 	Heap *heap;
-	Color c = RED;
 	
 	Vector *vec = CreateAndFillInt(arr,INIT_SIZE);
 	if(NULL == vec)
@@ -177,12 +176,6 @@ Result TestHeapBuild_ValidInt()
 	if(NULL == heap)
 	{
 		VectorDestroy(vec,NULL);
-		return FAILED;
-	}
-	
-	if(6 != HeapForEach(heap,PrintElements,&c))
-	{
-		DestroyAll(heap,vec);
 		return FAILED;
 	}
 
@@ -705,7 +698,9 @@ Result TestHeapForEach_PrintPower()
 
 static void Print(char *_str1, Result(*TestFun)(void))
 {
-	printf("\n%-40s \t %s \n", _str1,(SUCCEDD == (*TestFun)()) ? "succedded" : "failed");
+	static int count = 0;
+	++count;
+	printf("\n%d %-40s \t %s \n",count, _str1,(SUCCEDD == (*TestFun)()) ? "succedded" : "failed");
 }
 
 int main()

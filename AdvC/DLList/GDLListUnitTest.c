@@ -895,16 +895,6 @@ Result TestListItrEquals_False()
 	return FAILED;
 }
 
-Result TestListItrEquals_NULLList()
-{
-	if(!ListItrEquals(NULL,NULL))
-	{
-		return SUCCEDD;
-	}
-
-	return FAILED;
-}
-
 /*next*/
 Result TestListItrNext_Valid()
 {
@@ -930,16 +920,6 @@ Result TestListItrNext_Valid()
 
 	DLListDestroy(list,NULL);
 	return SUCCEDD;
-}
-
-Result TestListItrNext_NULLList()
-{
-	if(NULL == ListItrNext(NULL))
-	{
-		return SUCCEDD;
-	}
-
-	return FAILED;
 }
 
 /*get*/
@@ -969,15 +949,123 @@ Result TestListItrGet_Valid()
 	return SUCCEDD;
 }
 
-Result TestListItrGet_NULLList()
+/*prev*/
+Result TestListItrPrev_Valid()
 {
-	if(NULL == ListItrGet(NULL))
+	List *list = DLListCreate();
+	int arr[2] = {3,4};
+
+	if(NULL == list)
 	{
-		return SUCCEDD;
+		return FAILED;
 	}
 
-	return FAILED;
+	if(SUCCEEDED != DLListPushHead(list,&arr[0]) || SUCCEEDED != DLListPushHead(list,&arr[1]))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+
+	if(arr[0] != *(int*)ListItrGet(ListItrPrev(ListItrEnd(list))))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+
+	DLListDestroy(list,NULL);
+	return SUCCEDD;
 }
+
+/*set*/
+Result TestListItrSet_Valid()
+{
+	List *list = DLListCreate();
+	int arr[2] = {3,4}, newData = 2;
+	ListItr itr;
+
+	if(NULL == list)
+	{
+		return FAILED;
+	}
+
+	if(SUCCEEDED != DLListPushHead(list,&arr[0]) || SUCCEEDED != DLListPushHead(list,&arr[1]))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+	
+	itr = ListItrPrev(ListItrEnd(list));
+	
+	if(arr[0] != *(int*)ListItrSet(itr,&newData) || newData != *(int*)ListItrGet(itr))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+
+	DLListDestroy(list,NULL);
+	return SUCCEDD;
+}
+
+/*insert before*/
+Result TestListItrInsertBefore_Valid()
+{
+	List *list = DLListCreate();
+	int arr[2] = {3,4}, newData = 2;
+	ListItr itr, newItr;
+
+	if(NULL == list)
+	{
+		return FAILED;
+	}
+
+	if(SUCCEEDED != DLListPushHead(list,&arr[0]) || SUCCEEDED != DLListPushHead(list,&arr[1]))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+	
+	itr = ListItrPrev(ListItrEnd(list));
+	
+	if(!(newItr = ListItrInsertBefore(itr,&newData)) || arr[0] != *(int*)ListItrGet(itr) || newData != *(int*)ListItrGet(newItr))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+
+	DLListDestroy(list,NULL);
+	return SUCCEDD;
+}
+
+/*remove*/
+Result TestListItrRemove_Valid()
+{
+	List *list = DLListCreate();
+	int arr[3] = {3,2,4};
+	ListItr itr;
+
+	if(NULL == list)
+	{
+		return FAILED;
+	}
+
+	if(SUCCEEDED != DLListPushHead(list,&arr[0]) || SUCCEEDED != DLListPushHead(list,&arr[1]) || SUCCEEDED != DLListPushHead(list,&arr[2]))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+	
+	itr = ListItrPrev(ListItrPrev(ListItrEnd(list)));
+	
+	if(arr[1] != *(int*)ListItrRemove(itr))
+	{
+		DLListDestroy(list,NULL);
+		return FAILED;
+	}
+
+	DLListDestroy(list,NULL);
+	return SUCCEDD;
+}
+
 
 
 /* FIND DATA */
@@ -1129,27 +1217,31 @@ int main()
 	
 	/*Iterators*/
 	printf("\n--- Iterators: ---\n");
-	/*POS*/
+	/*begin POS*/
 	PrintRes("TestListItrBegin_Valid:",TestListItrBegin_Valid);
 	/*NEG*/
 	PrintRes("TestListItrBegin_NULLList:",TestListItrBegin_NULLList);
-	/*POS*/
+	/*end POS*/
 	PrintRes("TestListItrEnd_Valid:",TestListItrEnd_Valid);
 	/*NEG*/
 	PrintRes("TestListItrEnd_NULLList:",TestListItrEnd_NULLList);
-	/*POS*/
+	/*equals POS*/
 	PrintRes("TestListItrEquals_True:",TestListItrEquals_True);
 	/*NEG*/
 	PrintRes("TestListItrEquals_False:",TestListItrEquals_False);
-	PrintRes("TestListItrEquals_NULLList:",TestListItrEquals_NULLList);
-	/*POS*/
+	/*next*/
 	PrintRes("TestListItrNext_Valid:",TestListItrNext_Valid);
-	/*NEG*/
-	PrintRes("TestListItrNext_NULLList:",TestListItrNext_NULLList);
-	/*POS*/
+	/*get*/
 	PrintRes("TestListItrGet_Valid:",TestListItrGet_Valid);
-	/*NEG*/
-	PrintRes("TestListItrGet_NULLList:",TestListItrGet_NULLList);
+	/*prev*/
+	PrintRes("TestListItrPrev_Valid:",TestListItrPrev_Valid);
+	/*set*/
+	PrintRes("TestListItrSet_Valid:",TestListItrSet_Valid);
+	/*insert before*/
+	PrintRes("TestListItrInsertBefore_Valid:",TestListItrInsertBefore_Valid);
+	/*remove*/
+	PrintRes("TestListItrRemove_Valid:",TestListItrRemove_Valid);
+	
 
 	/*Find data*/
 	printf("\n--- Find data: ---\n");

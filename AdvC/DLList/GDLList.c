@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
 #include "GDLList.h"
 #include "GDLList_Itr.h"
 
@@ -20,16 +22,18 @@ struct DoubleLinkedList
 	Node m_tail;	
 };
 
-/**/
-static void DestroyNode(Node *_node);
-/**/
-static ErrCode AddData(List* _list, Node *_node, void* _data);
-/**/
+/*create a new node*/
+static Node* CreateNode(void* _data);
+/*destroy the node*/
+static void* DestroyNode(Node *_node);
+/*add new data to the list*/
+static Node* AddData(Node *_node, void* _data);
+/*count the items in the list*/
 static size_t CountItemsR(Node *_node);
-/**/
+/*print the elements of the list*/
 static void PrintNodesR(Node *_node, ptrElementFun _printElement);
-/**/
-static void RemoveData(List* _list, Node *_node, void**_data);
+/*remove the data from the list*/
+static void* RemoveData(Node *_node);
 
 
 List* DLListCreate()
@@ -61,6 +65,8 @@ void DLListDestroy(List* _list, ptrElementFun _destroyElement)
 		return;
 	}
 	
+	_list->m_magicNumber = 0;
+
 	while(_list->m_head.m_next != &(_list->m_tail))
 	{
 		if(NULL != _destroyElement)
@@ -68,16 +74,16 @@ void DLListDestroy(List* _list, ptrElementFun _destroyElement)
 			_destroyElement((_list->m_head).m_next->m_data);
 		}
 		
-		DestroyNode((_list->m_head).m_next);
-		_list->m_head = *((_list->m_head).m_next);
+		_list->m_head.m_next = (_list->m_head).m_next->m_next;
+		DestroyNode((_list->m_head).m_next->m_prev);
+		(_list->m_head).m_next->m_prev = &(_list->m_head);
 	}
 
-	_list->m_magicNumber = 0;
 	free(_list);
 }
 
 ErrCode DLListPushHead(List* _list, void* _data)
-{
+{	
 	if(IS_NOT_EXIST(_list))
 	{
 		return ERR_NOT_INITIALIZE;
@@ -88,7 +94,7 @@ ErrCode DLListPushHead(List* _list, void* _data)
 		return ERR_ILLEGAL_INPUT;
 	}
 
-	return AddData(_list,&(_list->m_head),_data);
+	return (NULL == AddData(&(_list->m_head),_data)) ? ERR_ALLOCATION_FAILED : SUCCEEDED;
 }
 
 ErrCode DLListPushTail(List* _list, void* _data)
@@ -103,7 +109,7 @@ ErrCode DLListPushTail(List* _list, void* _data)
 		return ERR_ILLEGAL_INPUT;
 	}
 
-	return AddData(_list,_list->m_tail.m_prev,_data);
+	return (NULL == AddData(_list->m_tail.m_prev,_data)) ? ERR_ALLOCATION_FAILED : SUCCEEDED;
 }
 
 ErrCode DLListPopHead(List* _list, void**_data)
@@ -124,7 +130,7 @@ ErrCode DLListPopHead(List* _list, void**_data)
 		return ERR_UNDERFLOW;
 	}
 
-	RemoveData(_list,&(_list->m_head),_data);
+	(*_data) = RemoveData(&(_list->m_head));
 
 	return SUCCEEDED;
 }
@@ -147,7 +153,7 @@ ErrCode DLListPopTail(List* _list, void**_data)
 		return ERR_UNDERFLOW;
 	}
 
-	RemoveData(_list,_list->m_tail.m_prev->m_prev,_data);
+	(*_data) = RemoveData(_list->m_tail.m_prev->m_prev);
 	
 	return SUCCEEDED;
 }
@@ -191,7 +197,7 @@ ListItr ListItrBegin(const List* _list)
 		return NULL;
 	}
 	
-	return (_list->m_head).m_next;
+	return _list->m_head.m_next;
 }
 
 ListItr ListItrEnd(const List* _list)
@@ -207,47 +213,51 @@ ListItr ListItrEnd(const List* _list)
 
 int ListItrEquals(const ListItr _a, const ListItr _b)
 {
-	if(NULL == _a || NULL == _b)
-	{
-		return false;
-	}
-	
 	return ((Node*)_a == (Node*)_b);
 }
 
 ListItr ListItrNext(ListItr _itr)
 {
-	if(NULL == _itr)
-	{
-		return NULL;
-	}
-	
 	return (NULL == ((Node*)_itr)->m_next) ? (Node*)_itr : ((Node*)_itr)->m_next;
+}
+
+ListItr ListItrPrev(ListItr _itr)
+{
+	return (NULL == ((Node*)_itr)->m_prev) ? (Node*)_itr : ((Node*)_itr)->m_prev;
 }
 
 void* ListItrGet(ListItr _itr)
 {
-	if(NULL == _itr)
+	return ((Node*)_itr)->m_data;
+}
+
+void* ListItrSet(ListItr _itr, void* _data)
+{
+	void* data = ((Node*)_itr)->m_data;
+	((Node*)_itr)->m_data = _data;
+	
+	return data;
+}
+
+ListItr ListItrInsertBefore(ListItr _itr, void* _data)
+{
+	if(NULL == ((Node*)_itr)->m_prev)
 	{
 		return NULL;
 	}
 	
-	return ((Node*)_itr)->m_data;
+	return AddData(((Node*)_itr)->m_prev,_data);
 }
 
+void* ListItrRemove(ListItr _itr)
+{
+	return (NULL == ((Node*)_itr)->m_next) ? NULL : RemoveData(((Node*)_itr)->m_prev);
+}
 
 /* SUB FUNCTIONS */
 
-static void DestroyNode(Node *_node)
-{
-	if(NULL != _node)
-	{	
-		free(_node);
-		_node = NULL;
-	}
-} 
 
-static ErrCode AddData(List* _list, Node *_node, void* _data)
+static Node* CreateNode(void* _data)
 {
 	Node *newNode;
 
@@ -255,17 +265,40 @@ static ErrCode AddData(List* _list, Node *_node, void* _data)
 
 	if(NULL == newNode)
 	{
-		return ERR_ALLOCATION_FAILED;
+		return NULL;
 	}
-
+	
 	newNode->m_data = _data;
+	
+	return newNode; 
+}
 
+static void* DestroyNode(Node *_node)
+{
+	void* tData;
+	
+	assert(_node);
+	
+	tData = _node->m_data;
+	free(_node);
+	
+	return tData;
+}
+
+static Node* AddData(Node *_node, void* _data)
+{
+	Node* newNode;
+	if(!(newNode = CreateNode(_data)))
+	{
+		return NULL;
+	}
+	
 	newNode->m_prev = _node;
 	newNode->m_next = _node->m_next;
 	_node->m_next = newNode;
 	newNode->m_next->m_prev = newNode;
 	
-	return SUCCEEDED;
+	return newNode;
 }
 
 static size_t CountItemsR(Node *_node)
@@ -290,17 +323,19 @@ static void PrintNodesR(Node *_node, ptrElementFun _printElement)
 	PrintNodesR(_node->m_next,_printElement);
 }
 
-static void RemoveData(List* _list, Node *_node, void**_data)
+static void* RemoveData(Node *_node)
 {
 	Node *temp;
+	void* data;
 
-	*_data = _node->m_next->m_data;
 	temp = _node->m_next;
 	_node->m_next = _node->m_next->m_next;
 	_node->m_next->m_prev = _node;
 
-	DestroyNode(temp);
+	data = DestroyNode(temp);
 	temp = NULL;
+	
+	return data;
 }
 
 

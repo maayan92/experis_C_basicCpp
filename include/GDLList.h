@@ -8,7 +8,7 @@ typedef struct DoubleLinkedList List;
 /*pointer to a function that do action on an element, input - the data*/
 typedef void(*ptrElementFun)(void*);
 
-enum{ false, true };
+typedef enum{ false, true }Bool;
 
 /*
 	Description: create a new double linked list.

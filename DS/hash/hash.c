@@ -30,6 +30,9 @@ static void insertIntoHash(Hash* _hash, int _data);
 static size_t ReHashFunction(size_t _position, size_t _capacity);
 /**/
 static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _maxPos);
+/**/
+static int SearchData(const Hash* _hash, int _data, int _position);
+
 
 Hash* HashCreate(size_t _size, HashFunction _hashFunction)
 {
@@ -114,7 +117,7 @@ ErrCode HashInsert(Hash* _hash, int _data)
 
 ErrCode HashRemove(Hash* _hash, int _data)
 {
-	int maxPos, position = _hash->m_hashFunction(_data) % _hash->m_capacity;
+	int maxPos, position;
 	
 	if(IS_NOT_EXIST(_hash))
 	{
@@ -126,10 +129,12 @@ ErrCode HashRemove(Hash* _hash, int _data)
 		return ERR_UNDERFLOW;
 	}
 	
+	position = _hash->m_hashFunction(_data) % _hash->m_capacity;
+	
 	maxPos = (position + (_hash->m_maxOfRehashOperations) + 1) % _hash->m_capacity;
 	position = findRemovePosition(_hash,_data,position,maxPos);
 
-	if('0' == _hash->m_state[position] || position == maxPos)
+	if(0 == _hash->m_state[position] || position == maxPos)
 	{
 		return ERR_NOT_EXIST;
 	}
@@ -142,32 +147,16 @@ ErrCode HashRemove(Hash* _hash, int _data)
 
 int HashIsFound(const Hash* _hash, int _data)
 {
-	int maxPos, position = _hash->m_hashFunction(_data) % _hash->m_capacity;
+	int position;
 	
 	if(IS_NOT_EXIST(_hash))
 	{
 		return false;
 	}
 	
-	maxPos = (position + (_hash->m_maxOfRehashOperations) + 1) % _hash->m_capacity;
+	position = _hash->m_hashFunction(_data) % _hash->m_capacity;
 	
-	while(position != maxPos)
-	{
-		if(0 == _hash->m_state[position])
-		{
-			return false;
-		}
-		
-		if(2 == _hash->m_state[position] && _data == _hash->m_data[position])
-		{
-			return true;
-		}
-
-		position = ReHashFunction(position,_hash->m_capacity);
-		
-	}
-	
-	return false;
+	return SearchData(_hash,_data,position);
 }
 
 size_t HashNumOfItems(const Hash* _hash)
@@ -192,7 +181,7 @@ size_t HashCapacity(const Hash* _hash)
 
 double HashAverageRehashes(const Hash* _hash)
 {
-	if(IS_NOT_EXIST(_hash))
+	if(IS_NOT_EXIST(_hash) || !(_hash->m_counterOfInsertions))
 	{
 		return 0;
 	}
@@ -212,7 +201,22 @@ size_t HashMaxReHash(const Hash* _hash)
 
 void HashPrint(const Hash* _hash)
 {
+	int i;
 	
+	if(IS_NOT_EXIST(_hash))
+	{
+		return;
+	}
+	
+	for(i = 0;i < _hash->m_capacity;++i)
+	{
+		if(2 == _hash->m_state[i])
+		{
+			printf("%d \t", _hash->m_data[i]);
+		}
+	}
+	
+	printf("\n");
 }
 
 /* SUB FUNCTIONS */
@@ -253,7 +257,7 @@ static void insertIntoHash(Hash* _hash, int _data)
 {
 	int countReHash = 0, position = _hash->m_hashFunction(_data) % _hash->m_capacity;
 
-	while('2' == _hash->m_state[position])
+	while(2 == _hash->m_state[position])
 	{
 		position = ReHashFunction(position,_hash->m_capacity);
 		++countReHash;
@@ -280,7 +284,7 @@ static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _max
 {
 	while(_data != _hash->m_data[_position] && _position != _maxPos)
 	{
-		if('0' == _hash->m_state[_position])
+		if(0 == _hash->m_state[_position])
 		{
 			return _position;
 		}
@@ -291,6 +295,28 @@ static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _max
 	return _position;
 }
 
+static int SearchData(const Hash* _hash, int _data, int _position)
+{
+	int maxPos = (_position + (_hash->m_maxOfRehashOperations) + 1) % _hash->m_capacity;
+	
+	while(_position != maxPos)
+	{
+		if(0 == _hash->m_state[_position])
+		{
+			return false;
+		}
+		
+		if(2 == _hash->m_state[_position] && _data == _hash->m_data[_position])
+		{
+			return true;
+		}
+
+		_position = ReHashFunction(_position,_hash->m_capacity);
+		
+	}
+	
+	return false;
+}
 
 
 

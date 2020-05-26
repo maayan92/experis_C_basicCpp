@@ -53,14 +53,14 @@ void* ListItrGet(ListItr _itr);
 	Input: _itr - a list iterator, _element - the data that would be set.
 	Return value: return the data from the node to be changed.
 */
-void* ListItrSet(ListItr _itr, void* _element);
+void* ListItrSet(ListItr _itr, void* _data);
 
 /*
 	Description: Inserts a new node before node the iterator is pointing at.
 	Input: _itr - a list iterator, _element - the new data.
 	Return value: return an iterator pointing at the element inserted or NULL on error.
 */
-ListItr ListItrInsertBefore(ListItr _itr, void* _element);
+ListItr ListItrInsertBefore(ListItr _itr, void* _data);
 
 /*
 	Description: Removes the node the iterator is pointing at

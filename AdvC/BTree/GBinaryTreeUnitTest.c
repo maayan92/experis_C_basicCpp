@@ -13,10 +13,13 @@ typedef enum
 static Result FillArr(Tree *_tree, int *_arr, int _size)
 {
 	int i;
+	BSTreeItr itr;
 
 	for(i = 0;i < _size;++i)
 	{
-		if(NULL == TreeInsert(_tree,&_arr[i]))
+		itr = TreeInsert(_tree,&_arr[i]);
+		
+		if(NULL == itr || TREE_ITR_EQUALS(BSTreeItrEnd(_tree),itr))
 		{
 			return FAILED;
 		}
@@ -50,6 +53,7 @@ static int AddContext(void* _data, void* _context)
 
 
 /* CREATE TREE */
+
 Result TestTreeCreate()
 {
 	Tree *tree = TreeCreate(LessCompare);
@@ -57,6 +61,8 @@ Result TestTreeCreate()
 	{
 		return FAILED;
 	}
+	
+	TreeDestroy(tree,NULL);
 	return SUCCEDD;
 }
 
@@ -178,7 +184,7 @@ Result TestTreeInsert_Duplicate()
 		return FAILED;
 	}
 	
-	if(NULL == TreeInsert(tree,&insertD))
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),TreeInsert(tree,&insertD)))
 	{
 		TreeDestroy(tree,NULL);
 		return SUCCEDD;
@@ -208,7 +214,7 @@ Result TestTreeInsert_NULLData()
 		return FAILED;
 	}
 	
-	if(NULL == TreeInsert(tree,NULL))
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),TreeInsert(tree,NULL)))
 	{
 		TreeDestroy(tree,NULL);
 		return SUCCEDD;
@@ -288,7 +294,7 @@ Result TestBSTreeItrEnd_Valid()
 	{
 		return FAILED;
 	}
-	if(FAILED == FillArr(tree,arr,7) || 11 != *(int*)BSTreeItrGet(BSTreeItrEnd(tree)))
+	if(FAILED == FillArr(tree,arr,7) || NULL != (int*)BSTreeItrGet(BSTreeItrEnd(tree)))
 	{
 		TreeDestroy(tree,NULL);
 		return FAILED;
@@ -325,6 +331,7 @@ Result TestBSTreeItrEnd_NULL()
 	
 	return FAILED;
 }
+
 /* NEXT */
 
 Result TestBSTreeItrNext_Valid()
@@ -358,8 +365,32 @@ Result TestBSTreeItrNext_Valid()
 		itr = BSTreeItrNext(itr);
 	}
 	
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),BSTreeItrNext(itr)))
+	{
+		TreeDestroy(tree,NULL);
+		return SUCCEDD;
+	}
+	
 	TreeDestroy(tree,NULL);
 	return SUCCEDD;
+}
+
+Result TestBSTreeItrNext_Empty()
+{
+	Tree *tree = TreeCreate(LessCompare);
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),BSTreeItrNext(BSTreeItrBegin(tree))))
+	{
+		TreeDestroy(tree,NULL);
+		return SUCCEDD;
+	}
+	
+	TreeDestroy(tree,NULL);
+	return FAILED;
 }
 
 /* PREV */
@@ -381,7 +412,7 @@ Result TestBSTreeItrPrev_Valid()
 		return FAILED;	
 	}
 	
-	itr = BSTreeItrEnd(tree);
+	itr = BSTreeItrPrev(BSTreeItrEnd(tree));
 	
 	for(i = 0;i < SIZE;++i)
 	{
@@ -394,8 +425,32 @@ Result TestBSTreeItrPrev_Valid()
 		itr = BSTreeItrPrev(itr);
 	}
 	
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),BSTreeItrPrev(itr)))
+	{
+		TreeDestroy(tree,NULL);
+		return SUCCEDD;
+	}
+	
 	TreeDestroy(tree,NULL);
 	return SUCCEDD;
+}
+
+Result TestBSTreeItrPrev_Empty()
+{
+	Tree *tree = TreeCreate(LessCompare);
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+	
+	if(TREE_ITR_EQUALS(BSTreeItrEnd(tree),BSTreeItrPrev(BSTreeItrEnd(tree))))
+	{
+		TreeDestroy(tree,NULL);
+		return SUCCEDD;
+	}
+	
+	TreeDestroy(tree,NULL);
+	return FAILED;
 }
 
 /* FOR EACH */
@@ -417,7 +472,7 @@ Result TestBSTreeForEach_Valid()
 		return FAILED;
 	}
 	
-	if(NULL != BSTreeForEach(tree,IN_ORDER,AddContext,&context))
+	if(!TREE_ITR_EQUALS(BSTreeItrEnd(tree),BSTreeForEach(tree,IN_ORDER,AddContext,&context)))
 	{
 		TreeDestroy(tree,NULL);
 		return FAILED;
@@ -450,10 +505,7 @@ static void PrintRes(char *_str, Result(*ptrPrint)(void))
 }
 
 int main()
-{
-	/*Tree *tree;
-	int arr[] = {5,9,3,1,4,11,8};*/
-	
+{	
 	/*Create tree*/
 	printf("\n--- Create tree: ---\n");
 	/*POS*/
@@ -477,8 +529,6 @@ int main()
 	PrintRes("TestTreeInsert_Duplicate:",TestTreeInsert_Duplicate);
 	PrintRes("TestTreeInsert_NULLTree:",TestTreeInsert_NULLTree);
 	PrintRes("TestTreeInsert_NULLData:",TestTreeInsert_NULLData);
-	
-
 
 	/*Iterators*/
 	printf("\n--- Iterators: ---\n");
@@ -492,29 +542,13 @@ int main()
 	PrintRes("TestBSTreeItrEnd_Empty:",TestBSTreeItrEnd_Empty);
 	/*next*/
 	PrintRes("TestBSTreeItrNext_Valid:",TestBSTreeItrNext_Valid);
+	PrintRes("TestBSTreeItrNext_Empty:",TestBSTreeItrNext_Empty);
 	/*prev*/
 	PrintRes("TestBSTreeItrPrev_Valid:",TestBSTreeItrPrev_Valid);
+	PrintRes("TestBSTreeItrPrev_Empty:",TestBSTreeItrPrev_Empty);
 	/*for each*/
 	PrintRes("TestBSTreeForEach_Valid:",TestBSTreeForEach_Valid);
 
-
-
-
-
-	/*Print*/
-/*	tree = TreeCreate();	
-	if(NULL == tree)
-	{
-		printf("create tree Failed!\n");
-	}
-
-	if(SUCCEDD == FillArr(tree,arr,7))
-	{
-		TreePrint(tree,PRE_ORDER);
-		TreePrint(tree,IN_ORDER);
-		TreePrint(tree,POST_ORDER);
-	}
-*/
 	return 0;
 }
 

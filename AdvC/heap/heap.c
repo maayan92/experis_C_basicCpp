@@ -20,6 +20,13 @@ struct Heap
 	PtrCompare m_ptrCompare;
 };
 
+typedef struct Context
+{
+	ActionFunction m_userActionFun;
+	void* m_userContext;
+	size_t m_numOfActions;
+}Context;
+
 /*Swap vector value between positions _i to _j*/
 static int Swap(Vector *_vec, int _i, int _j);
 /*Get the parent, left and right values and check if need to swap, call Swap if needed*/
@@ -156,6 +163,12 @@ size_t HeapForEach(const Heap* _heap, ActionFunction _act, void* _context)
 		return 0;
 	}
 	
+	Context cnt = (Context)malloc(sizeof(Context));
+	
+	cnt.m_userActionFun = _act;
+	cnt.m_userContext = _context;
+	cnt.m_numOfActions = _heap->m_heapSize;
+	
 	return VectorForEach(_heap->m_vec,_act,_context);
 }
 
@@ -248,6 +261,11 @@ static void BubbleUp(Heap *_heap)
 		Swap(_heap->m_vec,parentIndx,childIndx);
 		childIndx = parentIndx;
 	}
+}
+
+static int HeapElementsAction(const void* _element, void* _context)
+{
+	
 }
 
 

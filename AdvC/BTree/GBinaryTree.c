@@ -63,9 +63,10 @@ Tree* TreeCreate(LessComparator _less)
 		return NULL;
 	}
 	
-	tree->m_root.m_left = NULL;
-	tree->m_root.m_right = NULL;
+	tree->m_root.m_left = &(tree->m_root);
+	tree->m_root.m_right = &(tree->m_root);
 	tree->m_root.m_parent = NULL;
+	tree->m_root.m_data = NULL;
 	tree->m_lessFun = _less;
 	tree->m_MagicNumber = TREE_MAGIC_NUMBER;
 	
@@ -74,10 +75,15 @@ Tree* TreeCreate(LessComparator _less)
 
 void TreeDestroy(Tree* _tree, void(*_destroyer)(void*))
 {
-	if(!IS_NOT_EXIST(_tree))
+	if(IS_NOT_EXIST(_tree))
 	{
-		_tree->m_MagicNumber = 0;
-
+		return;		
+	}
+	
+	_tree->m_MagicNumber = 0;
+	
+	if(!TREE_ITR_EQUALS(&(_tree->m_root),_tree->m_root.m_left))
+	{
 		if(NULL == _destroyer)
 		{
 			NodeDestroy(_tree->m_root.m_left);
@@ -85,25 +91,30 @@ void TreeDestroy(Tree* _tree, void(*_destroyer)(void*))
 		else
 		{
 			NodeAndDataDestroy(_tree->m_root.m_left,_destroyer);
-		}
-		
-		free(_tree);
+		}	
 	}
+	
+	free(_tree);
 }
 
 BSTreeItr TreeInsert(Tree* _tree, void* _data)
 {
-	if(IS_NOT_EXIST(_tree) || !_data)
+	if(IS_NOT_EXIST(_tree))
 	{
 		return NULL;
 	}
+	
+	if(!_data)
+	{
+		return (BSTreeItr)&(_tree->m_root);
+	}
 
-	if(!(_tree->m_root.m_left))
+	if(TREE_ITR_EQUALS(&(_tree->m_root),_tree->m_root.m_left))
 	{
 		_tree->m_root.m_left = CreateNode(_data,&(_tree->m_root));
 		if(!(_tree->m_root.m_left))
 		{
-			return NULL;
+			return (BSTreeItr)&(_tree->m_root);
 		}
 
 		return _tree->m_root.m_left;
@@ -122,7 +133,7 @@ BSTreeItr BSTreeItrBegin(const Tree* _tree)
 		return NULL;
 	}
 	
-	if(NULL == _tree->m_root.m_left)
+	if(TREE_ITR_EQUALS(&(_tree->m_root),_tree->m_root.m_left))
 	{
 		return (BSTreeItr)&(_tree->m_root);
 	}
@@ -137,16 +148,11 @@ BSTreeItr BSTreeItrEnd(const Tree* _tree)
 		return NULL;
 	}
 	
-	if(NULL == _tree->m_root.m_left)
-	{
-		return (BSTreeItr)&(_tree->m_root);
-	}
-	
-	return GetBiggestRight(_tree->m_root.m_left->m_right);
+	return (BSTreeItr)&(_tree->m_root);
 }
 
 BSTreeItr BSTreeItrNext(BSTreeItr _itr)
-{	
+{
 	Node* temp = GetSmallestLeft(((Node*)_itr)->m_right);
 	
 	return (!temp) ? GetNextRoot((Node*)_itr) : temp;
@@ -159,9 +165,49 @@ BSTreeItr BSTreeItrPrev(BSTreeItr _itr)
 	return (!temp) ? GetPrevRoot((Node*)_itr) : temp;
 }
 
+void* BSTreeItrRemove(BSTreeItr _itr)
+{
+	BSTreeItr nextItr = BSTreeItrNext(_itr);
+	
+	if(!(nextItr->m_parent))
+	{
+		nextItr = BSTreeItrPrev(_itr);
+	}
+	
+	
+	
+}
+
 void* BSTreeItrGet(BSTreeItr _itr)
 {
 	return ((Node*)_itr)->m_data;
+}
+
+BSTreeItr BSTreeForEach(const Tree* _tree, TreeTraverse _mode, ActionFunction _action, void* _context)
+{
+	BSTreeItr itr;
+	
+	if(IS_NOT_EXIST(_tree))
+	{
+		return NULL;
+	}
+
+	switch (_mode)
+	{
+		case PRE_ORDER:
+		
+			itr = PreOrder(_tree->m_root.m_left,_action,_context);
+		
+		case POST_ORDER:
+		
+			itr = PostOrder(_tree->m_root.m_left,_action,_context);
+		
+		default :
+		
+			itr = InOrder(_tree->m_root.m_left,_action,_context);
+	}
+	
+	return (!itr) ? BSTreeItrEnd(_tree) : itr;
 }
 
 
@@ -241,13 +287,13 @@ static BSTreeItr InsertNode(Tree* _tree, void* _data)
 	temp = FindPosition(_tree->m_root.m_left,_data,_tree->m_lessFun);
 	if(!temp || (!_tree->m_lessFun(temp->m_data,_data) && !_tree->m_lessFun(_data,temp->m_data)))
 	{
-		return NULL;
+		return (BSTreeItr)&(_tree->m_root);
 	}
 	
 	newNode  = CreateNode(_data,temp);
 	if(!newNode)
 	{
-		return NULL;
+		return (BSTreeItr)&(_tree->m_root);
 	}
 	
 	if(_tree->m_lessFun(temp->m_data,_data))
@@ -269,6 +315,11 @@ static Node* GetSmallestLeft(Node *_node)
 		return _node;
 	}
 	
+	if(!(_node->m_parent))
+	{
+		return _node;
+	}
+	
 	return GetSmallestLeft(_node->m_left);
 }
 
@@ -279,14 +330,24 @@ static Node* GetBiggestRight(Node *_node)
 		return _node;
 	}
 	
+	if(!(_node->m_parent))
+	{
+		return _node;
+	}
+	
 	return GetBiggestRight(_node->m_right);
 }
 
 static Node* GetNextRoot(Node *_node)
 {
-	if(!(_node) || !(_node->m_parent))
+	if(!_node || !(_node->m_parent))
 	{
 		return _node->m_left;
+	}
+	
+	if(!(_node->m_parent))
+	{
+		return _node;
 	}
 	
 	if(TREE_ITR_EQUALS(_node,_node->m_parent->m_left))
@@ -299,9 +360,14 @@ static Node* GetNextRoot(Node *_node)
 
 static Node* GetPrevRoot(Node *_node)
 {
-	if(!(_node) || !(_node->m_parent))
+	if(!_node)
 	{
 		return _node->m_left;	
+	}
+	
+	if(!(_node->m_parent))
+	{
+		return _node;
 	}
 	
 	if(TREE_ITR_EQUALS(_node,_node->m_parent->m_right))
@@ -310,29 +376,6 @@ static Node* GetPrevRoot(Node *_node)
 	}
 	
 	return GetPrevRoot(_node->m_parent);
-}
-
-BSTreeItr BSTreeForEach(const Tree* _tree, TreeTraverse _mode, ActionFunction _action, void* _context)
-{
-	if(IS_NOT_EXIST(_tree))
-	{
-		return NULL;
-	}
-
-	switch (_mode)
-	{
-		case PRE_ORDER:
-		
-			return PreOrder(_tree->m_root.m_left,_action,_context);
-		
-		case POST_ORDER:
-		
-			return PostOrder(_tree->m_root.m_left,_action,_context);
-		
-		default :
-		
-			return InOrder(_tree->m_root.m_left,_action,_context);
-	}
 }
 
 static BSTreeItr PreOrder(Node *_node, ActionFunction _action, void* _context)

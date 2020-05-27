@@ -9,8 +9,8 @@
 struct Hash
 {
 	size_t m_magicNumber;
-	int* m_data;/**/
-	char* m_state;/**/
+	int* m_data;/*values*/
+	char* m_state;/*state, 0 empty, 1 had a value, 2 have value*/
 	size_t m_hashSize; /*original size given by the client*/
 	size_t m_capacity; /*real hush size */
 	size_t m_numOfItems; /*number of occupied plases in the table*/
@@ -20,17 +20,17 @@ struct Hash
 	HashFunction m_hashFunction;
 };
 
-/**/
+/*caculate the capacity size*/
 static size_t getCapacity(size_t _size);
-/**/
+/*check if the number is primary*/
 static size_t checkIfPrimary(size_t _num);
-/**/
+/*insert the new data to the hash*/
 static void insertIntoHash(Hash* _hash, int _data);
-/**/
+/*give the new position after rehash*/
 static size_t ReHashFunction(size_t _position, size_t _capacity);
-/**/
+/*find the position to remove from*/
 static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _maxPos);
-/**/
+/*search a specific data*/
 static int SearchData(const Hash* _hash, int _data, int _position);
 
 

@@ -16,11 +16,6 @@ static void DestroyElement(void *_data)
 	free((int*)_data);
 }
 
-static void PrintElement(void *_data)
-{
-	printf("%d \t", *(int*)_data);
-}
-
 static int CompareItrData(int* _data, ListItr _itr)
 {
 	if(*_data == *(int*)ListItrGet(_itr))

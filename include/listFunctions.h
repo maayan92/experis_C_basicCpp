@@ -60,7 +60,7 @@ size_t ListItrCountIf(ListItr _begin, ListItr _end, PredicateFunction _predicate
 		_Action - user provided action function, _context - context to be passed to the predicate.
 	Return value: return ListItr to the element where the iteration stoped. this might be end iterator.
 */
-ListItr ListItr_ForEach(ListItr _begin, ListItr _end, ListActionFunction _action, void* _context);
+ListItr ListItrForEach(ListItr _begin, ListItr _end, ListActionFunction _action, void* _context);
 
 /*
 	Description: Sorts a sublist in place using the bubble sort algorithm, Complexity O(n^2).

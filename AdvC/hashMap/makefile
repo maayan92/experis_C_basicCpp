@@ -2,7 +2,7 @@
 
 TARGET= hashMapUnitTest.out 
 CC= gcc -I../../include
-CFLAGS= -ansi -g -pedantic -Wall -Werror 
+CFLAGS= -ansi -g -pedantic -Wall -Werror
 INC= ../../include
 OBJS= hashMap.o hashMapUnitTest.o ../DLList/GDLList.o
 

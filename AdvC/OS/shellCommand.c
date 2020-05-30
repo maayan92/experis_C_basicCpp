@@ -15,6 +15,8 @@ static void read_command(char *command, char **paramaters)
 	fgets(command,50,stdin);
 	
 	token = strtok(command," ");
+	
+	printf("\n %s \n\n", token);
 
 	while(token)
 	{
@@ -23,8 +25,8 @@ static void read_command(char *command, char **paramaters)
 		token = strtok(NULL," ");
 	}
 	
-	paramaters[--i] = NULL;
-	
+	(!command) ? (paramaters[0] = command) : (paramaters[--i] = NULL);
+	 
 	command = paramaters[0];
 }
 
@@ -36,7 +38,7 @@ int main()
 
 	while(1)
 	{
-		printf("rony prompt: ");
+		printf("prompt: ");
 		fgets(str,50,stdin);
 		
 		read_command(command,paramaters);

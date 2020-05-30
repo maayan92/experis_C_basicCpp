@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>/*TODO temp*/
 #include "hashMap.h"
 
@@ -48,6 +49,28 @@ static Result FillHash(HashMap *_hashMap, int *_keys, void** _values, int _size)
 	return SUCCEDD;
 }
 
+static int DecreaseMoreThan(const void* _key, void* _value, void* _context)
+{
+	if(*(int*)_value > *(int*)_context)
+	{
+		*(int*)_value /= 10;
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+static int PosOrNeg(const void* _key, void* _value, void* _context)
+{
+	if((*(int*)_value)*(*(int*)_context) > 0)
+	{
+		return 1;
+	}
+	
+	return 0;
+}
+
 /*
 static int PrintKeyValue(const void* _key, void* _value, void* _context)
 {
@@ -63,6 +86,16 @@ static int PrintKeyValue(const void* _key, void* _value, void* _context)
 	return 1;
 }
 */
+
+static void DestroyKey(void *_key)
+{
+	free((int*)_key);
+}
+
+static void DestroyValue(void *_value)
+{
+	free((int*)_value);
+}
 
 /* CREATE HASH */
 
@@ -104,7 +137,67 @@ Result TestHashCreate_NULLFunCK()
 	return FAILED;
 }
 
+/* DESTROY HASH */
 
+Result TestHashMapDestroy_Valid()
+{
+	int i, arr[] = {1235,239,1253,261,4,11,1678,249}, *keys[ARR_SIZE], *values[ARR_SIZE];
+	
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+	
+	for(i = 0;i < ARR_SIZE;++i)
+	{
+		keys[i] = (int*)malloc(sizeof(int));
+		values[i] = (int*)malloc(sizeof(int));
+		
+		*keys[i] = arr[i];
+		*values[i] = arr[i];
+		
+		if(SUCCEEDED != HashMapInsert(hashMap,&keys[i],&values[i])) 
+		{
+			HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
+			return FAILED; 
+		}
+	}
+
+	HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
+	return SUCCEDD;
+}
+
+Result TestHashMapDestroy_Double()
+{
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+	
+	HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
+	HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
+	return SUCCEDD;
+}
+
+Result TestHashMapDestroy_Empty()
+{
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+	
+	HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
+	return SUCCEDD;
+}
+
+Result TestHashMapDestroy_NULL()
+{	
+	HashMapDestroy(NULL,DestroyKey,DestroyValue);
+	return SUCCEDD;
+}
 
 /* INSERT DATA */
 
@@ -413,7 +506,7 @@ Result TestHashMapFind_NULL()
 	return FAILED;
 }
 
-/* COUNT */
+/* HASH MAP SIZE */
 
 Result TestHashMapSize_Valid()
 {
@@ -442,7 +535,201 @@ Result TestHashMapSize_Valid()
 	return SUCCEDD;
 }
 
+Result TestHashMapSize_Empty()
+{
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
 
+	if(0 != HashMapSize(hashMap))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return SUCCEDD;
+}
+
+Result TestHashMapSize_NULL()
+{
+	if(0 != HashMapSize(NULL))
+	{
+		return FAILED;
+	}
+	
+	return SUCCEDD;
+}
+
+/* FOR EACH */
+
+Result TestHashMapForEach_Valid()
+{
+	int keys[] = {1235,239,1253,261,4,11,1678,249}, con = 1;
+	void* values[] = {(void*)1,(void*)73,(void*)7,(void*)12,(void*)4543,(void*)65,(void*)34,(void*)2};
+	
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+
+	if(FAILED == FillHash(hashMap,keys,values,ARR_SIZE))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;
+	}
+	
+	if(8 != HashMapForEach(hashMap,PosOrNeg,&con))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return SUCCEDD;
+}
+
+Result TestHashMapForEach_ValidStop()
+{
+	int keys[] = {1235,239,1253,261,4,11,1678,249}, con = 100;
+	void* values[] = {(void*)61,(void*)146,(void*)74,(void*)4543,(void*)1672,(void*)655,(void*)345,(void*)2};
+	
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+
+	if(FAILED == FillHash(hashMap,keys,values,ARR_SIZE))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;
+	}
+	
+	if(2 != HashMapForEach(hashMap,DecreaseMoreThan,&con))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return SUCCEDD;
+}
+
+Result TestHashMapForEach_Empty()
+{
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+	
+	if(0 != HashMapForEach(hashMap,DecreaseMoreThan,(void*)100))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return SUCCEDD;
+}
+
+Result TestHashMapForEach_NULLFunc()
+{
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+	
+	if(0 == HashMapForEach(hashMap,NULL,(void*)100))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return SUCCEDD;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return FAILED;
+}
+
+Result TestHashMapForEach_NULLHash()
+{
+	if(0 == HashMapForEach(NULL,DecreaseMoreThan,(void*)100))
+	{
+		return SUCCEDD;	
+	}
+		return FAILED;
+}
+
+/* MAP STATS */
+
+Result TestHashMapGetStatistics_Valid()
+{
+	int keys[] = {1235,239,1253,261,4,11,1678,249};
+	MapStats stats;
+	
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+
+	if(FAILED == FillHash(hashMap,keys,(void*)keys,ARR_SIZE))
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;
+	}
+	
+	stats = HashMapGetStatistics(hashMap);
+	
+	if(3 != stats.numberOfBuckets || 8 != stats.numberOfChains || 4 != stats.maxChainLength || 2 != stats.averageChainLength)
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return FAILED;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return SUCCEDD;
+}
+
+Result TestHashMapGetStatistics_Empty()
+{
+	MapStats stats;
+	
+	HashMap *hashMap = HashMapCreate(SIZE,GetPosition,CompareKeys);
+	if(NULL == hashMap)
+	{
+		return FAILED;
+	}
+
+	stats = HashMapGetStatistics(hashMap);
+	
+	if(0 == stats.numberOfBuckets && 0 == stats.numberOfChains && 0 == stats.maxChainLength && 0 == stats.averageChainLength)
+	{
+		HashMapDestroy(&hashMap,NULL,NULL);
+		return SUCCEDD;	
+	}
+	
+	HashMapDestroy(&hashMap,NULL,NULL);
+	return FAILED;
+}
+
+Result TestHashMapGetStatistics_NULL()
+{
+	MapStats stats;
+	
+	stats = HashMapGetStatistics(NULL);
+	
+	if(0 == stats.numberOfBuckets && 0 == stats.numberOfChains && 0 == stats.maxChainLength && 0 == stats.averageChainLength)
+	{
+		return SUCCEDD;	
+	}
+	
+	return FAILED;
+}
 
 static void PrintRes(char *_str, Result(*ptrPrint)(void))
 {
@@ -499,17 +786,31 @@ int main()
 	PrintRes("TestHashMapFind_NULLInput:",TestHashMapFind_NULLInput);
 	PrintRes("TestHashMapFind_NULL:",TestHashMapFind_NULL);
 
-
-
 	/*Hash map size*/
 	/*POS*/
 	printf("\n--- Hash map size: ---\n");
 	PrintRes("TestHashMapSize_Valid:",TestHashMapSize_Valid);
+	PrintRes("TestHashMapSize_Empty:",TestHashMapSize_Empty);
 	/*NEG*/
+	PrintRes("TestHashMapSize_NULL:",TestHashMapSize_NULL);
 
-
-
-
+	/*For each*/
+	/*POS*/
+	printf("\n--- For each: ---\n");
+	PrintRes("TestHashMapForEach_Valid:",TestHashMapForEach_Valid);
+	PrintRes("TestHashMapForEach_ValidStop:",TestHashMapForEach_ValidStop);
+	/*NEG*/
+	PrintRes("TestHashMapForEach_Empty:",TestHashMapForEach_Empty);
+	PrintRes("TestHashMapForEach_NULLFunc:",TestHashMapForEach_NULLFunc);
+	PrintRes("TestHashMapForEach_NULLHash:",TestHashMapForEach_NULLHash);
+	
+	/*Map stats*/
+	/*POS*/
+	printf("\n--- Map stats: ---\n");
+	PrintRes("TestHashMapGetStatistics_Valid:",TestHashMapGetStatistics_Valid);
+	PrintRes("TestHashMapGetStatistics_Empty:",TestHashMapGetStatistics_Empty);
+	/*NEG*/
+	PrintRes("TestHashMapGetStatistics_NULL:",TestHashMapGetStatistics_NULL);
 
 
 

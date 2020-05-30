@@ -86,7 +86,7 @@ HashMap* HashMapCreate(size_t _capacity, HashFunction _hashFunc, EqualityFunctio
 	return hashMap;
 }
 
-void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))/*TODO*/
+void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
 {
 	int i;
 	
@@ -99,10 +99,16 @@ void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_val
 	{
 		if((*_map)->m_listArr[i])
 		{
-			DLListDestroy((*_map)->m_listArr[i],NULL);
+			DLListDestroy((*_map)->m_listArr[i],_keyDestroy);
 		}
 	}
-	
+/*
+	void DataDestroy(void *_data)
+	{
+		_keyDestroy((void*)((Data*)_data)->m_key);
+		_valDestroy(((Data*)_data)->m_value);
+	}
+*/	
 	free(*_map);
 	*_map = NULL;
 }
@@ -159,7 +165,7 @@ size_t HashMapSize(const HashMap* _map)
 		return 0;
 	}
 	
-	return GoOnMapLists(_map,CountAllElements);;
+	return GoOnMapLists(_map,CountAllElements);
 }
 
 size_t HashMapForEach(const HashMap* _map, KeyValueActionFunction _action, void* _context)
@@ -167,7 +173,7 @@ size_t HashMapForEach(const HashMap* _map, KeyValueActionFunction _action, void*
 	int i;
 	size_t count = 0;
 	
-	if(IS_NOT_EXIST(_map))
+	if(IS_NOT_EXIST(_map) || !_action)
 	{
 		return 0;
 	}
@@ -198,7 +204,7 @@ MapStats HashMapGetStatistics(const HashMap* _map)
 	mapStats.numberOfBuckets = GoOnMapLists(_map,CountExistingLists);
 	mapStats.numberOfChains = GoOnMapLists(_map,CountAllElements);
 	mapStats.maxChainLength = GoOnMapLists(_map,GetMaxListLegth);
-	mapStats.averageChainLength = mapStats.numberOfChains / mapStats.numberOfBuckets;
+	mapStats.averageChainLength = (0 == mapStats.numberOfBuckets) ? 0 : mapStats.numberOfChains / mapStats.numberOfBuckets;
 	
 	return mapStats;
 }

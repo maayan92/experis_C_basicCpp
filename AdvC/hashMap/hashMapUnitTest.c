@@ -157,7 +157,7 @@ Result TestHashMapDestroy_Valid()
 		*keys[i] = arr[i];
 		*values[i] = arr[i];
 		
-		if(SUCCEEDED != HashMapInsert(hashMap,&keys[i],&values[i])) 
+		if(SUCCEEDED != HashMapInsert(hashMap,keys[i],values[i])) 
 		{
 			HashMapDestroy(&hashMap,DestroyKey,DestroyValue);
 			return FAILED; 
@@ -754,9 +754,12 @@ int main()
 	/*Destroy hash map*/
 	/*POS*/
 	printf("\n--- Destroy hash map: ---\n");
-
+	PrintRes("TestHashMapDestroy_Valid:",TestHashMapDestroy_Valid);
 	/*NEG*/
-
+	PrintRes("TestHashMapDestroy_Double:",TestHashMapDestroy_Double);
+	PrintRes("TestHashMapDestroy_Empty:",TestHashMapDestroy_Empty);
+	PrintRes("TestHashMapDestroy_NULL:",TestHashMapDestroy_NULL);
+	
 	/*Insert key and value*/
 	/*POS*/
 	printf("\n--- Insert key and value: ---\n");

@@ -22,10 +22,12 @@ typedef struct Data
 	void* m_value;
 }Data;
 
+/*destroy all list elements*/
+static void DestroyElements(List *_list, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value));
 /*create a new data with the new _key and the new _value*/
 static Data* CreateData(const void* _key, const void* _value);
 /*destroy the _data*/
-static void DestroyData(Data *_data);
+static void DestroyData(Data *_data, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value));
 /*caculate the capacity number*/
 static size_t getCapacity(size_t _capacity);
 /*check if the number is primary*/
@@ -99,18 +101,30 @@ void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_val
 	{
 		if((*_map)->m_listArr[i])
 		{
-			DLListDestroy((*_map)->m_listArr[i],_keyDestroy);
+			DestroyElements((*_map)->m_listArr[i],_keyDestroy,_valDestroy);
+		
+			DLListDestroy((*_map)->m_listArr[i],NULL);
 		}
 	}
-/*
-	void DataDestroy(void *_data)
-	{
-		_keyDestroy((void*)((Data*)_data)->m_key);
-		_valDestroy(((Data*)_data)->m_value);
-	}
-*/	
+	
 	free(*_map);
 	*_map = NULL;
+}
+
+static void DestroyElements(List *_list, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
+{
+	ListItr beginItr = ListItrBegin(_list);
+	ListItr endItr = ListItrEnd(_list);
+	Data *data;
+	
+	while(!ListItrEquals(beginItr,endItr))
+	{
+		data = (Data*)ListItrGet(beginItr);
+		
+		DestroyData(data,_keyDestroy,_valDestroy);
+		
+		beginItr = ListItrNext(beginItr);
+	}
 }
 
 ErrCode HashMapInsert(HashMap* _map, const void* _key, const void* _value)
@@ -225,8 +239,18 @@ static Data* CreateData(const void* _key, const void* _value)
 	return data;
 }
 
-static void DestroyData(Data *_data)
+static void DestroyData(Data *_data, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
 {
+	if(_keyDestroy)
+	{
+		_keyDestroy((void*)_data->m_key);
+	}
+	
+	if(_valDestroy)
+	{
+		_valDestroy(_data->m_value);
+	}
+	
 	free(_data);
 }
 
@@ -301,7 +325,7 @@ static ErrCode RemoveFromHash(HashMap* _map, const void* _searchKey, void** _pKe
 	*_pKey = (void*)data->m_key;
 	*_pValue = data->m_value;
 	
-	DestroyData(data);
+	DestroyData(data,NULL,NULL);
 	
 	return SUCCEEDED;
 }

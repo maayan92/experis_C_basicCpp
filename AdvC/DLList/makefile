@@ -9,10 +9,10 @@ OBJS= GDLList.o GDLListUnitTest.o
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
 		
-heartGame.o: GDLList.c GDLList.h $(INC)
+GDLList.o: GDLList.c GDLList.h $(INC)
 	$(CC) $(CFLAGS) -c GDLList.c
 
-heartGameMain.o: GDLListUnitTest.c
+GDLListUnitTest.o: GDLListUnitTest.c
 	$(CC) $(CFLAGS) -c GDLListUnitTest.c
 
 	

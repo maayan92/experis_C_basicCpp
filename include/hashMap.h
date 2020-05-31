@@ -18,21 +18,13 @@ typedef int (*KeyValueActionFunction)(const void* _key, void* _value, void* _con
 */
 HashMap* HashMapCreate(size_t _capacity, HashFunction _hashFunc, EqualityFunction _keysEqualFunc);
 
-
-/**
- * @brief destroy hash map and set *_map to null
- * @param[in] _map : map to be destroyed
- * @param[optional] _keyDestroy : pointer to functionto destroy keys
- * @param[optional] _valDestroy : pointer to functionto destroy values 
- * @details optionally destroy all keys and values using user provided functions
- */
- 
 /*
-	Description:
-	Input:
-	Return value:
+	Description: destroy hash map and set *_map to null
+	Input: _map - pointer to hash map, _keyDestroy - pointer to function to destroy keys, NULL if not need to free,
+		_valDestroy - pointer to function to destroy values, NULL if not need to free.
+	Return value: nothing returns.
 */
-void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value));/*TODO*/
+void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value));
 
 /*
 	Description: Insert a key-value pair into the hash map.
@@ -85,7 +77,7 @@ typedef struct MapStats {
 	size_t numberOfChains; /*num of elements in all the lists*/
 	size_t maxChainLength;/*longest list*/
 	size_t averageChainLength;/*avg number of lists size*/
-} MapStats;
+}MapStats;
 
 MapStats HashMapGetStatistics(const HashMap* _map);
 

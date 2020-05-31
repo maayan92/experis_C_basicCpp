@@ -64,7 +64,7 @@ size_t HashCapacity(const Hash* _hash);
 /*
 	Description: get the average rehash by the ratio between rehash and insertions.
 	Input: _hash - pointer to the hash.
-	Return value: the average rehash, 0 if the hash isn't exist.
+	Return value: the average rehash, 0 if the hash isn't exist or if the list is empty.
 */
 double HashAverageRehashes(const Hash* _hash);
 

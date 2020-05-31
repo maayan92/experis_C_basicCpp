@@ -30,7 +30,6 @@ static size_t getPosition(int _data)
 	return (_data*5);
 }
 
-
 /* CREATE HASH */
 
 Result TestHashCreate_Valid()
@@ -530,6 +529,7 @@ Result TestHashCapacity_NULLHash()
 Result TestHashAverageRehashes_Valid()
 {
 	int arr[] = {5,9,3,1,4,16,11};
+	double ans = 0.285714;
 	
 	Hash *hash = HashCreate(SIZE,getPosition);
 	if(NULL == hash)
@@ -543,7 +543,7 @@ Result TestHashAverageRehashes_Valid()
 		return FAILED;
 	}
 	
-	if((2/7) != HashAverageRehashes(hash))
+	if((int)(ans*100) != (int)(HashAverageRehashes(hash)*100))
 	{
 		HashDestroy(&hash);
 		return FAILED;
@@ -718,7 +718,7 @@ int main()
 	PrintRes("TestHashAverageRehashes_NULLHash:",TestHashAverageRehashes_NULLHash);
 	
 	/*Max rehash*/
-	printf("\n--- Average rehash: ---\n");
+	printf("\n--- Max rehash: ---\n");
 	/*POS*/
 	PrintRes("TestHashMaxReHash_Valid:",TestHashMaxReHash_Valid);
 	PrintRes("TestHashMaxReHash_Empty:",TestHashMaxReHash_Empty);

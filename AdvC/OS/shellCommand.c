@@ -5,28 +5,29 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/*get line command*/
-static void read_command(char *command, char **paramaters)
+static void SetParameters(char *command, char **paramaters)
 {
-	char *token;
+	char *token = strtok(command," \n");
 	int i = 0;
-
-	printf("insert command:");
-	fgets(command,50,stdin);
 	
-	token = strtok(command," ");
-	
-	printf("\n %s \n\n", token);
-
 	while(token)
 	{
 		paramaters[i++] = token;
 		
-		token = strtok(NULL," ");
+		token = strtok(NULL," \n");
 	}
+
+	paramaters[i] = NULL;
+}
+
+/*get line command*/
+static void read_command(char *command, char **paramaters)
+{
+	printf("insert command:");
+	fgets(command,50,stdin);
 	
-	(!command) ? (paramaters[0] = command) : (paramaters[--i] = NULL);
-	 
+	SetParameters(command,paramaters);
+	
 	command = paramaters[0];
 }
 

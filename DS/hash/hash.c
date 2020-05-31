@@ -27,7 +27,9 @@ static size_t checkIfPrimary(size_t _num);
 /*insert the new data to the hash*/
 static void insertIntoHash(Hash* _hash, int _data);
 /*give the new position after rehash*/
-static size_t ReHashFunction(size_t _position, size_t _capacity);
+static size_t ReHashFunction(size_t _position);
+/*remove data if it's exist in the hash*/
+static ErrCode RemoveIfExist(Hash* _hash, int _data);
 /*find the position to remove from*/
 static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _maxPos);
 /*search a specific data*/
@@ -117,8 +119,6 @@ ErrCode HashInsert(Hash* _hash, int _data)
 
 ErrCode HashRemove(Hash* _hash, int _data)
 {
-	int maxPos, position;
-	
 	if(IS_NOT_EXIST(_hash))
 	{
 		return ERR_NOT_INITIALIZE;
@@ -129,20 +129,7 @@ ErrCode HashRemove(Hash* _hash, int _data)
 		return ERR_UNDERFLOW;
 	}
 	
-	position = _hash->m_hashFunction(_data) % _hash->m_capacity;
-	
-	maxPos = (position + (_hash->m_maxOfRehashOperations) + 1) % _hash->m_capacity;
-	position = findRemovePosition(_hash,_data,position,maxPos);
-
-	if(0 == _hash->m_state[position] || position == maxPos)
-	{
-		return ERR_NOT_EXIST;
-	}
-	
-	_hash->m_state[position] = 0;
-	--_hash->m_numOfItems;
-	
-	return SUCCEEDED;
+	return RemoveIfExist(_hash,_data);
 }
 
 int HashIsFound(const Hash* _hash, int _data)
@@ -186,7 +173,7 @@ double HashAverageRehashes(const Hash* _hash)
 		return 0;
 	}
 
-	return (_hash->m_allRehashOperations / _hash->m_counterOfInsertions);
+	return (double)_hash->m_allRehashOperations / _hash->m_counterOfInsertions;
 }
 
 size_t HashMaxReHash(const Hash* _hash)
@@ -259,7 +246,7 @@ static void insertIntoHash(Hash* _hash, int _data)
 
 	while(2 == _hash->m_state[position])
 	{
-		position = ReHashFunction(position,_hash->m_capacity);
+		position = ReHashFunction(position) % _hash->m_capacity;
 		++countReHash;
 		++_hash->m_allRehashOperations;
 	}
@@ -275,9 +262,29 @@ static void insertIntoHash(Hash* _hash, int _data)
 	++_hash->m_counterOfInsertions;
 }
 
-static size_t ReHashFunction(size_t _position, size_t _capacity)
+static size_t ReHashFunction(size_t _position)
 {
-	return (_position + 1) % _capacity;
+	return _position + 1;
+}
+
+static ErrCode RemoveIfExist(Hash* _hash, int _data)
+{
+	int maxPos, position;
+	
+	position = _hash->m_hashFunction(_data) % _hash->m_capacity;
+	
+	maxPos = (position + (_hash->m_maxOfRehashOperations) + 1) % _hash->m_capacity;
+	position = findRemovePosition(_hash,_data,position,maxPos);
+
+	if(0 == _hash->m_state[position] || position == maxPos)
+	{
+		return ERR_NOT_EXIST;
+	}
+	
+	_hash->m_state[position] = 0;
+	--_hash->m_numOfItems;
+	
+	return SUCCEEDED;
 }
 
 static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _maxPos)
@@ -289,7 +296,7 @@ static size_t findRemovePosition(Hash* _hash, int _data, int _position, int _max
 			return _position;
 		}
 		
-		_position = ReHashFunction(_position,_hash->m_capacity);
+		_position = ReHashFunction(_position) % _hash->m_capacity;
 	}
 	
 	return _position;
@@ -311,7 +318,7 @@ static int SearchData(const Hash* _hash, int _data, int _position)
 			return true;
 		}
 
-		_position = ReHashFunction(_position,_hash->m_capacity);
+		_position = ReHashFunction(_position) % _hash->m_capacity;
 		
 	}
 	

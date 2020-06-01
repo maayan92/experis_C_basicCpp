@@ -16,7 +16,6 @@ typedef int (*ActionFunction)(const void*, void*);
 */
 Vector* VectorCreate(size_t _initialSize, size_t _blockSize);
 
-
 /*
 	Description: destroy the Vector, after calling this function the Vector pointer should be reset with NULL.
 	Input: _vec - dynamic struct Vector pointer.

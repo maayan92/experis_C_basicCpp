@@ -62,7 +62,7 @@ Result TestRotateRightBits_Valid()
 	return SUCCEDD;
 }
 
-/* ROTATE BITS TO RIGHT */
+/* SET BITS */
 
 Result TestSetBits_ValidN3()
 {

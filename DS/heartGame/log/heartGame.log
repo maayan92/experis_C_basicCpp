@@ -1,0 +1,13 @@
+Current time: 11:29:16 03-06-2020 | Module name: ROUND | PID: 1 | TRACE: INFO | Text: new round started 
+Current time: 11:29:17 03-06-2020 | Module name: ROUND | PID: 2 | TRACE: INFO | Text: new round started 
+Current time: 11:29:18 03-06-2020 | Module name: ROUND | PID: 3 | TRACE: INFO | Text: new round started 
+Current time: 11:29:19 03-06-2020 | Module name: ROUND | PID: 4 | TRACE: INFO | Text: new round started 
+Current time: 11:29:21 03-06-2020 | Module name: ROUND | PID: 5 | TRACE: INFO | Text: game ended 
+Current time: 15:46:16 03-06-2020 | Module name: player.c | PID: 1 | TRACE: INFO | Text: player created 
+Current time: 15:46:16 03-06-2020 | Module name: player.c | PID: 2 | TRACE: INFO | Text: player created 
+Current time: 15:46:16 03-06-2020 | Module name: player.c | PID: 3 | TRACE: INFO | Text: player created 
+Current time: 15:46:16 03-06-2020 | Module name: player.c | PID: 4 | TRACE: INFO | Text: player created 
+Current time: 15:46:16 03-06-2020 | Module name: round.c | PID: 5 | TRACE: INFO | Text: new round started 
+Current time: 15:46:18 03-06-2020 | Module name: round.c | PID: 6 | TRACE: INFO | Text: new round started 
+Current time: 15:46:19 03-06-2020 | Module name: round.c | PID: 7 | TRACE: INFO | Text: new round started 
+Current time: 15:46:20 03-06-2020 | Module name: round.c | PID: 8 | TRACE: INFO | Text: game ended 

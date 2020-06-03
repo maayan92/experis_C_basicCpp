@@ -5,7 +5,7 @@
 int main()
 {
 	char *names[4] = {"Mike","Bill","Lisa","you"};
-	int numOfComputerPlayers = 3, numOfRealPlayers = 1;
+	int numOfComputerPlayers = 4, numOfRealPlayers = 0;
 	
 	Game *game = CreateGame(names,numOfComputerPlayers,numOfRealPlayers,1,100);
 	if(!game)

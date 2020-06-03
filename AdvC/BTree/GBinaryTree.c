@@ -46,6 +46,8 @@ static Node* GetBiggestRight(Node *_node);
 static Node* GetNextRoot(Node *_node);
 /*get parent prev element*/
 static Node* GetPrevRoot(Node *_node);
+/*set the replacing node in the _node place*/
+static void SetTheReplaceNode(Node *_node, Node *_replace);
 
 
 Tree* TreeCreate(LessComparator _less)
@@ -167,15 +169,41 @@ BSTreeItr BSTreeItrPrev(BSTreeItr _itr)
 
 void* BSTreeItrRemove(BSTreeItr _itr)
 {
-	BSTreeItr nextItr = BSTreeItrNext(_itr);
+	BSTreeItr replaceItr = BSTreeItrNext(_itr);
+	void *data = ((Node*)_itr)->m_data;
 	
-	if(!(nextItr->m_parent))
+	if(TREE_ITR_EQUALS(((Node*)_itr)->m_parent,replaceItr))
 	{
-		nextItr = BSTreeItrPrev(_itr);
+		replaceItr = BSTreeItrPrev(_itr);
 	}
 	
+	SetTheReplaceNode((Node*)_itr,(Node*)replaceItr);
 	
+	NodeDestroy(_itr);
 	
+	return data;
+}
+
+static void SetTheReplaceNode(Node *_node, Node *_replace)
+{
+	if(TREE_ITR_EQUALS(_node->m_parent->m_right,_node))
+	{
+		_node->m_parent->m_right = _replace;
+	}else
+	{
+		_node->m_parent->m_left = _replace;
+	}
+	
+	if(!TREE_ITR_EQUALS(_node->m_parent,_replace))
+	{
+		_replace->m_parent = _node->m_parent;
+		
+		if(!TREE_ITR_EQUALS(_node->m_left,_replace) && _node->m_left)
+		{
+			_replace->m_left = _node->m_left;
+			_node->m_left->m_parent = _replace;
+		}
+	}
 }
 
 void* BSTreeItrGet(BSTreeItr _itr)
@@ -362,7 +390,7 @@ static Node* GetPrevRoot(Node *_node)
 {
 	if(!_node)
 	{
-		return _node->m_left;	
+		return _node->m_left;
 	}
 	
 	if(!(_node->m_parent))

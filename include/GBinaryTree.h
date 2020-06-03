@@ -115,7 +115,7 @@ BSTreeItr BSTreeItrNext(BSTreeItr _itr);
 	Description: Get itertator to the previous element from current iterator.
 	Input: _itr - A tree iterator. (should be valid and not NULL)
 	Return value: return an iterator pointing at the previous element after _itr, 
-			or end iterator (pointer to the root sentinel) if the tree is empty or if there is no next.
+			or end iterator (pointer to the root sentinel) if the tree is empty or if there is no prev.
 */
 BSTreeItr BSTreeItrPrev(BSTreeItr _itr);
 

@@ -58,6 +58,8 @@ Player* CreatePlayer(char *_name, size_t _id, size_t _computerPlayer)
 	player->m_cards = NULL;
 	player->m_magicNumber = PLAYER_MAGIC_NUMBER;
 	
+	Z_LOG(INFO,"player created");
+	
 	return player;
 }
 

@@ -684,7 +684,7 @@ Result TestHeapForEach_PrintPower()
 	{
 		VectorDestroy(vec,NULL);
 		return FAILED;
-	}
+	}	
 	
 	if(6 != HeapForEach(heap,PrintPower,&pow))
 	{

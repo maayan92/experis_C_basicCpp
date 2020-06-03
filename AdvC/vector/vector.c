@@ -206,7 +206,7 @@ size_t VectorFind(const Vector* _vec,  void* _data)
 
 size_t VectorForEach(const Vector* _vec, ActionFunction _action, void* _context)
 {
-	int i = 0;
+	int i = 1;
 	void *data;
 	
 	if(IS_NOT_EXIST(_vec) || NULL == _action || NULL == _context)
@@ -214,7 +214,7 @@ size_t VectorForEach(const Vector* _vec, ActionFunction _action, void* _context)
 		return 0;
 	}
 	
-	while(ERR_ILLEGAL_INPUT != VectorGet(_vec,i+1,&data) && _action(data,_context))
+	while(ERR_ILLEGAL_INPUT != VectorGet(_vec,i,&data) && _action(data,_context))
 	{
 		++i;
 	}

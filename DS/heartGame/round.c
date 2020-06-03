@@ -167,6 +167,8 @@ void StartRound(Round *_round)
 	{
 		return;
 	}
+	
+	Z_LOG(INFO,"new round started");
 
 	PlayNewHand(_round);
 	
@@ -199,6 +201,11 @@ void StartRound(Round *_round)
 	if(playAnotherHand)
 	{
 		StartRound(_round);
+	}
+	
+	else
+	{
+		Z_LOG(INFO,"game ended");
 	}
 }
 

@@ -495,6 +495,109 @@ Result TestBSTreeForEach_Valid()
 	return SUCCEDD;
 }
 
+/* REMOVE */
+
+Result TestBSTreeItrRemove_ValidRight()
+{
+	int arr[] = {5,9,3,1,4,11,8};
+	BSTreeItr itr;
+
+	Tree *tree = TreeCreate(LessCompare);
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillArr(tree,arr,7))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+
+	itr = BSTreeItrNext(BSTreeItrBegin(tree));
+	
+	if(3 != *(int*)BSTreeItrRemove(itr))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+	
+	itr = BSTreeItrNext(BSTreeItrBegin(tree));
+	if(4 != *(int*)BSTreeItrGet(itr) || 1 != *(int*)BSTreeItrGet(BSTreeItrPrev(itr)))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+	
+	TreeDestroy(tree,NULL);
+	return SUCCEDD;
+}
+
+Result TestBSTreeItrRemove_Validleft()
+{
+	int arr[] = {5,9,3,1,11,8};
+	BSTreeItr itr;
+
+	Tree *tree = TreeCreate(LessCompare);
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillArr(tree,arr,6))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+
+	itr = BSTreeItrNext(BSTreeItrBegin(tree));
+	if(3 != *(int*)BSTreeItrRemove(itr) || 5 != *(int*)BSTreeItrGet(BSTreeItrNext(BSTreeItrBegin(tree))))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+
+	TreeDestroy(tree,NULL);
+	return SUCCEDD;
+}
+
+Result TestBSTreeItrRemove_ValidNoChild()
+{
+	int arr[] = {5,9,3,4,1,11,8};
+	BSTreeItr itr;
+
+	Tree *tree = TreeCreate(LessCompare);
+	if(NULL == tree)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillArr(tree,arr,7))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+
+	itr = BSTreeItrNext(BSTreeItrNext(BSTreeItrBegin(tree)));
+	printf("--- %d\n\n", *(int*)BSTreeItrGet(itr));
+	
+	if(4 != *(int*)BSTreeItrRemove(itr))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+	
+	itr = BSTreeItrNext(BSTreeItrBegin(tree));
+	if(3 != *(int*)BSTreeItrGet(itr) || 5 != *(int*)BSTreeItrGet(BSTreeItrNext(itr)))
+	{
+		TreeDestroy(tree,NULL);
+		return FAILED;
+	}
+	
+	TreeDestroy(tree,NULL);
+	return SUCCEDD;
+}
+
 
 static void PrintRes(char *_str, Result(*ptrPrint)(void))
 {
@@ -548,6 +651,13 @@ int main()
 	PrintRes("TestBSTreeItrPrev_Empty:",TestBSTreeItrPrev_Empty);
 	/*for each*/
 	PrintRes("TestBSTreeForEach_Valid:",TestBSTreeForEach_Valid);
+	/*remove*/
+	PrintRes("TestBSTreeItrRemove_ValidRight:",TestBSTreeItrRemove_ValidRight);
+	PrintRes("TestBSTreeItrRemove_Validleft:",TestBSTreeItrRemove_Validleft);
+	PrintRes("TestBSTreeItrRemove_ValidNoChild:",TestBSTreeItrRemove_ValidNoChild);
+
+
+
 
 	return 0;
 }

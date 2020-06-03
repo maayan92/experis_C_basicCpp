@@ -13,14 +13,18 @@ static int foo1(int _i, int _j)
 	printf("\nfoo\n");
 	printf("i:\t decimal -> %d \taddress -> %p \thex -> %x \n", _i, (void*)&_i, _i);
 	printf("j:\t decimal -> %d \taddress -> %p \thex -> %x \n", _j, (void*)&_j, _j);
-	
+
+	printf("\n");
+	for(i = 0;i < 20;i+=4)
+	{
+		printf(" value -> %-15d  hex -> %-15x  address -> %p \n", *((&f) + i), *((&f) + i), (&f) + i);
+	}
 	printf("\n");
 	
-	*((&f) + 5) = foo2;
-	
-	return 2000;	
-}
+	*((&f) + 6) = foo2;
 
+	return 2000;
+}
 
 int main()
 {
@@ -32,6 +36,7 @@ int main()
 	
 	printf("\ni:\t decimal -> %d \taddress -> %p \thex -> %x \n", i, (void*)&i, i);
 	printf("j:\t decimal -> %d \taddress -> %p \thex -> %x \n", j, (void*)&j, j);
+
 
 	return 0;
 }

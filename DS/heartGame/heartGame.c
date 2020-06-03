@@ -30,12 +30,15 @@ Game* CreateGame(char **_names, size_t _numOfComputerPlayers, size_t _numOfRealP
 	{
 		return NULL;
 	}
+	
+	CreateLog("heartGame.log");
 
 	game->m_numOfPlayers = _numOfComputerPlayers + _numOfRealPlayers;
 	game->m_magicNumber = GAME_MAGIC_NUMBER;
 		
 	if(!(game->m_players = CreateAllPlayers(_names,game->m_numOfPlayers,_numOfComputerPlayers)))
 	{
+		CloseLog();
 		free(game);
 		return NULL;
 	}
@@ -60,6 +63,8 @@ void DestroyGame(Game *_game)
 		
 		_game->m_magicNumber = 0;
 		free(_game);
+		
+		CloseLog();
 	}
 }
 
@@ -69,9 +74,10 @@ void StartGame(Game *_game)
 {
 	if(!IS_NOT_EXIST(_game))
 	{
+	
 		StartRound(_game->m_round);
 		
-		DestroyGame(_game);		
+		DestroyGame(_game);	
 	}
 }
 

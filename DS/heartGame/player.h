@@ -2,6 +2,7 @@
 #define __PLAYERS_H_
 
 #include "ui.h"
+#include "log.h"
 
 #define LENGTH 50
 

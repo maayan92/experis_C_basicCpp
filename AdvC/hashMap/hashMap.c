@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "hashMap.h"
-#include "GDLList_Itr.h"
+#include "listFunctions.h"
 
 #define HASH_MAP_MAGIC_NUMBER 0xbbbbaaaa
 #define IS_NOT_EXIST(_hashMap) (NULL == _hashMap || _hashMap->m_magicNumber != HASH_MAP_MAGIC_NUMBER)
@@ -21,6 +21,19 @@ typedef struct Data
 	const void* m_key;
 	void* m_value;
 }Data;
+
+typedef struct ContextFind
+{
+	const void* m_key;
+	EqualityFunction m_equalFunc;
+}ContextFind;
+
+typedef struct ContextAction
+{
+	void* m_userContext;
+	KeyValueActionFunction m_userActionFunc;
+}ContextAction;	
+	
 
 /*destroy all list elements*/
 static void DestroyElements(List *_list, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value));
@@ -41,10 +54,12 @@ static ErrCode RemoveFromHash(HashMap* _map, const void* _searchKey, void** _pKe
 static ErrCode FoundValueIfExist(const HashMap* _map, const void* _key, void** _pValue);
 /*get the ListItr with the appropriate key if exist*/
 static ListItr GetListItrIfExist(const HashMap* _map, const void* _key);
-/*search if a key exist in the appropriate list*/
-static ListItr SearchKeyIfExist(List *_list, const void* _key, EqualityFunction _keysEqualFunc);
-/*Iterate over all key-value pairs of the list by _action function*/
-static Bool CountIterations(List *_list, size_t *_count, KeyValueActionFunction _action, void* _context);
+/*check if a key exist in the appropriate list*/
+static int CheckIfEqual(void *_element, void *_context);
+/**/
+static size_t GoOnAllElements(const HashMap* _map, void* _context);
+/**/
+static int innerAction(void *_element, void *_context);
 
 /*count the number of lists*/
 static size_t CountExistingLists(List* _list,size_t _count);
@@ -54,7 +69,6 @@ static size_t CountAllElements(List* _list,size_t _count);
 static size_t GetMaxListLegth(List* _list,size_t _count);
 /*go on all lists in the map and return count by NumOfFunc function*/
 static size_t GoOnMapLists(const HashMap* _map, size_t(*NumOfFunc)(List*,size_t));
-
 
 
 HashMap* HashMapCreate(size_t _capacity, HashFunction _hashFunc, EqualityFunction _keysEqualFunc)
@@ -91,11 +105,13 @@ HashMap* HashMapCreate(size_t _capacity, HashFunction _hashFunc, EqualityFunctio
 void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
 {
 	int i;
-	
+
 	if(!_map || IS_NOT_EXIST((*_map)))
 	{
 		return;
 	}
+	
+	(*_map)->m_magicNumber = 0;
 	
 	for(i = 0;i < (*_map)->m_capacity;++i)
 	{
@@ -107,24 +123,9 @@ void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_val
 		}
 	}
 	
+	free((*_map)->m_listArr);
 	free(*_map);
 	*_map = NULL;
-}
-
-static void DestroyElements(List *_list, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
-{
-	ListItr beginItr = ListItrBegin(_list);
-	ListItr endItr = ListItrEnd(_list);
-	Data *data;
-	
-	while(!ListItrEquals(beginItr,endItr))
-	{
-		data = (Data*)ListItrGet(beginItr);
-		
-		DestroyData(data,_keyDestroy,_valDestroy);
-		
-		beginItr = ListItrNext(beginItr);
-	}
 }
 
 ErrCode HashMapInsert(HashMap* _map, const void* _key, const void* _value)
@@ -184,26 +185,17 @@ size_t HashMapSize(const HashMap* _map)
 
 size_t HashMapForEach(const HashMap* _map, KeyValueActionFunction _action, void* _context)
 {
-	int i;
-	size_t count = 0;
+	ContextAction con;
 	
 	if(IS_NOT_EXIST(_map) || !_action)
 	{
 		return 0;
 	}
 	
-	for(i = 0;i < _map->m_capacity;++i)
-	{
-		if(_map->m_listArr[i])
-		{
-			if(!CountIterations(_map->m_listArr[i],&count,_action,_context))
-			{
-				return count;
-			}
-		}
-	}
+	con.m_userContext = _context;
+	con.m_userActionFunc = _action;
 	
-	return count;
+	return GoOnAllElements(_map,&con);
 }
 
 MapStats HashMapGetStatistics(const HashMap* _map)
@@ -224,6 +216,22 @@ MapStats HashMapGetStatistics(const HashMap* _map)
 }
 
 /* SUB FUNCTIONS */
+
+static void DestroyElements(List *_list, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value))
+{
+	ListItr beginItr = ListItrBegin(_list);
+	ListItr endItr = ListItrEnd(_list);
+	Data *data;
+	
+	while(!ListItrEquals(beginItr,endItr))
+	{
+		data = (Data*)ListItrGet(beginItr);
+		
+		DestroyData(data,_keyDestroy,_valDestroy);
+		
+		beginItr = ListItrNext(beginItr);
+	}
+}
 
 static Data* CreateData(const void* _key, const void* _value)
 {
@@ -287,6 +295,8 @@ static size_t checkIfPrimary(size_t _num)
 static ErrCode insertIntoList(HashMap* _map, const void* _key, const void* _value)
 {
 	size_t position = _map->m_hashFunc(_key) % _map->m_capacity;
+	ContextFind con;
+	ListItr foundItr;
 	
 	if(!_map->m_listArr[position])
 	{
@@ -297,7 +307,12 @@ static ErrCode insertIntoList(HashMap* _map, const void* _key, const void* _valu
 		}
 	}
 	
-	if(!ListItrEquals(ListItrEnd(_map->m_listArr[position]),SearchKeyIfExist(_map->m_listArr[position],_key,_map->m_keysEqualFunc)))
+	con.m_key = _key;
+	con.m_equalFunc = _map->m_keysEqualFunc;
+	
+	foundItr = ListItrFindFirst(ListItrBegin(_map->m_listArr[position]),ListItrEnd(_map->m_listArr[position]),CheckIfEqual,&con);
+	
+	if(!ListItrEquals(ListItrEnd(_map->m_listArr[position]),foundItr))
 	{
 		return ERR_EXIST;
 	}
@@ -350,13 +365,17 @@ static ListItr GetListItrIfExist(const HashMap* _map, const void* _key)
 {
 	size_t position = _map->m_hashFunc(_key) % _map->m_capacity;
 	ListItr foundItr;
+	ContextFind con;
 
 	if(!(_map->m_listArr[position]))
 	{
 		return NULL;
 	}
 	
-	foundItr = SearchKeyIfExist(_map->m_listArr[position],_key,_map->m_keysEqualFunc);
+	con.m_key = _key;
+	con.m_equalFunc = _map->m_keysEqualFunc;
+	
+	foundItr = ListItrFindFirst(ListItrBegin(_map->m_listArr[position]),ListItrEnd(_map->m_listArr[position]),CheckIfEqual,&con);
 	
 	if(ListItrEquals(ListItrEnd(_map->m_listArr[position]),foundItr))
 	{
@@ -366,50 +385,36 @@ static ListItr GetListItrIfExist(const HashMap* _map, const void* _key)
 	return foundItr;
 }
 
-static ListItr SearchKeyIfExist(List *_list, const void* _key, EqualityFunction _keysEqualFunc)
+static int CheckIfEqual(void *_element, void *_context)
 {
-	ListItr beginItr = ListItrBegin(_list);
-	ListItr endItr = ListItrEnd(_list);
-	Data data;
-	
-	while(!ListItrEquals(beginItr,endItr))
-	{
-		data = *(Data*)ListItrGet(beginItr);
-		
-		if(_keysEqualFunc(data.m_key,_key))
-		{
-			return beginItr;
-		}
-		
-		beginItr = ListItrNext(beginItr);
-	}
-	
-	return beginItr;	
+	return ((ContextFind*)_context)->m_equalFunc(((Data*)_element)->m_key,((ContextFind*)_context)->m_key);
 }
-/**/
 
-static Bool CountIterations(List *_list, size_t *_count, KeyValueActionFunction _action, void* _context)
+static size_t GoOnAllElements(const HashMap* _map, void* _context)
 {
-	Data *data;
-	ListItr beginItr, endItr;
+	int i;
+	size_t listCount, count = 0;
 	
-	beginItr = ListItrBegin(_list);
-	endItr = ListItrEnd(_list);
-		
-	while(!ListItrEquals(beginItr,endItr))
-	{				
-		data = (Data*)ListItrGet(beginItr);
-				
-		if(!_action(data->m_key,data->m_value,_context))
+	for(i = 0;i < _map->m_capacity;++i)
+	{
+		if(_map->m_listArr[i])
 		{
-			return false;
+			listCount = ListItrCountIf(ListItrBegin(_map->m_listArr[i]),ListItrEnd(_map->m_listArr[i]),innerAction,_context);
+			count += listCount;
+			
+			if(listCount < DLListCountItems(_map->m_listArr[i]))
+			{
+				return count;
+			}
 		}
-		
-		++(*_count);
-		beginItr = ListItrNext(beginItr);
 	}
 	
-	return true;
+	return count;
+}
+
+static int innerAction(void *_element, void *_context)
+{
+	return ((ContextAction*)_context)->m_userActionFunc(((Data*)_element)->m_key,((Data*)_element)->m_value,((ContextAction*)_context)->m_userContext);
 }
 
 /* NDEBUG */

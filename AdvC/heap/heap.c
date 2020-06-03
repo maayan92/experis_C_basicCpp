@@ -156,20 +156,28 @@ size_t HeapItemsNum(const Heap* _heap)
 }
 
 /*Print the heap*/
+
+static int HeapElementsAction(const void *_element, void *_context)
+{
+	((Context*)_context)->m_userActionFun(_element,((Context*)_context)->m_userContext);
+	--((Context*)_context)->m_numOfActions;
+	return ((Context*)_context)->m_numOfActions;
+}
+
 size_t HeapForEach(const Heap* _heap, ActionFunction _act, void* _context)
 {
+	Context cnt;
+
 	if(IS_NOT_EXIST(_heap))
 	{
 		return 0;
 	}
 	
-	Context cnt = (Context)malloc(sizeof(Context));
-	
 	cnt.m_userActionFun = _act;
 	cnt.m_userContext = _context;
 	cnt.m_numOfActions = _heap->m_heapSize;
 	
-	return VectorForEach(_heap->m_vec,_act,_context);
+	return VectorForEach(_heap->m_vec,HeapElementsAction,&cnt);
 }
 
 void HeapPrint(const Heap* _heap, void(*prtPrintElement)(void*))
@@ -261,11 +269,6 @@ static void BubbleUp(Heap *_heap)
 		Swap(_heap->m_vec,parentIndx,childIndx);
 		childIndx = parentIndx;
 	}
-}
-
-static int HeapElementsAction(const void* _element, void* _context)
-{
-	
 }
 
 

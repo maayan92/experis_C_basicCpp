@@ -9,9 +9,21 @@ typedef enum
 
 /* BIT COUNT */
 
-Result TestBitCount_Valid()
+Result TestBitCount_ValidLessThanChar()
 {
 	size_t num = 171;
+
+	if(5 != BitCount(num))
+	{
+		return FAILED;
+	}
+
+	return SUCCEDD;
+}
+
+Result TestBitCount_ValidMoreThanchar()
+{
+	size_t num = 457;
 
 	if(5 != BitCount(num))
 	{
@@ -126,7 +138,8 @@ static void PrintRes(char *_str, Result(*ptrPrint)(void))
 int main()
 {
 	/*Count 1 bit*/
-	PrintRes("TestBitCount_Valid",TestBitCount_Valid);
+	PrintRes("TestBitCount_ValidLessThanChar",TestBitCount_ValidLessThanChar);
+	PrintRes("TestBitCount_ValidMoreThanchar",TestBitCount_ValidMoreThanchar);
 	PrintRes("TestBitCount_ValidZero",TestBitCount_ValidZero);
 	
 	/*Flip bits*/

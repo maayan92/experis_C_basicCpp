@@ -579,8 +579,6 @@ Result TestBSTreeItrRemove_ValidNoChild()
 	}
 
 	itr = BSTreeItrNext(BSTreeItrNext(BSTreeItrBegin(tree)));
-	printf("--- %d\n\n", *(int*)BSTreeItrGet(itr));
-	
 	if(4 != *(int*)BSTreeItrRemove(itr))
 	{
 		TreeDestroy(tree,NULL);

@@ -34,7 +34,7 @@ ErrCode VectorAddTail(Vector* _vec, void* _data);
 
 /*
 	Description: remove the last data from the vector array, resize (reduces the size) the vector array in case there is too much empty space.
-	Input: _vec - dynamic struct Vector pointer, 
+	Input: _vec - dynamic struct Vector pointer,
 			_data - void pointer to the data pointer that would be removed from the vector array.
 	Return value: return error code, ERR_NOT_INITIALIZE - if the _vec is NULL or if the vector array is empty, ERR_FAILED - if the realloc fails,
 					SUCCEEDED - on success.

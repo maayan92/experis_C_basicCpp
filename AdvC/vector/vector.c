@@ -209,7 +209,7 @@ size_t VectorForEach(const Vector* _vec, ActionFunction _action, void* _context)
 	int i = 1;
 	void *data;
 	
-	if(IS_NOT_EXIST(_vec) || NULL == _action || NULL == _context)
+	if(IS_NOT_EXIST(_vec) || NULL == _action)
 	{
 		return 0;
 	}

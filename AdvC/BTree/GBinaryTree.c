@@ -169,15 +169,20 @@ BSTreeItr BSTreeItrPrev(BSTreeItr _itr)
 
 void* BSTreeItrRemove(BSTreeItr _itr)
 {
-	BSTreeItr replaceItr = BSTreeItrNext(_itr);
+	Node *replaceItr = (Node*)BSTreeItrNext(_itr);
 	void *data = ((Node*)_itr)->m_data;
 	
 	if(TREE_ITR_EQUALS(((Node*)_itr)->m_parent,replaceItr))
 	{
-		replaceItr = BSTreeItrPrev(_itr);
+		replaceItr = (Node*)BSTreeItrPrev(_itr);
 	}
 	
-	SetTheReplaceNode((Node*)_itr,(Node*)replaceItr);
+	if(!((Node*)_itr)->m_left && ! ((Node*)_itr)->m_right)
+	{
+		replaceItr = NULL;
+	}
+
+	SetTheReplaceNode((Node*)_itr,replaceItr);
 	
 	NodeDestroy(_itr);
 	
@@ -194,7 +199,7 @@ static void SetTheReplaceNode(Node *_node, Node *_replace)
 		_node->m_parent->m_left = _replace;
 	}
 	
-	if(!TREE_ITR_EQUALS(_node->m_parent,_replace))
+	if(_replace && !TREE_ITR_EQUALS(_node->m_parent,_replace))
 	{
 		_replace->m_parent = _node->m_parent;
 		
@@ -204,6 +209,9 @@ static void SetTheReplaceNode(Node *_node, Node *_replace)
 			_node->m_left->m_parent = _replace;
 		}
 	}
+	
+	_node->m_left = NULL;
+	_node->m_right = NULL;
 }
 
 void* BSTreeItrGet(BSTreeItr _itr)

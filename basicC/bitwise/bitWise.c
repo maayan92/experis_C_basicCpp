@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-#define INT_BIT 8
+#define BIT 8
 #define BIT_FIELD 4
+#define CHAR_AMOUNT 256
 
 typedef struct BitField
 {
@@ -14,8 +15,6 @@ static int TestBit(unsigned int _num, int _i);
 static int SetBitField(int _num);
 /*print the hexadecimal value*/
 static void printHexVal(int _num);
-/*flip the bit in _index position*/
-static int FlipBit(int _num, int _index);
 
 /*go on all bits*/
 static int GoOnBits(int _num, size_t _n, int(*ptrMoveSide)(int));
@@ -29,44 +28,29 @@ static int RightMove(int _num);
 
 void PrintInHex(int _num)
 {
-	int i, newNum[INT_BIT];
+	int i, newNum[BIT];
 	
 	printf("\nthe number in hex 0x");
 	
-	for(i = 0;i < INT_BIT;++i)
+	for(i = 0;i < BIT;++i)
 	{
 		newNum[i] = SetBitField(_num);
 
 		_num >>=  4;
 	}
 	
-	for(i = INT_BIT-1;i >= 0;--i)
+	for(i = BIT-1;i >= 0;--i)
 	{
 		printHexVal(newNum[i]);
 	}
-}
-
-/* COUNT BITS */
-
-size_t BitCount(size_t _num)
-{
-	size_t count = 0;
-	int i, mask = (_num);
-
-	for(i = 0;i < sizeof(int)*INT_BIT;++i)
-	{
-		count += ((_num >> i) & mask);
-	}
-
-	return count;
 }
 
 /* FLIP BITS */
 
 int Flip(int _num, size_t _firstBit, size_t _secondBit)
 {
-	_firstBit %= sizeof(int)*INT_BIT;
-	_secondBit %= sizeof(int)*INT_BIT;
+	_firstBit %= sizeof(int)*BIT;
+	_secondBit %= sizeof(int)*BIT;
 
 	_num ^= (1 << _firstBit);
 	_num ^= (1 << _secondBit);
@@ -76,8 +60,8 @@ int Flip(int _num, size_t _firstBit, size_t _secondBit)
 
 int FlipByRange(int _num, int _from, int _to)
 {
-	_from %= sizeof(int)*INT_BIT;
-	_to %= sizeof(int)*INT_BIT;
+	_from %= sizeof(int)*BIT;
+	_to %= sizeof(int)*BIT;
 	
 	while(_from <= _to)
 	{
@@ -92,7 +76,8 @@ int FlipByRange(int _num, int _from, int _to)
 
 int RotateRightBits(int _num, size_t _n)
 {
-	_n %= sizeof(int)*INT_BIT;
+	/*
+	_n %= sizeof(int)*BIT;
 	while(_n)
 	{
 		_num = ptrMoveSide(_num);
@@ -101,7 +86,7 @@ int RotateRightBits(int _num, size_t _n)
 	}
 
 	return _num;
-
+	*/
 
 	return GoOnBits(_num,_n,RightMove);
 }
@@ -117,7 +102,7 @@ int ComposeNumToNum(int _num1, int _num2)
 {
 	int i, cary = 0, result, newNum = 0, sum;
 	
-	for(i = 0;i < sizeof(int)*INT_BIT;++i)
+	for(i = 0;i < sizeof(int);++i)
 	{
 		sum = cary + TestBit(_num1,i) + TestBit(_num2,i);
 		
@@ -130,7 +115,81 @@ int ComposeNumToNum(int _num1, int _num2)
 	return newNum;
 }
 
+/* COUNT BITS */
 
+static size_t GetNumOfOnBits(unsigned char _num)
+{
+	size_t count = 0, i;
+	
+	for(i = 0;i < sizeof(char)*BIT;++i)
+	{
+		count += ((_num >> i) & 1);
+	}
+
+	return count;
+}
+
+static void BuildLUTCount(unsigned char *_lut)
+{
+	unsigned int num = 0;
+	
+	while(num < CHAR_AMOUNT)
+	{
+		_lut[num] = GetNumOfOnBits((char)num);
+		
+		num++;
+	}
+}
+
+size_t BitCount(size_t _num)
+{
+	static int flag;
+	static unsigned char lut[CHAR_AMOUNT];
+	size_t i, count = 0;
+
+	if(!flag)
+	{
+		flag = 1;
+		BuildLUT(lut);
+	}
+
+	for(i = 0;i < sizeof(int);++i)
+	{
+		count += lut[(_num & 0xff)];
+		
+		_num >>= 8;
+	}
+
+	return count;
+}
+/*TODO*/
+/* 3 BIT OFFSET */
+
+static size_t Get3BitsOffset(unsigned char _num)
+{
+	size_t count = 0, i;
+	
+	for(i = 0;i < sizeof(char)*BIT;++i)
+	{
+		
+		count += ((_num >> i) & 1);
+	}
+
+	return count;
+}
+
+static void BuildLUT3OnBit(unsigned char *_lut)
+{
+	unsigned int num = 0;
+	
+	while(num < CHAR_AMOUNT)
+	{
+		_lut[num] = GetNumOfOnBits((char)num);
+		
+		num++;
+	}
+}
+/*TODO*/
 /* SUB FUNCTIONS */
 
 static int TestBit(unsigned int _num, int _i)

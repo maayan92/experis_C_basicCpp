@@ -168,7 +168,7 @@ size_t HeapForEach(const Heap* _heap, ActionFunction _act, void* _context)
 {
 	Context cnt;
 
-	if(IS_NOT_EXIST(_heap))
+	if(IS_NOT_EXIST(_heap) || !_act || 0 == _heap->m_heapSize)
 	{
 		return 0;
 	}

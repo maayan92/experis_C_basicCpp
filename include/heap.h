@@ -6,8 +6,8 @@
 
 typedef struct Heap Heap;
 
-/*comparison function for two elements, return true or false*/
-typedef int (*PtrCompare)(const void*,const void*);
+/*comparison function for two elements, return true if _a > _b else false*/
+typedef int (*PtrCompare)(const void* _a,const void* _b);
 
 /*
 	Description: builed the heap.

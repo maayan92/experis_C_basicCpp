@@ -7,7 +7,7 @@
 typedef struct Vector Vector;
 
 /*action function, return true or false*/
-typedef int (*ActionFunction)(const void*, void*);
+typedef int (*ActionFunction)(void*, void*);
 
 /*
 	Description: create dynamic struct Vector.
@@ -18,7 +18,7 @@ Vector* VectorCreate(size_t _initialSize, size_t _blockSize);
 
 /*
 	Description: destroy the Vector, after calling this function the Vector pointer should be reset with NULL.
-	Input: _vec - dynamic struct Vector pointer.
+	Input: _vec - dynamic struct Vector pointer, ptrDestroy - pointer to function that destroys a vector's element.
 	Return value: nothing returns.
 */
 void VectorDestroy(Vector* _vec, void(*ptrDestroy)(void*));

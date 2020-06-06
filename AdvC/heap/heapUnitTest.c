@@ -118,7 +118,7 @@ static Result CheckHeapChar(Heap *_heap, char *_arrR, Vector *_vec)
 	return SUCCEDD;
 }
 
-static int PrintElements(const void* _data, void* _context)
+static int PrintElements(void* _data, void* _context)
 {
 	switch(*(Color*)_context)
 	{
@@ -149,7 +149,7 @@ static int Power(int _data, int _context)
 	return _data;
 }
 
-static int PrintPower(const void* _data, void* _context)
+static int PrintPower(void* _data, void* _context)
 {
 	int pow = Power(*(int*)_data,*(int*)_context);
 	

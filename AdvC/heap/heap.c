@@ -157,7 +157,7 @@ size_t HeapItemsNum(const Heap* _heap)
 
 /*Print the heap*/
 
-static int HeapElementsAction(const void *_element, void *_context)
+static int HeapElementsAction(void *_element, void *_context)
 {
 	((Context*)_context)->m_userActionFun(_element,((Context*)_context)->m_userContext);
 	--((Context*)_context)->m_numOfActions;

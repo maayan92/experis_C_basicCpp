@@ -5,26 +5,35 @@
 #include <time.h>
 #include <sys/time.h>
 
-/*
-	Description: 
-	Input: 
-	Return value: 
-*/
-struct timespec* GetCurrentTime();
+enum { false, true };
 
 /*
 	Description: 
 	Input: 
 	Return value: 
 */
-long GetNextRunTime(struct timespec *_startT, size_t _periodMs);
+struct timespec GetCurrentTime();
 
 /*
 	Description: 
 	Input: 
 	Return value: 
 */
-long SleepTime(struct timespec *_startT, long _time);
+double GetNextRunTime(struct timespec _startT, size_t _periodMs);
+
+/*
+	Description: 
+	Input: 
+	Return value: 
+*/
+double SleepTime(struct timespec _startT, long _time);
+
+/*
+	Description: 
+	Input: 
+	Return value: 
+*/
+int CompareTime(double _time1, double _time2);
 
 
 #endif

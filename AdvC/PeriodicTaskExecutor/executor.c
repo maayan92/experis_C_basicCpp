@@ -49,6 +49,11 @@ PeriodicExecutor* PeriodicExecutorCreate(const char* _name, clockid_t _clkId)
 	return executor;
 }
 
+static void DestroyTask(void *_task)
+{
+	TaskDestroy((Task*)_task);
+}
+
 void PeriodicExecutorDestroy(PeriodicExecutor* _executor)
 {
 	if(IS_NOT_EXIST(_executor))
@@ -58,7 +63,12 @@ void PeriodicExecutorDestroy(PeriodicExecutor* _executor)
 	
 	if(_executor->m_vec)
 	{
-		VectorDestroy(_executor->m_vec,NULL); /*TODO*/
+		VectorDestroy(_executor->m_vec,DestroyTask);
+	}
+	
+	if(_executor->m_heap)
+	{
+		HeapDestroy(&_executor->m_heap);
 	}
 	
 	_executor->m_magicNumber = EXECUTOR_NO_MAGIC_NUMBER;
@@ -71,7 +81,7 @@ int PeriodicExecutorAdd(PeriodicExecutor* _executor, TaskFunction _taskFunction,
 	
 	if(IS_NOT_EXIST(_executor))
 	{
-		return -1;	
+		return -1;
 	}
 	
 	task = TaskCreate(_taskFunction,_context,_periodMs);
@@ -103,9 +113,11 @@ static size_t RunAllTasks(PeriodicExecutor* _executor)
 	Task *currentTask;
 	size_t count = 0;
 	
-	while(HeapItemsNum(_executor->m_heap) && NULL == _executor->m_isPaused)
+	while(HeapItemsNum(_executor->m_heap) && 0 == _executor->m_isPaused)
 	{
 		currentTask = (Task*)HeapExtract(_executor->m_heap);
+
+		PrintTime(currentTask);/*print*/
 		
 		if(TaskRun(currentTask))
 		{
@@ -134,19 +146,27 @@ static size_t CreateHeapIfNotExist(PeriodicExecutor* _executor)
 
 size_t PeriodicExecutorRun(PeriodicExecutor* _executor)
 {
+	int countElements;
 	
 	if(IS_NOT_EXIST(_executor))
 	{
 		return 0;
 	}
 	
-	/*VectorForEach(_executor->m_vec,);*/
+	countElements = VectorForEach(_executor->m_vec,SetFirstTime,NULL);
+	
+	if(countElements != VectorNumOfelements(_executor->m_vec))
+	{
+		return 0;
+	}
 	
 	CreateHeapIfNotExist(_executor);
 	
 	_executor->m_isPaused = 0;
 	
-	return RunAllTasks(_executor);
+	HeapPrint(_executor->m_heap,PrintTime);
+	
+	return RunAllTasks(_executor);;
 }
 
 size_t PeriodicExecutorPause(PeriodicExecutor* _executor)

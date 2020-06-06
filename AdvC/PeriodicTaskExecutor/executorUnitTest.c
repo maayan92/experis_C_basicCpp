@@ -2,7 +2,7 @@
 
 #include "executor.h"
 
-#define SIZE 7
+#define SIZE 3
 
 typedef enum
 {
@@ -12,14 +12,31 @@ typedef enum
 
 static int TaskAction(void *_context)
 {
-	if(*(int*)_context > 0)
+	static int count = 0;
+	
+	if(count < 6)
 	{
-		++*(int*)_context;
+		++count;
 		
 		return 1;
 	}
 	
 	return 0;
+}
+
+static Result FillExecutor(PeriodicExecutor *executor, int *_time, char *_context)
+{
+	int i;
+	
+	for(i = 0;i < SIZE;++i)
+	{
+		if(-1 == PeriodicExecutorAdd(executor,TaskAction,(void*)&_context[i],_time[i]))
+		{
+			return FAILED;
+		}
+	}
+	
+	return SUCCEDD;
 }
 
 /* CREATE EXECUTOR */
@@ -89,7 +106,34 @@ Result TestPeriodicExecutorAdd_Valid()
 	return SUCCEDD;
 }
 
+/* RUN TASKS */
 
+Result TestPeriodicExecutorRun_Valid()
+{
+	int time[] = {10,5,13};
+	char context[] = {'a','c','b'};
+	
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillExecutor(executor,time,context))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(0 == PeriodicExecutorRun(executor))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
 
 
 
@@ -122,7 +166,10 @@ int main()
 	/*POS*/
 	PrintRes("TestPeriodicExecutorAdd_Valid:",TestPeriodicExecutorAdd_Valid);
 	
-	
+	/*Run tasks*/
+	printf("\n--- Run tasks: ---\n");
+	/*POS*/
+	PrintRes("TestPeriodicExecutorRun_Valid:",TestPeriodicExecutorRun_Valid);
 	
 	
 	

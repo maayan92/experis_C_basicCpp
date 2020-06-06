@@ -219,7 +219,7 @@ size_t VectorForEach(const Vector* _vec, ActionFunction _action, void* _context)
 		++i;
 	}
 	
-	return i;
+	return i-1;
 }
 
 ErrCode PrintArray(const Vector *_vec, void(*ptrPrint)(void*))

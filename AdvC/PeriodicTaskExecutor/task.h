@@ -24,6 +24,13 @@ void TaskDestroy(Task *_task);
 	Input: 
 	Return value: 
 */
+int SetFirstTime(void *_task, void *_context);
+
+/*
+	Description: 
+	Input: 
+	Return value: 
+*/
 int TaskRun(Task *_task);
 
 /*
@@ -31,7 +38,11 @@ int TaskRun(Task *_task);
 	Input: 
 	Return value: 
 */
-int CompareTasks(Task *_task1, Task *_task2);
+int CompareTasks(const void *_task1, const void *_task2);
 
+
+
+
+void PrintTime(void *_task);
 
 #endif

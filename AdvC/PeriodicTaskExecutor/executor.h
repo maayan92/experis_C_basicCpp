@@ -4,21 +4,14 @@
 #include <unistd.h>
 #include <time.h> 
 #include <sys/types.h>
-/*
-typedef enum
-{
-	CLOCK_REALTIME,
-	CLOCK_REALTIME_COARSE,
-	CLOCK_MONOTONIC
-}clockid_t;
-*/
+
 enum { true,false };
 
 typedef struct PeriodicExecutor PeriodicExecutor; 
 
 /*
 	Description: create a new periodic executor.
-	Input: _name - name TODO,  _clkId - the id of the system clock to be used.
+	Input: _name - name of executor,  _clkId - the id of the system clock to be used.
 	Return value: return pointer to the periodic executor.
 */
 PeriodicExecutor* PeriodicExecutorCreate(const char* _name, clockid_t _clkId);
@@ -39,7 +32,7 @@ void PeriodicExecutorDestroy(PeriodicExecutor* _executor);
 int PeriodicExecutorAdd(PeriodicExecutor* _executor, int (*_taskFunction)(void *), void* _context, size_t _periodMs);
 
 /*
-	Description: run all the tasks.
+	Description: run all the tasks, untill they over or paused.
 	Input: _executor - pointer to the periodic executor.
 	Return value: return the number of execution cycles performed.
 */
@@ -48,7 +41,7 @@ size_t PeriodicExecutorRun(PeriodicExecutor* _executor);
 /*
 	Description: pause the running of all tasks.
 	Input: _executor - pointer to the periodic executor.
-	Return value: 
+	Return value: return the number of tasks remaining inside the executor.
 */
 size_t PeriodicExecutorPause(PeriodicExecutor* _executor);
 

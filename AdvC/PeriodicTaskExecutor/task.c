@@ -8,29 +8,39 @@
 
 #define IS_NOT_EXIST(_task) (NULL == _task || _task->m_magicNumber != TASK_MAGIC_NUMBER)
 
+/*get the next run time*/
+static void GetNextTime(Task *_task);
 
 struct Task
 {
 	size_t m_magicNumber;
 	TaskFunction m_taskFunction;
 	size_t m_periodTime;
-	double m_nextTime;
-	struct timespec m_startTime;
 	void *m_context;
+	struct timespec m_nextTime;
+	clockid_t m_clockId;
 };
 
-Task* TaskCreate(TaskFunction _taskFunction, void* _context, size_t _periodMs)
+Task* TaskCreate(TaskFunction _taskFunction, void* _context, size_t _periodMs, clockid_t _clkId)
 {
-	Task *task = (Task*)malloc(sizeof(Task));
+	Task *task;
+	
+	if(!_taskFunction)
+	{
+		return NULL;
+	}
+	
+	task = (Task*)malloc(sizeof(Task));
 	if(!task)
 	{
 		return NULL;
 	}
 	
 	task->m_taskFunction = _taskFunction;
-	task->m_periodTime = _periodMs;
-	task->m_nextTime = _periodMs;
 	task->m_context = _context;
+	task->m_periodTime = _periodMs;
+	task->m_nextTime = (struct timespec){0};
+	task->m_clockId = _clkId;
 	task->m_magicNumber = TASK_MAGIC_NUMBER;
 	
 	return task;
@@ -47,18 +57,21 @@ void TaskDestroy(Task *_task)
 	free(_task);
 }
 
-int SetFirstTime(void *_task, void *_context)
+struct timespec TaskGetStartTime(clockid_t _clockId)
 {
-	((Task*)_task)->m_startTime = GetCurrentTime();
-	
-	/*((Task*)_task)->m_nextTime = GetNextRunTime(((Task*)_task)->m_startTime,((Task*)_task)->m_periodTime);*/
-	
-	return 1;
+	return GetCurrentTime(_clockId);
 }
 
-static void GetNextTime(Task *_task)
+int TaskSetRunTime(void *_task, void *_context)
 {
-	_task->m_nextTime = GetNextRunTime(_task->m_startTime,(double)(_task->m_periodTime));
+	if(IS_NOT_EXIST(((Task*)_task)) || !_context)
+	{
+		return false;
+	}
+	
+	((Task*)_task)->m_nextTime = GetRunTime(*(struct timespec*)_context,((Task*)_task)->m_periodTime,((Task*)_task)->m_clockId);
+	
+	return true;
 }
 
 int TaskRun(Task *_task)
@@ -67,12 +80,10 @@ int TaskRun(Task *_task)
 	
 	if(IS_NOT_EXIST(_task))
 	{
-		return 0;
+		return false;
 	}
 	
-	printf("sleep -> %f \n", SleepTime(_task->m_startTime,_task->m_nextTime));
-	
-	usleep(SleepTime(_task->m_startTime,_task->m_nextTime));
+	SleepTime(_task->m_nextTime,_task->m_clockId);
 	
 	res = _task->m_taskFunction(_task->m_context);
 	
@@ -91,12 +102,21 @@ int CompareTasks(const void *_task1, const void *_task2)
 	return CompareTime(((Task*)_task1)->m_nextTime,((Task*)_task2)->m_nextTime);
 }
 
-void PrintTime(void *_task)
+void PrintTask(Task *_task)
 {
-	printf("task %c next time -> %f \n",*(char*)(((Task*)_task)->m_context), ((Task*)_task)->m_nextTime);
+	printf("task %c period time %ld \n",*(char*)(_task->m_context), _task->m_periodTime);
+	
+	PrintTime(((Task*)_task)->m_nextTime);
 }
 
+/* SUB FUNCTIONS */
 
+static void GetNextTime(Task *_task)
+{
+	struct timespec currentTime = GetCurrentTime(_task->m_clockId);
+
+	_task->m_nextTime = GetRunTime(currentTime,_task->m_periodTime,_task->m_clockId);
+}
 
 
 

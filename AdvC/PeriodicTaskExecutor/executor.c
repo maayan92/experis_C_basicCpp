@@ -17,12 +17,19 @@
 struct PeriodicExecutor
 {
 	size_t m_magicNumber;
-	char m_name[LENGTH];	
+	char m_name[LENGTH];
 	clockid_t m_clockId;
-	Heap *m_heap;
 	Vector *m_vec;
 	size_t m_isPaused;
 };
+
+/*call the task destroy function*/
+static void DestroyTask(void *_task);
+/*set the start time and create the heap*/
+static Heap* SetStartTimeCreateHeap(PeriodicExecutor* _executor);
+/*run all the tasks, untill they over or paused occurred*/
+static size_t RunAllTasks(PeriodicExecutor* _executor, Heap *heap);
+
 
 PeriodicExecutor* PeriodicExecutorCreate(const char* _name, clockid_t _clkId)
 {
@@ -42,16 +49,10 @@ PeriodicExecutor* PeriodicExecutorCreate(const char* _name, clockid_t _clkId)
 
 	strcpy(executor->m_name,_name);
 	executor->m_clockId = _clkId;
-	executor->m_heap = NULL;
 	executor->m_isPaused = 0;
 	executor->m_magicNumber = EXECUTOR_MAGIC_NUMBER;
 	
 	return executor;
-}
-
-static void DestroyTask(void *_task)
-{
-	TaskDestroy((Task*)_task);
 }
 
 void PeriodicExecutorDestroy(PeriodicExecutor* _executor)
@@ -66,11 +67,6 @@ void PeriodicExecutorDestroy(PeriodicExecutor* _executor)
 		VectorDestroy(_executor->m_vec,DestroyTask);
 	}
 	
-	if(_executor->m_heap)
-	{
-		HeapDestroy(&_executor->m_heap);
-	}
-	
 	_executor->m_magicNumber = EXECUTOR_NO_MAGIC_NUMBER;
 	free(_executor);
 }
@@ -79,25 +75,15 @@ int PeriodicExecutorAdd(PeriodicExecutor* _executor, TaskFunction _taskFunction,
 {
 	Task *task;
 	
-	if(IS_NOT_EXIST(_executor))
+	if(IS_NOT_EXIST(_executor) || NULL == _taskFunction)
 	{
 		return -1;
 	}
 	
-	task = TaskCreate(_taskFunction,_context,_periodMs);
+	task = TaskCreate(_taskFunction,_context,_periodMs,_executor->m_clockId);
 	if(NULL == task)
 	{
 		return -1;
-	}
-	
-	if(_executor->m_heap)
-	{
-		if(SUCCEEDED != HeapInsert(_executor->m_heap,task))
-		{
-			return -1;
-		}
-		
-		return 1;
 	}
 	
 	if(SUCCEEDED != VectorAddTail(_executor->m_vec,task))
@@ -108,80 +94,95 @@ int PeriodicExecutorAdd(PeriodicExecutor* _executor, TaskFunction _taskFunction,
 	 return 1;
 }
 
-static size_t RunAllTasks(PeriodicExecutor* _executor)
-{
-	Task *currentTask;
-	size_t count = 0;
-	
-	while(HeapItemsNum(_executor->m_heap) && 0 == _executor->m_isPaused)
-	{
-		currentTask = (Task*)HeapExtract(_executor->m_heap);
-
-		PrintTime(currentTask);/*print*/
-		
-		if(TaskRun(currentTask))
-		{
-			HeapInsert(_executor->m_heap,currentTask);
-		}
-		
-		++count;
-	}
-	
-	return count;
-}
-
-static size_t CreateHeapIfNotExist(PeriodicExecutor* _executor)
-{
-	if(NULL == _executor->m_heap)
-	{
-		_executor->m_heap = HeapBuild(_executor->m_vec,CompareTasks);
-		if(NULL != _executor->m_heap)
-		{
-			return 0;
-		}
-	}
-	
-	return 1;
-}
-
 size_t PeriodicExecutorRun(PeriodicExecutor* _executor)
 {
-	int countElements;
+	Heap *heap;
 	
 	if(IS_NOT_EXIST(_executor))
 	{
 		return 0;
 	}
 	
-	countElements = VectorForEach(_executor->m_vec,SetFirstTime,NULL);
+	heap = SetStartTimeCreateHeap(_executor);
 	
-	if(countElements != VectorNumOfelements(_executor->m_vec))
+	if(NULL == heap)
 	{
 		return 0;
 	}
 	
-	CreateHeapIfNotExist(_executor);
-	
 	_executor->m_isPaused = 0;
 	
-	HeapPrint(_executor->m_heap,PrintTime);
-	
-	return RunAllTasks(_executor);;
+	return RunAllTasks(_executor,heap);
 }
 
 size_t PeriodicExecutorPause(PeriodicExecutor* _executor)
 {
 	if(IS_NOT_EXIST(_executor))
 	{
-		return 0;	
+		return 0;
 	}
 
-	return _executor->m_isPaused = 1;
+	_executor->m_isPaused = 1;
+
+	return VectorNumOfelements(_executor->m_vec);
 }
 
+/* SUB FUNCTION */
 
+static void DestroyTask(void *_task)
+{
+	TaskDestroy((Task*)_task);
+}
 
+static Heap* SetStartTimeCreateHeap(PeriodicExecutor* _executor)
+{
+	int countElements;
+	struct timespec startTime;
+	Heap *heap;
+	
+	startTime = TaskGetStartTime(_executor->m_clockId);
+	if(-1 == startTime.tv_sec)
+	{
+		return NULL;
+	}
+	
+	countElements = VectorForEach(_executor->m_vec,TaskSetRunTime,(void*)&startTime);
+	
+	if(countElements != VectorNumOfelements(_executor->m_vec))
+	{
+		return NULL;
+	}
+	
+	heap = HeapBuild(_executor->m_vec,CompareTasks);
+	if(NULL == heap)
+	{
+		return NULL;
+	}
+	
+	return heap;
+}
 
+static size_t RunAllTasks(PeriodicExecutor* _executor, Heap *heap)
+{
+	Task *currentTask;
+	size_t count = 0;
+	
+	while(HeapItemsNum(heap) && 0 == _executor->m_isPaused)
+	{
+		currentTask = (Task*)HeapExtract(heap);
+
+		if(TaskRun(currentTask))
+		{
+			HeapInsert(heap,currentTask);
+		}
+		
+		++count;
+	}
+	
+	HeapDestroy(&heap);
+	
+	return count;
+}
 
 
 

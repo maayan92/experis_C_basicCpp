@@ -24,6 +24,11 @@ static int TaskAction(void *_context)
 	return 0;
 }
 
+static int TaskAction(void *_context)
+{
+	return PeriodicExecutorPause((PeriodicExecutor*)_context);
+}
+
 static Result FillExecutor(PeriodicExecutor *executor, int *_time, char *_context)
 {
 	int i;
@@ -110,7 +115,7 @@ Result TestPeriodicExecutorAdd_Valid()
 
 Result TestPeriodicExecutorRun_Valid()
 {
-	int time[] = {10,5,13};
+	int time[] = {10000,5000,13000};
 	char context[] = {'a','c','b'};
 	
 	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);

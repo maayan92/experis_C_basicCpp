@@ -10,13 +10,45 @@ typedef enum
 
 /* CURRENT TIME */
 
-Result TestGetCurrentTime_Valid()
+Result TestGetCurrentTime_ValidRealTime()
 {
 	struct timespec currentTime, getTime;
 	
 	clock_gettime(CLOCK_REALTIME, &currentTime);
 	
 	getTime = GetCurrentTime(CLOCK_REALTIME);
+	
+	if(currentTime.tv_sec != getTime.tv_sec)
+	{
+		return FAILED;
+	}
+	
+	return SUCCEDD;
+}
+
+Result TestGetCurrentTime_ValidCoarse()
+{
+	struct timespec currentTime, getTime;
+	
+	clock_gettime(CLOCK_REALTIME_COARSE, &currentTime);
+	
+	getTime = GetCurrentTime(CLOCK_REALTIME_COARSE);
+	
+	if(currentTime.tv_sec != getTime.tv_sec)
+	{
+		return FAILED;
+	}
+	
+	return SUCCEDD;
+}
+
+Result TestGetCurrentTime_ValidMonotonic()
+{
+	struct timespec currentTime, getTime;
+	
+	clock_gettime(CLOCK_MONOTONIC, &currentTime);
+	
+	getTime = GetCurrentTime(CLOCK_MONOTONIC);
 	
 	if(currentTime.tv_sec != getTime.tv_sec)
 	{
@@ -177,7 +209,9 @@ int main()
 	/*Current time*/
 	printf("\n--- Current time: ---\n");
 	/*POS*/
-	PrintRes("TestGetCurrentTime_Valid",TestGetCurrentTime_Valid);
+	PrintRes("TestGetCurrentTime_ValidRealTime",TestGetCurrentTime_ValidRealTime);
+	PrintRes("TestGetCurrentTime_ValidCoarse",TestGetCurrentTime_ValidCoarse);
+	PrintRes("TestGetCurrentTime_ValidMonotonic",TestGetCurrentTime_ValidMonotonic);
 	
 	/*Run time*/
 	printf("\n--- Run time: ---\n");

@@ -7,7 +7,7 @@ typedef int (*TaskFunction)(void *);
 
 /*
 	Description: create a new task.
-	Input: _taskFunction - task function action, _context - the task context, _periodMs - period run time.
+	Input: _taskFunction - task function action, should not be NULL, _context - the task context, _periodMs - period run time.
 	Return value: return pointer to the new task, NULL if _taskFunction is NULL or the allocation fails. 
 */
 Task* TaskCreate(TaskFunction _taskFunction, void* _context, size_t _periodMs, clockid_t _clkId);

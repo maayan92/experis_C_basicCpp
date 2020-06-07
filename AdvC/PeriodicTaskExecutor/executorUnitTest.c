@@ -10,7 +10,7 @@ typedef enum
 	FAILED
 }Result;
 
-static int TaskAction(void *_context)
+static int TaskActionRealTime(void *_context)
 {
 	static int count = 0;
 	
@@ -24,18 +24,88 @@ static int TaskAction(void *_context)
 	return 0;
 }
 
-static int TaskAction(void *_context)
+static int TaskActionCoarse(void *_context)
 {
-	return PeriodicExecutorPause((PeriodicExecutor*)_context);
+	static int count = 0;
+	
+	if(count < 6)
+	{
+		++count;
+		
+		return 1;
+	}
+	
+	return 0;
 }
 
-static Result FillExecutor(PeriodicExecutor *executor, int *_time, char *_context)
+static int TaskActionMonotonic(void *_context)
+{
+	static int count = 0;
+	
+	if(count < 6)
+	{
+		++count;
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+static int TaskActionAddTask(void *_context)
+{
+	static int count = 0;
+	
+	if(count < 4)
+	{
+		++count;
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+static int TaskActionWithPause(void *_context)
+{
+	static int count = 0;
+	
+	if(count < 4)
+	{
+		++count;
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+static int AddNewTaskAction(void *_context)
+{
+	char d = 'd';
+	
+	if(-1 == PeriodicExecutorAdd((PeriodicExecutor*)_context,TaskActionAddTask,(void*)&d,15000))
+	{
+		return PeriodicExecutorPause((PeriodicExecutor*)_context);
+	}
+	
+	return 0;
+}
+
+static int TaskActionPause(void *_context)
+{
+	PeriodicExecutorPause((PeriodicExecutor*)_context);
+
+	return 0;
+}
+
+static Result FillExecutor(PeriodicExecutor *_executor, int (*_taskFunction)(void *), int *_time, char *_context, int _size)
 {
 	int i;
 	
-	for(i = 0;i < SIZE;++i)
+	for(i = 0;i < _size;++i)
 	{
-		if(-1 == PeriodicExecutorAdd(executor,TaskAction,(void*)&_context[i],_time[i]))
+		if(-1 == PeriodicExecutorAdd(_executor,_taskFunction,(void*)&_context[i],_time[i]))
 		{
 			return FAILED;
 		}
@@ -46,7 +116,7 @@ static Result FillExecutor(PeriodicExecutor *executor, int *_time, char *_contex
 
 /* CREATE EXECUTOR */
 
-Result TestPeriodicExecutorCreate()
+Result TestPeriodicExecutorCreate_Valid()
 {
 	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);
 	if(!executor)
@@ -56,6 +126,30 @@ Result TestPeriodicExecutorCreate()
 	
 	PeriodicExecutorDestroy(executor);
 	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorCreate_EmptyName()
+{
+	PeriodicExecutor *executor = PeriodicExecutorCreate("",CLOCK_REALTIME);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorCreate_NULLName()
+{
+	PeriodicExecutor *executor = PeriodicExecutorCreate(NULL,CLOCK_REALTIME);
+	if(!executor)
+	{
+		return SUCCEDD;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return FAILED;
 }
 
 /* DESTROY EXECUTOR */
@@ -93,7 +187,7 @@ Result TestPeriodicExecutorDestroy_NULLExe()
 
 /* INSERT TASK */
 
-Result TestPeriodicExecutorAdd_Valid()
+Result TestPeriodicExecutorAdd_ValidRealTime()
 {
 	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);
 	if(!executor)
@@ -101,7 +195,7 @@ Result TestPeriodicExecutorAdd_Valid()
 		return FAILED;
 	}
 	
-	if(-1 == PeriodicExecutorAdd(executor,TaskAction,(void*)3,5))
+	if(-1 == PeriodicExecutorAdd(executor,TaskActionRealTime,(void*)3,5000))
 	{
 		PeriodicExecutorDestroy(executor);
 		return FAILED;
@@ -111,9 +205,55 @@ Result TestPeriodicExecutorAdd_Valid()
 	return SUCCEDD;
 }
 
+Result TestPeriodicExecutorAdd_ValidCoarse()
+{
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME_COARSE);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(-1 == PeriodicExecutorAdd(executor,TaskActionCoarse,(void*)3,5000))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorAdd_ValidMonotonic()
+{
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_MONOTONIC);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(-1 == PeriodicExecutorAdd(executor,TaskActionMonotonic,(void*)3,5000))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorAdd_NULL()
+{
+	if(-1 == PeriodicExecutorAdd(NULL,TaskActionRealTime,(void*)3,5000))
+	{
+		return SUCCEDD;
+	}
+	
+	return FAILED;
+}
+
 /* RUN TASKS */
 
-Result TestPeriodicExecutorRun_Valid()
+Result TestPeriodicExecutorRun_ValidRealTime()
 {
 	int time[] = {10000,5000,13000};
 	char context[] = {'a','c','b'};
@@ -124,13 +264,13 @@ Result TestPeriodicExecutorRun_Valid()
 		return FAILED;
 	}
 	
-	if(FAILED == FillExecutor(executor,time,context))
+	if(FAILED == FillExecutor(executor,TaskActionRealTime,time,context,SIZE))
 	{
 		PeriodicExecutorDestroy(executor);
 		return FAILED;
 	}
 	
-	if(0 == PeriodicExecutorRun(executor))
+	if(9 != PeriodicExecutorRun(executor))
 	{
 		PeriodicExecutorDestroy(executor);
 		return FAILED;
@@ -140,7 +280,137 @@ Result TestPeriodicExecutorRun_Valid()
 	return SUCCEDD;
 }
 
+Result TestPeriodicExecutorRun_ValidCoarse()
+{
+	int time[] = {10000,5000,13000};
+	char context[] = {'a','c','b'};
+	
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME_COARSE);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillExecutor(executor,TaskActionCoarse,time,context,SIZE))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(9 != PeriodicExecutorRun(executor))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
 
+Result TestPeriodicExecutorRun_ValidMonotonic()
+{
+	int time[] = {10000,5000,13000};
+	char context[] = {'a','c','b'};
+	
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_MONOTONIC);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillExecutor(executor,TaskActionMonotonic,time,context,SIZE))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(9 != PeriodicExecutorRun(executor))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorRun_ValidAddTask()
+{
+	int time[] = {10000,5000,7000};
+	char context[] = {'a','c','b'};
+	
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillExecutor(executor,TaskActionAddTask,time,context,SIZE-1))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(-1 == PeriodicExecutorAdd(executor,AddNewTaskAction,(void*)executor,time[2]))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(8 != PeriodicExecutorRun(executor))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
+
+Result TestPeriodicExecutorRun_NULL()
+{
+	if(0 == PeriodicExecutorRun(NULL))
+	{
+		return SUCCEDD;
+	}
+	
+	return FAILED;
+}
+
+/* RUS AND PAUSE */
+
+Result TestPeriodicExecutorPause_Valid()
+{
+	int time[] = {10000,5000,7000};
+	char context[] = {'a','c','b'};
+	
+	PeriodicExecutor *executor = PeriodicExecutorCreate("executor",CLOCK_REALTIME);
+	if(!executor)
+	{
+		return FAILED;
+	}
+	
+	if(FAILED == FillExecutor(executor,TaskActionWithPause,time,context,SIZE))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	if(-1 == PeriodicExecutorAdd(executor,TaskActionPause,(void*)executor,6000))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+		
+	if(2 != PeriodicExecutorRun(executor) || 6 != PeriodicExecutorRun(executor))
+	{
+		PeriodicExecutorDestroy(executor);
+		return FAILED;
+	}
+	
+	PeriodicExecutorDestroy(executor);
+	return SUCCEDD;
+}
 
 static void PrintRes(char *_str, Result(*ptrPrint)(void))
 {
@@ -153,39 +423,44 @@ static void PrintRes(char *_str, Result(*ptrPrint)(void))
 
 int main()
 {
+
 	/*Create executor*/
-	printf("\n--- Create executor: ---\n");
-	/*POS*/
-	PrintRes("TestPeriodicExecutorCreate:",TestPeriodicExecutorCreate);
+	/*POS*/printf("\n--- Create executor: ---\n");
+	PrintRes("TestPeriodicExecutorCreate_Valid:",TestPeriodicExecutorCreate_Valid);
+	PrintRes("TestPeriodicExecutorCreate_EmptyName:",TestPeriodicExecutorCreate_EmptyName);
+	/*NEG*/
+	PrintRes("TestPeriodicExecutorCreate_NULLName:",TestPeriodicExecutorCreate_NULLName);
 
 	/*Destroy executor*/
-	printf("\n--- Destroy executor: ---\n");
-	/*POS*/
+	/*POS*/printf("\n--- Destroy executor: ---\n");
 	PrintRes("TestPeriodicExecutorDestroy_Valid:",TestPeriodicExecutorDestroy_Valid);
 	/*NEG*/
 	PrintRes("TestPeriodicExecutorDestroy_Double:",TestPeriodicExecutorDestroy_Double);
 	PrintRes("TestPeriodicExecutorDestroy_NULLExe:",TestPeriodicExecutorDestroy_NULLExe);
 	
 	/*Add task*/
-	printf("\n--- Add task: ---\n");
-	/*POS*/
-	PrintRes("TestPeriodicExecutorAdd_Valid:",TestPeriodicExecutorAdd_Valid);
-	
+	/*POS*/printf("\n--- Add task: ---\n");
+	PrintRes("TestPeriodicExecutorAdd_ValidRealTime:",TestPeriodicExecutorAdd_ValidRealTime);
+	PrintRes("TestPeriodicExecutorAdd_ValidCoarse:",TestPeriodicExecutorAdd_ValidCoarse);
+	PrintRes("TestPeriodicExecutorAdd_ValidMonotonic:",TestPeriodicExecutorAdd_ValidMonotonic);
+	/*NEG*/
+	PrintRes("TestPeriodicExecutorAdd_NULL:",TestPeriodicExecutorAdd_NULL);
+		
 	/*Run tasks*/
-	printf("\n--- Run tasks: ---\n");
-	/*POS*/
-	PrintRes("TestPeriodicExecutorRun_Valid:",TestPeriodicExecutorRun_Valid);
+	/*POS*/printf("\n--- Run tasks: ---\n");
+	PrintRes("TestPeriodicExecutorRun_ValidRealTime:",TestPeriodicExecutorRun_ValidRealTime);
+	PrintRes("TestPeriodicExecutorRun_ValidCoarse:",TestPeriodicExecutorRun_ValidCoarse);
+	PrintRes("TestPeriodicExecutorRun_ValidMonotonic:",TestPeriodicExecutorRun_ValidMonotonic);
+	PrintRes("TestPeriodicExecutorRun_ValidAddTask:",TestPeriodicExecutorRun_ValidAddTask);
+	/*NEG*/
+	PrintRes("TestPeriodicExecutorRun_NULL:",TestPeriodicExecutorRun_NULL);
 	
-	
-	
+	/*Run and pause*/
+	/*POS*/printf("\n--- Run and pause: ---\n");
+	PrintRes("TestPeriodicExecutorPause_Valid:",TestPeriodicExecutorPause_Valid);
 	
 	return 0;
 }
-
-
-
-
-
 
 
 

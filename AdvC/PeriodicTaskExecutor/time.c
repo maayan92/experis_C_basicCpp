@@ -81,7 +81,7 @@ int CompareTime(struct timespec _time1, struct timespec _time2)
 
 void PrintTime(struct timespec _time)
 {
-	printf("time sec %ld all %ld \n", _time.tv_sec , _time.tv_nsec );
+	printf("time sec %ld all %ld \n", _time.tv_sec, _time.tv_nsec);
 }
 
 /* SUB FUNCTIONS */

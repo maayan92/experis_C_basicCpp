@@ -7,12 +7,12 @@
 
 enum { true,false };
 
-typedef struct PeriodicExecutor PeriodicExecutor; 
+typedef struct PeriodicExecutor PeriodicExecutor;
 
 /*
 	Description: create a new periodic executor.
-	Input: _name - name of executor,  _clkId - the id of the system clock to be used.
-	Return value: return pointer to the periodic executor.
+	Input: _name - name of executor, should not be NULL, _clkId - the id of the system clock to be used.
+	Return value: return pointer to the periodic executor, NULL if _name is NULL or if the allocation fails.
 */
 PeriodicExecutor* PeriodicExecutorCreate(const char* _name, clockid_t _clkId);
 
@@ -46,11 +46,11 @@ size_t PeriodicExecutorRun(PeriodicExecutor* _executor);
 size_t PeriodicExecutorPause(PeriodicExecutor* _executor);
 
 /*
-	Description: 
-	Input: 
-	Return value: 
+	Description: print the executor.
+	Input:  _executor - pointer to the periodic executor.
+	Return value: nothing returns.
 */
-
-
+/*for debug only*/
+void PrintExecutor(PeriodicExecutor* _executor);
 
 #endif

@@ -19,7 +19,7 @@ static int RecvAndSend(void *_clientSock, void *_context)
 			
 	if(ERR_SEND_FAILED == SendDataTransfer(*((int*)_clientSock)))
 	{
-		printf("send data to client failed\n");
+		perror("send data to client failed");
 	}
 	
 	return 1;
@@ -54,7 +54,7 @@ int main()
 {
 	Server *server = ServerCreate();
 		
-	if(ERR_SUCCESS != SocketInitialization(server,"192.168.0.101"))
+	if(ERR_SUCCESS != SocketInitialization(server,"127.0.0.1"))
 	{
 		printf("socket failed\n");
 		return 0;

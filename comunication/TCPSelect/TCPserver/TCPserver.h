@@ -5,7 +5,7 @@
 
 #define PORT 1234
 #define DATA_SIZE 400
-#define CLIENTS_SIZE 1000
+#define CLIENTS_SIZE 100
 #define MAX_CLIENTS 1000
 #define NUM_OF_SOCKETS 1024
 

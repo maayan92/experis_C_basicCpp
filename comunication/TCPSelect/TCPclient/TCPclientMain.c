@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include "TCPclient.h"
 
-#define SIZE 1000
+#define SIZE 100
 #define STATISTIC 100
 
 static int InitAndConnect()
@@ -12,15 +12,15 @@ static int InitAndConnect()
 	int sock;
 	struct sockaddr_in sin;
 	
-	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"192.168.0.57"))
+	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"127.0.0.1"))
 	{
-		printf("socket failed!\n");
+		perror("socket failed!");
 		return -1;
 	}
 
 	if(ERR_CONNECTION_FAILED == Connect(sock,sin))
 	{
-		printf("connection failed!\n");
+		perror("connection failed!");
 		return -1;
 	}
 	
@@ -34,13 +34,13 @@ static void SendAndRecv(int _sock)
 	
 	if(ERR_SEND_FAILED == SendDataTransfer(_sock))
 	{
-		printf("data send failed!\n");
+		perror("data send failed!");
 		return;
 	}
 		
 	if(ERR_SEND_FAILED == RecvDataTransfer(_sock,buffer))
 	{
-		printf("data recv failed\n");
+		perror("data recv failed");
 		return;
 	}
 		
@@ -65,6 +65,7 @@ int main()
 				if(-1 == (clients[i] = InitAndConnect()))
 				{
 					clients[i] = 0;
+					return 0;
 				}
 			}
 		}

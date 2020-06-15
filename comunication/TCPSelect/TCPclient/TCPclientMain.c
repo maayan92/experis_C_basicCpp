@@ -12,7 +12,7 @@ static int InitAndConnect()
 	int sock;
 	struct sockaddr_in sin;
 	
-	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"192.168.0.46"))
+	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"192.168.0.57"))
 	{
 		printf("socket failed!\n");
 		return -1;

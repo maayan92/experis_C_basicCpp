@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <string.h>
+
 #include "TCPserver.h"
 
 #define SERVER_MAGIC_NUMBER 0xe1e1e1e1
@@ -18,16 +19,20 @@ struct Server
 	int m_serverSock;
 	List *m_clients;
 	size_t m_numOfClients;
+	fd_set m_temp;
+	fd_set m_master;
 };
 
+/**/
+static int SetBitOn(void *_socket, void *_context);
 /*create sockaddr sin*/
 static struct sockaddr_in SinCreate(char *_address);
 /*set the socket, bind and listen*/
 static int SetBindListen(int *_sock, char *_address);
-/*set the socket as non blocking*/
-static int SetAsNonBlock(int *_sock);
 /*close the socket*/
 static void CloseSocket(void* _sock);
+/**/
+static ListItr RemoveSocket(Server *_server, ListItr _itr);
 
 
 Server* ServerCreate()
@@ -40,6 +45,7 @@ Server* ServerCreate()
 	
 	server->m_clients = DLListCreate();
 	server->m_numOfClients = 0;
+
 	server->m_magicNumber = SERVER_MAGIC_NUMBER;
 	
 	return server;
@@ -58,7 +64,6 @@ void ServerDestroy(Server *_server)
 	CloseSocket(&_server->m_serverSock);
 	
 	free(_server);
-	
 }
 
 int SocketInitialization(Server *_server, char *_address)
@@ -76,20 +81,41 @@ int SocketInitialization(Server *_server, char *_address)
 		return err;
 	}
 	
-	if(ERR_SUCCESS != (err = SetAsNonBlock(&_server->m_serverSock)))
-	{
-		return err;
-	}
+	FD_SET(_server->m_serverSock,&_server->m_master);
+	
+	FD_ZERO(&_server->m_master);
+	
+	ListItrForEach(ListItrBegin(_server->m_clients),ListItrEnd(_server->m_clients),SetBitOn,&_server->m_master);
 	
 	return ERR_SUCCESS;
+}
+
+int SetAndWait(Server *_server)
+{
+	if(!_server)
+	{
+		return -1;
+	}
+	
+	FD_SET(_server->m_serverSock,&_server->m_master);
+
+	_server->m_temp = _server->m_master;
+	
+	return select(NUM_OF_SOCKETS,&_server->m_temp,NULL,NULL,NULL);
 }
 
 int SetConnection(Server *_server)
 {
 	struct sockaddr_in sin;
 	socklen_t addr_len = sizeof(sin);
-	int *clientSock = (int*)malloc(sizeof(int));
-
+	int *clientSock;
+	
+	if(!FD_ISSET(_server->m_serverSock,&_server->m_temp))
+	{
+		return ERR_NO_CONNECTION;
+	}
+	
+	clientSock = (int*)malloc(sizeof(int));
 	*clientSock = accept(_server->m_serverSock,(struct sockaddr *)&sin, &addr_len);
 	
 	if(MAX_CLIENTS == _server->m_numOfClients)
@@ -101,19 +127,14 @@ int SetConnection(Server *_server)
 	if (*clientSock < 0)
 	{
 		free(clientSock);
-		
-		if(EAGAIN == errno || EWOULDBLOCK == errno)
-		{
-			return ERR_NO_BLOCKING;
-		}
-		
 		return ERR_CONNECTION_FAILED;
 	}
 	
-	SetAsNonBlock(clientSock);
 	DLListPushHead(_server->m_clients,clientSock);
 	++_server->m_numOfClients;
 	
+	FD_SET(*clientSock,&_server->m_master);
+
 	return ERR_SUCCESS;
 }
 
@@ -130,11 +151,6 @@ int RecvDataTransfer(int _clientSock, char *_buffer)
 	
 	if (0 > read_bytes) 
 	{
-		if(EAGAIN == errno || EWOULDBLOCK == errno)
-		{
-			return ERR_NO_BLOCKING;
-		}
-		
 		return ERR_SEND_FAILED;
 	}
 		
@@ -158,28 +174,33 @@ int SendDataTransfer(int _clientSock)
 	return ERR_SUCCESS;
 }
 
-void ServerListForEach(Server *_server, ListActionFunction _action)
+void ServerListForEach(Server *_server, ListActionFunction _action, int _activity)
 {
-	ListItr itr = ListItrBegin(_server->m_clients), removeItr;
-	int *clientSock;
+	ListItr begin = ListItrBegin(_server->m_clients), end = ListItrEnd(_server->m_clients);
 	
-	while(!ListItrEquals(itr,ListItrEnd(_server->m_clients)))
+	while(!ListItrEquals(begin,end) && _activity)
 	{
-		itr = ListItrForEach(itr,ListItrEnd(_server->m_clients),_action,NULL);
-		
-		if(!ListItrEquals(itr,ListItrEnd(_server->m_clients)))
+		if(FD_ISSET(*(int*)ListItrGet(begin),&_server->m_temp) && !_action(ListItrGet(begin),NULL))
 		{
-			removeItr = itr;
-			itr = ListItrNext(itr);
+			begin = RemoveSocket(_server,begin);
 			
-			clientSock = ListItrRemove(removeItr);
-			CloseSocket(clientSock);
-			--_server->m_numOfClients;
+			--_activity;
+		}
+		else
+		{
+			begin = ListItrNext(begin);
 		}
 	}
 }
 
 /* SUB FUNCTIONS */
+
+static int SetBitOn(void *_socket, void *_context)
+{
+	FD_SET(*((int*)_socket),(fd_set*)_context);
+	
+	return 1;
+}
 
 static int SetBindListen(int *_sock, char *_address)
 {
@@ -206,23 +227,6 @@ static int SetBindListen(int *_sock, char *_address)
 	return ERR_SUCCESS;
 }
 
-static int SetAsNonBlock(int *_sock)
-{
-	int flags;
-
-	if (-1 == (flags = fcntl(*_sock, F_GETFL)))
-	{
-		return ERR_F_GETFL_FAILED;
-	}
-
-	if(-1 == fcntl(*_sock, F_SETFL, flags | O_NONBLOCK))
-	{
-		return ERR_NON_BLOCK_FAILED;
-	}
-	
-	return ERR_SUCCESS;
-}
-
 static struct sockaddr_in SinCreate(char *_address)
 {
 	struct sockaddr_in sin;
@@ -234,6 +238,19 @@ static struct sockaddr_in SinCreate(char *_address)
 	sin.sin_port = htons(PORT);
 	
 	return sin;
+}
+
+static ListItr RemoveSocket(Server *_server, ListItr _itr)
+{
+	ListItr next = ListItrNext(_itr);
+	int *clientSock = ListItrRemove(_itr);
+	
+	FD_CLR(*clientSock,&_server->m_master);
+	CloseSocket(clientSock);
+	
+	--_server->m_numOfClients;
+	
+	return next;
 }
 
 static void CloseSocket(void* _sock)

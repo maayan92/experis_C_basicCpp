@@ -2,9 +2,9 @@
 
 TARGET= executorUnitTest.out 
 CC= gcc -I../../include
-CFLAGS= -ansi -g -pedantic -Wall -Werror -std=gnu99
+CFLAGS= -ansi -g -pedantic -Wall -Werror -std=gnu99 -fPIC
 INC= ../../include
-OBJS= executor.o executorUnitTest.o task.o time.o ../heap/heap.o ../vector/vector.o
+OBJS= executor.o executorUnitTest.o task.o time.o ../heap/heap.o ../vector/vector.o 
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)

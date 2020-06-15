@@ -18,17 +18,17 @@ struct PeriodicExecutor
 {
 	size_t m_magicNumber;
 	char m_name[LENGTH];
+	int m_isPaused;
 	clockid_t m_clockId;
 	Vector *m_vec;
 	Heap *m_heap;
-	size_t m_isPaused;
 	struct timespec m_startTime;
 };
 
 /*call the task destroy function*/
 static void DestroyTask(void *_task);
 /*set the start time and create the heap*/
-static Heap* SetStartTimeCreateHeap(PeriodicExecutor* _executor);
+static int SetStartTimeCreateHeap(PeriodicExecutor* _executor);
 /*run all the tasks, untill they over or paused occurred*/
 static size_t RunAllTasks(PeriodicExecutor* _executor);
 /*call the task print function*/
@@ -86,13 +86,13 @@ int PeriodicExecutorAdd(PeriodicExecutor* _executor, TaskFunction _taskFunction,
 	
 	if(IS_NOT_EXIST(_executor))
 	{
-		return -1;
+		return NOT_EXIST;
 	}
 	
 	task = TaskCreate(_taskFunction,_context,_periodMs,_executor->m_clockId);
 	if(NULL == task)
 	{
-		return -1;
+		return ALLOCATION_FAILED;
 	}
 	
 	if(_executor->m_heap)
@@ -101,16 +101,16 @@ int PeriodicExecutorAdd(PeriodicExecutor* _executor, TaskFunction _taskFunction,
 
 		if(SUCCEEDED != HeapInsert(_executor->m_heap,task))
 		{
-			return -1;
+			return INSERT_FAILED;
 		}
 	}
 	
 	if(SUCCEEDED != VectorAddTail(_executor->m_vec,task))
 	{
-		return -1;
+		return INSERT_FAILED;
 	}
 	
-	 return 1;
+	 return SUCCESS;
 }
 
 size_t PeriodicExecutorRun(PeriodicExecutor* _executor)
@@ -120,9 +120,7 @@ size_t PeriodicExecutorRun(PeriodicExecutor* _executor)
 		return 0;
 	}
 	
-	_executor->m_heap = SetStartTimeCreateHeap(_executor);
-	
-	if(NULL == _executor->m_heap)
+	if(false == SetStartTimeCreateHeap(_executor))
 	{
 		return 0;
 	}
@@ -156,31 +154,30 @@ static void DestroyTask(void *_task)
 	TaskDestroy((Task*)_task);
 }
 
-static Heap* SetStartTimeCreateHeap(PeriodicExecutor* _executor)
+static int SetStartTimeCreateHeap(PeriodicExecutor* _executor)
 {
 	int countElements;
-	Heap *heap;
 	
 	_executor->m_startTime = TaskGetStartTime(_executor->m_clockId);
 	if(-1 == _executor->m_startTime.tv_sec)
 	{
-		return NULL;
+		return false;
 	}
 	
 	countElements = VectorForEach(_executor->m_vec,TaskSetRunTime,(void*)&_executor->m_startTime);
 	
 	if(countElements != VectorNumOfelements(_executor->m_vec))
 	{
-		return NULL;
+		return false;
 	}
 	
-	heap = HeapBuild(_executor->m_vec,CompareTasks);
-	if(NULL == heap)
+	_executor->m_heap = HeapBuild(_executor->m_vec,CompareTasks);
+	if(NULL == _executor->m_heap)
 	{
-		return NULL;
+		return false;
 	}
 	
-	return heap;
+	return true;
 }
 
 static size_t RunAllTasks(PeriodicExecutor* _executor)
@@ -195,6 +192,10 @@ static size_t RunAllTasks(PeriodicExecutor* _executor)
 		if(TaskRun(currentTask))
 		{
 			HeapInsert(_executor->m_heap,currentTask);
+		}
+		else
+		{
+			TaskDestroy(currentTask);
 		}
 		
 		++count;

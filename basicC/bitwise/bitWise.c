@@ -150,7 +150,7 @@ size_t BitCount(size_t _num)
 	if(!flag)
 	{
 		flag = 1;
-		BuildLUT(lut);
+		BuildLUTCount(lut);
 	}
 
 	for(i = 0;i < sizeof(int);++i)
@@ -164,7 +164,7 @@ size_t BitCount(size_t _num)
 }
 /*TODO*/
 /* 3 BIT OFFSET */
-
+/*
 static size_t Get3BitsOffset(unsigned char _num)
 {
 	size_t count = 0, i;
@@ -189,6 +189,7 @@ static void BuildLUT3OnBit(unsigned char *_lut)
 		num++;
 	}
 }
+*/
 /*TODO*/
 /* SUB FUNCTIONS */
 

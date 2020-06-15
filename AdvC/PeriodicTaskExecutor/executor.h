@@ -5,7 +5,15 @@
 #include <time.h> 
 #include <sys/types.h>
 
-enum { true,false };
+enum
+{
+	SUCCESS,
+	NOT_EXIST,
+	ALLOCATION_FAILED,
+	INSERT_FAILED
+};
+
+enum { false,true };
 
 typedef struct PeriodicExecutor PeriodicExecutor;
 
@@ -27,14 +35,15 @@ void PeriodicExecutorDestroy(PeriodicExecutor* _executor);
 	Description: add a new task to the periodic executor.
 	Input: _executor - pointer to the periodic executor, _taskFunction - the task function, 
 		_context - context to send to the task function, _periodMs - the period of recurrence in milliseconds.
-	Return value: return false if the _executor isn't exist or if allocation fails, true on success.
+	Return value: return NOT_EXIST - if the _executor isn't exist, ALLOCATION_FAILED - if allocation fails,
+				INSERT_FAILED - if the insert failed, SUCCESS - on success.
 */
 int PeriodicExecutorAdd(PeriodicExecutor* _executor, int (*_taskFunction)(void *), void* _context, size_t _periodMs);
 
 /*
 	Description: run all the tasks, untill they over or paused.
 	Input: _executor - pointer to the periodic executor.
-	Return value: return the number of execution cycles performed.
+	Return value: return the number of execution cycles performed, 0 if the _executor isn't exist.
 */
 size_t PeriodicExecutorRun(PeriodicExecutor* _executor);
 

@@ -1,8 +1,7 @@
 #ifndef __TCP_CLIENT__
 #define __TCP_CLIENT__
 
-
-#define PORT 1234
+#define PORT 1992
 #define DATA_SIZE 400
 
 enum

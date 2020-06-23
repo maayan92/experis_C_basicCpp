@@ -4,20 +4,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-<<<<<<< HEAD
-#include <string.h>
-#include "TCPclient.h"
-
-/*
-	Description: create sockkadrr sin.
-	Input: _address - address connection.
-	Return value: return sockaddr sin. 
-*/
-static struct sockaddr_in SinCreate(char *_address);
-
-
-
-=======
 #include <errno.h>
 #include <string.h>
 #include "TCPclient.h"
@@ -26,7 +12,6 @@ static struct sockaddr_in SinCreate(char *_address);
 static struct sockaddr_in SinCreate(char *_address);
 
 
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 int SocketInitialization(int *_sock, struct sockaddr_in *_sin, char *_address)
 {
 	*_sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,18 +40,16 @@ int SendDataTransfer(int _sock)
 {
 	char data[DATA_SIZE] = "hello";
 	ssize_t sent_bytes;
-<<<<<<< HEAD
-	/*
-	printf("enter message: ");
-	fgets(data,200,stdin);
-	*/
-=======
 	
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 	sent_bytes = send(_sock, data, strlen(data), 0);
 	
 	if (sent_bytes < 0)
 	{
+		if(EPIPE == errno)
+		{
+			return ERR_CLOSED_SOCK;
+		}
+		
 		return ERR_SEND_FAILED;
 	}
 	
@@ -78,6 +61,11 @@ int RecvDataTransfer(int _clientSock, char *_buffer)
 	ssize_t read_bytes;
 	
 	read_bytes = recv(_clientSock, _buffer, DATA_SIZE, 0);
+	
+	if(0 == read_bytes)
+	{
+		return ERR_CLOSED_SOCK;
+	}
 	
 	if (read_bytes < 0) 
 	{
@@ -94,11 +82,7 @@ void CloseSocket(int _sock)
 	close(_sock);
 }
 
-<<<<<<< HEAD
-/**/
-=======
 /* SUB FUNCTIONS */
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 
 static struct sockaddr_in SinCreate(char *_address)
 {

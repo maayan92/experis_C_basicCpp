@@ -4,11 +4,7 @@
 #include <arpa/inet.h>
 #include "TCPclient.h"
 
-<<<<<<< HEAD
-#define SIZE 5
-=======
 #define SIZE 1000
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 #define STATISTIC 100
 
 static int InitAndConnect()
@@ -16,50 +12,53 @@ static int InitAndConnect()
 	int sock;
 	struct sockaddr_in sin;
 	
-<<<<<<< HEAD
 	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"127.0.0.1"))
-=======
-	if(ERR_SUCCESS != SocketInitialization(&sock,&sin,"192.168.0.46"))
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 	{
-		printf("socket failed!\n");
+		perror("socket failed!");
 		return -1;
 	}
 
 	if(ERR_CONNECTION_FAILED == Connect(sock,sin))
 	{
-		printf("connection failed!\n");
+		perror("connection failed!");
 		return -1;
 	}
 	
 	return sock;
 }
 
-static void SendAndRecv(int _sock)
+static int SendAndRecv(int *_sock)
 {
-<<<<<<< HEAD
-=======
-	static int num = 1;
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
+	static int num = 1, dataSR;
 	char buffer[DATA_SIZE];
 	
-	if(ERR_SEND_FAILED == SendDataTransfer(_sock))
+	dataSR = SendDataTransfer(*_sock);
+	
+	if(ERR_SEND_FAILED == dataSR)
 	{
-		printf("data send failed!\n");
-		return;
+		perror("data send failed!");
+		return 0;
+	}
+	
+	if(ERR_CLOSED_SOCK == dataSR)
+	{
+		return -1;
 	}
 		
-	if(ERR_SEND_FAILED == RecvDataTransfer(_sock,buffer))
+	dataSR = RecvDataTransfer(*_sock,buffer);
+	
+	if(ERR_CLOSED_SOCK == dataSR)
 	{
-		printf("data recv failed\n");
-		return;
+		return -1;
+	}
+	
+	if(ERR_SEND_FAILED == dataSR)
+	{
+		perror("data recv failed");
+		return 0;
 	}
 		
-<<<<<<< HEAD
-	printf("%s \n", buffer);
-=======
 	printf("%d : %s \n", num++, buffer);
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 }	
 
 int main()
@@ -79,11 +78,7 @@ int main()
 			{
 				if(-1 == (clients[i] = InitAndConnect()))
 				{
-<<<<<<< HEAD
-					return -1;
-=======
 					clients[i] = 0;
->>>>>>> c3597023196d98124e148dd66712061cc5dc72d6
 				}
 			}
 		}
@@ -97,7 +92,11 @@ int main()
 			
 			else if(randNum < (0.3*STATISTIC))
 			{
-				SendAndRecv(clients[i]);
+				if(-1 == SendAndRecv(&clients[i]))
+				{
+					CloseSocket(clients[i]);
+					clients[i] = 0;
+				}
 			}
 		}
 		

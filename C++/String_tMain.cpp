@@ -15,7 +15,7 @@ typedef enum
 Result TestString_t_Valid()
 {
 	String_t s;
-	if(s.GetString())
+	if('\0' != s.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -41,7 +41,7 @@ Result TestString_t_ValValid()
 Result TestString_t_NULLVal()
 {
 	String_t s(NULL);
-	if(!s.GetString())
+	if('\0' == s.GetString()[0])
 	{
 		return SUCCEDD;
 	}
@@ -73,13 +73,13 @@ Result TestString_t_CopyValid()
 Result TestString_t_CopyNULLVal()
 {
 	String_t s1(NULL);
-	if(s1.GetString())
+	if('\0' != s1.GetString()[0])
 	{
 		return FAILED;
 	}
 	
 	String_t s2 = s1;
-	if(s2.GetString())
+	if('\0' != s2.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -116,13 +116,13 @@ Result TestoperatorEqual_SetNULL()
 	String_t s1(NULL);
 	String_t s2(buffer);
 	
-	if(s1.GetString() || 0 != s2.Compare(buffer))
+	if('\0' != s1.GetString()[0] || 0 != s2.Compare(buffer))
 	{
 		return FAILED;
 	}
 	
 	s2 = s1;
-	if(s2.GetString())
+	if('\0' != s2.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -137,7 +137,7 @@ Result TestoperatorEqual_WasNULL()
 	String_t s1(buffer);
 	String_t s2(NULL);
 	
-	if(0 != s1.Compare(buffer) || s2.GetString())
+	if(0 != s1.Compare(buffer) || '\0' != s2.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -169,7 +169,8 @@ Result TestLength_ValidN()
 Result TestLength_Valid0()
 {
 	String_t s(NULL);
-	if(s.GetString() || 0 != s.Length())
+	
+	if('\0' != s.GetString()[0] || 0 != s.Length())
 	{
 		return FAILED;
 	}
@@ -203,7 +204,7 @@ Result TestSetString_WasNULL()
 	const char *buffer = "hello";
 	
 	String_t s;
-	if(s.GetString())
+	if('\0' != s.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -228,7 +229,7 @@ Result TestSetString_SetNULL()
 	}
 	
 	s.SetString(NULL);
-	if(s.GetString())
+	if('\0' != s.GetString()[0])
 	{
 		return FAILED;
 	}
@@ -254,7 +255,7 @@ Result TestGetString_Valid()
 Result TestGetString_NULL()
 {
 	String_t s(NULL);
-	if(!s.GetString())
+	if('\0' == s.GetString()[0])
 	{
 		return SUCCEDD;
 	}
@@ -303,6 +304,36 @@ Result TestCompare_Valid2()
 	return SUCCEDD;
 }
 
+// LOWER
+
+Result TestLower_Valid()
+{
+	const char *buffer = "HELLO";
+	
+	String_t s(buffer);
+	if(0 != s.Lower().Compare("hello"))
+	{
+		return FAILED;
+	}
+	
+	return SUCCEDD;
+}
+
+// LOWER
+
+Result TestUpper_Valid()
+{
+	const char *buffer = "hello";
+	
+	String_t s(buffer);
+	if(0 != s.Upper().Compare("HELLO"))
+	{
+		return FAILED;
+	}
+	
+	return SUCCEDD;
+}
+
 static void PrintRes(const char *_str, Result _res)
 {
 	static int count = 0;
@@ -338,24 +369,33 @@ int main()
 	PrintRes("TestLength_ValidN:",TestLength_ValidN());
 	PrintRes("TestLength_Valid0:",TestLength_Valid0());
 
-	/*Operator=*/
-	printf("\n--- Operator=: ---\n");
+	/*Set string=*/
+	printf("\n--- Set string: ---\n");
 	PrintRes("TestSetString_Valid:",TestSetString_Valid());
 	PrintRes("TestSetString_WasNULL:",TestSetString_WasNULL());
 	PrintRes("TestSetString_SetNULL:",TestSetString_SetNULL());
 
-	/*Operator=*/
-	printf("\n--- Operator=: ---\n");
+	/*Get string*/
+	printf("\n--- Get string: ---\n");
 	PrintRes("TestGetString_Valid:",TestGetString_Valid());
 	PrintRes("TestGetString_NULL:",TestGetString_NULL());
 
-	/*Operator=*/
-	printf("\n--- Operator=: ---\n");
+	/*Compare*/
+	printf("\n--- Compare: ---\n");
 	PrintRes("TestCompare_Valid0:",TestCompare_Valid0());
 	PrintRes("TestCompare_Valid1:",TestCompare_Valid1());
 	PrintRes("TestCompare_Valid2:",TestCompare_Valid2());
 
-	const char *buffer1 = "hello", *buffer2 = "nnnn", *buffer3 = "kkkkkk", *getResult;
+	/*Lower*/
+	printf("\n--- Lower: ---\n");
+	PrintRes("TestLower_Valid:",TestLower_Valid());
+
+	/*Upper*/
+	printf("\n--- Upper: ---\n");
+	PrintRes("TestUpper_Valid:",TestUpper_Valid());
+
+
+	const char *buffer1 = "hello", *buffer2 = "HeLLo";
 	
 	printf("\n--- Print: ---\n");
 	
@@ -363,12 +403,70 @@ int main()
 	String_t s1(buffer1);
 	cout << "\nbuffer -> 'hello' s1 -> \n" << endl;
 	s1.Print();
+
+	String_t s2(buffer2);
 	
-	/*default CTOR*/
-	String_t s2;
-	cout << "\nbuffer -> NULL s1 -> \n" << endl;
-	s2.Print();
+	cout << "\nHeLLo to lower " << s2.Lower().GetString() << "\n";
 	
+	cout << "\nhello to upper " << s1.Upper().GetString() << "\n";
+	
+	cout << "\nprepend char HELLO with hello " << s1.Prepend(buffer2).GetString() << "\n";
+	
+	cout << "\nprepend char HeLLoHELLO with hello " << s1.Prepend(s2).GetString() << "\n";
+	
+	cout << "\nhello Contains el -> " << ((1 == s2.Contains("el")) ? "true" : "false") << "\n";
+	
+	cout << "\nhello Contains ab -> " << ((1 == s2.Contains("ab")) ? "true" : "false") << "\n";
+	
+	s1.SetString(buffer1);
+	cout << "\nchar operator hello += HeLLo " << (s1 += buffer2).GetString() << "\n";
+	
+	cout << "\nobject operator helloHeLLo += hello " << (s1 += s2).GetString() << "\n";
+	
+	cout << "\nfind first occur of l in hello " << s2.FirstOccur('l') << "\n";
+	
+	cout << "\nfind last occur of l in hello " << s2.LastOccur('l') << "\n";
+
+	s1.SetString(buffer2);
+	cout << "\n" << s2.GetString() << " < " << s1.GetString() << "-> " << (s2 < s1) << "\n";
+	
+	cout << "\n" << s1.GetString() << " < " << s2.GetString() << "-> " << (s1 < s2) << "\n";
+	
+	cout << "\n" << s2.GetString() << " > " << s1.GetString() << "-> " << (s2 > s1) << "\n";
+
+	cout << "\n" << s1.GetString() << " > " << s2.GetString() << "-> " << (s1 > s2) << "\n";
+	
+	cout << "\n" << s2.GetString() << " <= " << s1.GetString() << "-> " << (s2 <= s1) << "\n";
+	s1.SetString(buffer1);
+	cout << "\n" << s1.GetString() << " <= " << s2.GetString() << "-> " << (s1 <= s2) << "\n";
+	
+	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << "\n";
+	s1.SetString(NULL);
+	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << "\n";
+	s1.SetString(buffer2);
+	cout << "\n" << s1.GetString() << " >= " << s2.GetString() << "-> " << (s1 >= s2) << "\n";
+	
+	cout << "\n" << s2.GetString() << " == " << s1.GetString() << "-> " << (s2 == s1) << "\n";
+	s1.SetString(buffer1);
+	cout << "\n" << s1.GetString() << " == " << s2.GetString() << "-> " << (s1 == s2) << "\n";
+	
+	cout << "\n" << s2.GetString() << " != " << s1.GetString() << "-> " << (s2 != s1) << "\n";
+	s1.SetString(buffer2);
+	cout << "\n" << s1.GetString() << " != " << s2.GetString() << "-> " << (s1 != s2) << "\n";
+
+	const String_t s3;
+	cout << "\nindex 3 in const empty -> " << s3[3] << "\n";
+	const String_t s4(buffer1);
+	cout << "\nindex 1 in const " << s4.GetString() << " -> " << s4[1] << "\n";
+	
+	cout << "\nindex 3 in not const " << s2.GetString() << " -> " << s2[3] << "\n";
 
 	return 0;
 }
+
+
+
+
+
+
+

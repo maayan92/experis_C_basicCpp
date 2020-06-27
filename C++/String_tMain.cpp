@@ -460,12 +460,12 @@ int main()
 	const String_t s4(buffer1);
 	cout << "\nindex 1 in const " << s4.GetString() << " -> " << s4[1] << endl;
 	
-	cout << "\nindex 3 in not const befor -> " << s2.GetString();
+	cout << "\nset index 3 in not const to 'c' -> befor -> " << s2.GetString();
 	
 	s2[3] = 'c';
 	cout << " after -> " << s2.GetString() << endl;
 
-	cout << "\nindex 7 in not const befor -> " << s2.GetString();
+	cout << "\nset index 7 in not const to 'c' -> befor -> " << s2.GetString();
 	
 	s2[7] = 'c';
 	cout << " after -> " << s2.GetString() << endl;
@@ -475,6 +475,8 @@ int main()
 	
 	cout << s1(7,7) << endl;
 	cout << s1 << endl;
+	
+	cin >> s1;
 	
 
 	return 0;

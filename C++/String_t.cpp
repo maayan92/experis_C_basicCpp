@@ -18,7 +18,7 @@ String_t& String_t::operator=(String_t& _s)
 	{
 		delete[] m_buffer;
 				
-		m_buffer = CreateFrom(_s.m_buffer);
+		CreateFrom(_s.m_buffer);
 	}
 	
 	return *this;
@@ -50,7 +50,9 @@ ostream& operator<<(ostream& os, const String_t& _s)
 
 istream& operator>>(istream& _is, String_t& _s)
 {
-	char *temp = new char[_s.GetMemCapacity()];//TODO
+	char *temp = new char[_s.GetMemCapacity()];
+	
+	cout << endl << "insert new string with " << _s.GetMemCapacity() << " characters or less" << endl;
 	_is >> temp;
 	
 	_s.SetString(temp);
@@ -118,7 +120,7 @@ void String_t::SetString(const char* _str)
 {
 	delete[] m_buffer;
 	
-	m_buffer = CreateFrom(_str);
+	CreateFrom(_str);
 }
 
 int String_t::Compare(const char* _str)const
@@ -203,36 +205,26 @@ String_t String_t::operator()(int _start, int _len)
 
 /* PRIVATE */
 
-void String_t::Initialize(const char *_str)
-{
-	m_capacity = m_dCapacy;
-	m_buffer = CreateFrom(_str);
-	++numOfStrings;
-}
-
 char* String_t::CreateFrom(const char *_str)
 {
-	char *temp;
 	
 	if(!_str)
 	{
-		temp = new char[m_capacity];
-		temp[0] = '\0';
+		m_buffer = new char[m_capacity];
+		m_buffer[0] = '\0';
 	}
 	else
 	{
-		this->SetBiggerCapacity(strlen(_str) + 1);
+		SetBiggerCapacity(strlen(_str) + 1);
 		
-		temp = new char[m_capacity];
-		strcpy(temp,_str);
+		m_buffer = new char[m_capacity];
+		strcpy(m_buffer,_str);
 	}
-	
-	return temp;
 }
 
 void String_t::Concatenation(const char *_str1, const char *_str2)
 {
-	this->SetBiggerCapacity(strlen(_str1) + strlen(_str2) + 1);
+	SetBiggerCapacity(strlen(_str1) + strlen(_str2) + 1);//TODO
 
 	char *temp = new char[m_capacity];
 	
@@ -241,7 +233,7 @@ void String_t::Concatenation(const char *_str1, const char *_str2)
 	
 	delete[] m_buffer;
 	
-	m_buffer = CreateFrom(temp);
+	CreateFrom(temp);
 		
 	delete[] temp;
 }

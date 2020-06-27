@@ -61,6 +61,9 @@ class String_t
 		/*get the last occurrence of char _c in the buffer*/
 		int LastOccur(char _c)const;
 		
+		/*give the object capacity*/
+		unsigned int GetMemCapacity()const{ return m_capacity; }
+		
 	// Operators
 		
 		/*Copy all _s members to this members*/
@@ -96,18 +99,21 @@ class String_t
 		/*set char at position _index*/
 		char& operator[](int _index);
 		
-		unsigned int GetMemCapacity()const{ return m_capacity; }
-		
+		/*return sub string that start at position _start and with length _len*/
 		String_t operator()(int _start, int _len);
 		
 	// Static functions
 		
+		/*set new default capacity of the class*/
 		static void SetDCapacity(unsigned int _newCapacity) { m_dCapacy = _newCapacity; }
 		
+		/*give the default capacity of the class*/
 		static unsigned int GetDCapacity() { return m_dCapacy; }
 		
+		/*give the case sensitive of the class, true or false*/
 		static bool GetCaseSens(){ return m_caseSens; }
 		
+		/*set the case sensitive of the class, true or false*/
 		inline static bool SetCaseSens(bool _newCaseSens);
 		
 	private:
@@ -121,12 +127,16 @@ class String_t
 		
 		// sub functions
 		
-		void Initialize(const char *_str);
+		/*initialization of the object's members*/
+		void Initialize(const char *_str) { m_capacity = m_dCapacy; CreateFrom(_str); ++numOfStrings; }
 		
+		/*create a new buffer and set with the new value*/
 		char* CreateFrom(const char *_str);
 		
+		/*Concatenate _str1 with _str2*/
 		void Concatenation(const char *_str1, const char *_str2);
-
+		
+		/*calculate the new capacity*/
 		void SetBiggerCapacity(unsigned int _size);
 };
 

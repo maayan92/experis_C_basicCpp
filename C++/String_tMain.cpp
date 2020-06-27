@@ -283,7 +283,7 @@ Result TestCompare_Valid1()
 	const char *buffer = "hello", *buffer2 = "world";
 	
 	String_t s(buffer2);
-	if(1 != s.Compare(buffer))
+	if(2 != s.Compare(buffer))
 	{
 		return FAILED;
 	}
@@ -296,7 +296,7 @@ Result TestCompare_Valid2()
 	const char *buffer = "hello", *buffer2 = "world";
 	
 	String_t s(buffer);
-	if(2 != s.Compare(buffer2))
+	if(1 != s.Compare(buffer2))
 	{
 		return FAILED;
 	}
@@ -406,60 +406,76 @@ int main()
 
 	String_t s2(buffer2);
 	
-	cout << "\nHeLLo to lower " << s2.Lower().GetString() << "\n";
+	cout << "\nHeLLo to lower " << s2.Lower().GetString() << endl;
 	
-	cout << "\nhello to upper " << s1.Upper().GetString() << "\n";
+	cout << "\nhello to upper " << s1.Upper().GetString() << endl;
 	
-	cout << "\nprepend char HELLO with hello " << s1.Prepend(buffer2).GetString() << "\n";
+	cout << "\nprepend char HELLO with hello " << s1.Prepend(buffer2).GetString() << endl;
 	
-	cout << "\nprepend char HeLLoHELLO with hello " << s1.Prepend(s2).GetString() << "\n";
+	cout << "\nprepend char HeLLoHELLO with hello " << s1.Prepend(s2).GetString() << endl;
 	
-	cout << "\nhello Contains el -> " << ((1 == s2.Contains("el")) ? "true" : "false") << "\n";
+	cout << "\nhello Contains el -> " << ((1 == s2.Contains("el")) ? "true" : "false") << endl;
 	
-	cout << "\nhello Contains ab -> " << ((1 == s2.Contains("ab")) ? "true" : "false") << "\n";
+	cout << "\nhello Contains ab -> " << ((1 == s2.Contains("ab")) ? "true" : "false") << endl;
 	
 	s1.SetString(buffer1);
-	cout << "\nchar operator hello += HeLLo " << (s1 += buffer2).GetString() << "\n";
+	cout << "\nchar operator hello += HeLLo " << (s1 += buffer2).GetString() << endl;
 	
-	cout << "\nobject operator helloHeLLo += hello " << (s1 += s2).GetString() << "\n";
+	cout << "\nobject operator helloHeLLo += hello " << (s1 += s2).GetString() << endl;
 	
-	cout << "\nfind first occur of l in hello " << s2.FirstOccur('l') << "\n";
+	cout << "\nfind first occur of l in hello " << s2.FirstOccur('l') << endl;
 	
-	cout << "\nfind last occur of l in hello " << s2.LastOccur('l') << "\n";
+	cout << "\nfind last occur of l in hello " << s2.LastOccur('l') << endl;
 
 	s1.SetString(buffer2);
-	cout << "\n" << s2.GetString() << " < " << s1.GetString() << "-> " << (s2 < s1) << "\n";
+	cout << "\n" << s2.GetString() << " < " << s1.GetString() << "-> " << (s2 < s1) << endl;
 	
-	cout << "\n" << s1.GetString() << " < " << s2.GetString() << "-> " << (s1 < s2) << "\n";
+	cout << "\n" << s1.GetString() << " < " << s2.GetString() << "-> " << (s1 < s2) << endl;
 	
-	cout << "\n" << s2.GetString() << " > " << s1.GetString() << "-> " << (s2 > s1) << "\n";
+	cout << "\n" << s2.GetString() << " > " << s1.GetString() << "-> " << (s2 > s1) << endl;
 
-	cout << "\n" << s1.GetString() << " > " << s2.GetString() << "-> " << (s1 > s2) << "\n";
+	cout << "\n" << s1.GetString() << " > " << s2.GetString() << "-> " << (s1 > s2) << endl;
 	
-	cout << "\n" << s2.GetString() << " <= " << s1.GetString() << "-> " << (s2 <= s1) << "\n";
+	cout << "\n" << s2.GetString() << " <= " << s1.GetString() << "-> " << (s2 <= s1) << endl;
 	s1.SetString(buffer1);
-	cout << "\n" << s1.GetString() << " <= " << s2.GetString() << "-> " << (s1 <= s2) << "\n";
+	cout << "\n" << s1.GetString() << " <= " << s2.GetString() << "-> " << (s1 <= s2) << endl;
 	
-	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << "\n";
+	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << endl;
 	s1.SetString(NULL);
-	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << "\n";
+	cout << "\n" << s2.GetString() << " >= " << s1.GetString() << "-> " << (s2 >= s1) << endl;
 	s1.SetString(buffer2);
-	cout << "\n" << s1.GetString() << " >= " << s2.GetString() << "-> " << (s1 >= s2) << "\n";
+	cout << "\n" << s1.GetString() << " >= " << s2.GetString() << "-> " << (s1 >= s2) << endl;
 	
-	cout << "\n" << s2.GetString() << " == " << s1.GetString() << "-> " << (s2 == s1) << "\n";
+	String_t::SetCaseSens(false);
+	cout << "\n" << s2.GetString() << " == " << s1.GetString() << "-> " << (s2 == s1) << endl;
 	s1.SetString(buffer1);
-	cout << "\n" << s1.GetString() << " == " << s2.GetString() << "-> " << (s1 == s2) << "\n";
+	cout << "\n" << s1.GetString() << " == " << s2.GetString() << "-> " << (s1 == s2) << endl;
 	
-	cout << "\n" << s2.GetString() << " != " << s1.GetString() << "-> " << (s2 != s1) << "\n";
+	cout << "\n" << s2.GetString() << " != " << s1.GetString() << "-> " << (s2 != s1) << endl;
 	s1.SetString(buffer2);
-	cout << "\n" << s1.GetString() << " != " << s2.GetString() << "-> " << (s1 != s2) << "\n";
+	cout << "\n" << s1.GetString() << " != " << s2.GetString() << "-> " << (s1 != s2) << endl;
 
 	const String_t s3;
-	cout << "\nindex 3 in const empty -> " << s3[3] << "\n";
+	cout << "\nindex 3 in const empty -> " << s3[3] << endl;
 	const String_t s4(buffer1);
-	cout << "\nindex 1 in const " << s4.GetString() << " -> " << s4[1] << "\n";
+	cout << "\nindex 1 in const " << s4.GetString() << " -> " << s4[1] << endl;
 	
-	cout << "\nindex 3 in not const " << s2.GetString() << " -> " << s2[3] << "\n";
+	cout << "\nindex 3 in not const befor -> " << s2.GetString();
+	
+	s2[3] = 'c';
+	cout << " after -> " << s2.GetString() << endl;
+
+	cout << "\nindex 7 in not const befor -> " << s2.GetString();
+	
+	s2[7] = 'c';
+	cout << " after -> " << s2.GetString() << endl;
+	
+	s2.SetString("prepend char HeLLoHELLO with hello");
+	cout << s2 << endl;
+	
+	cout << s1(7,7) << endl;
+	cout << s1 << endl;
+	
 
 	return 0;
 }

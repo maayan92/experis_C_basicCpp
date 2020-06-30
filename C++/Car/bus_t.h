@@ -9,11 +9,11 @@ class bus_t:public car_t
 	
 	// CTOR
 	
-		bus_t():car_t(){ m_lineNumber = 0; m_numOfSeats = m_DnumOfSeats; SetCarName("Bus"); }
+		bus_t();
 		
-		inline bus_t(int _lineNumber, unsigned int _numOfSeats, unsigned int _capacity, Gear _gearType);
+		bus_t(int _lineNumber, unsigned int _numOfSeats, unsigned int _capacity, Gear _gearType);
 		
-		bus_t(bus_t& _bus):car_t(_bus) {}
+		bus_t(const bus_t& _bus);
 		
 	// DTOR
 	
@@ -33,15 +33,11 @@ class bus_t:public car_t
 		unsigned int m_numOfSeats;
 		
 		static unsigned int m_DnumOfSeats;
+		
+		void Initialize(int _lineNumber, unsigned int _numOfSeats);
+		
+		bus_t& operator=(const bus_t& _bus);
 };
 
-	inline bus_t::bus_t(int _lineNumber, unsigned int _numOfSeats, unsigned int _capacity, Gear _gearType)
-	:car_t(_capacity){
-	
-		m_lineNumber = _lineNumber;
-		m_numOfSeats = _numOfSeats;
-		SetCarName("Bus");
-		SetGearType(_gearType);
-	}
 
 #endif

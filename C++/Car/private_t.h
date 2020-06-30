@@ -9,11 +9,11 @@ class private_t:public car_t
 	
 	// CTOR
 	
-		private_t():car_t(){ Initialze(); }
+		private_t();
 		
-		private_t(unsigned int _capacity, Gear _gearType):car_t(_capacity){ Initialze(); SetGearType(_gearType); }
+		private_t(unsigned int _capacity, Gear _gearType);
 		
-		private_t(private_t& _private):car_t(_private){ m_speed = _private.m_speed; }
+		private_t(const private_t& _private);
 		
 	// DTOR
 	
@@ -25,13 +25,15 @@ class private_t:public car_t
 		
 		private_t& ReduceSpeed() { m_speed -= 10; }
 
-		unsigned int GetSpeed() { return m_speed; }
+		unsigned int GetSpeed()const { return m_speed; }
 		
 	private:
 	
 		unsigned int m_speed;
 		
-		void Initialze(){ m_speed = 0; SetCarName("Private"); }
+		void Initialze();
+		
+		private_t& operator=(const private_t& _private);
 };
 
 #endif

@@ -5,6 +5,7 @@ void foo(int _num)
 	
 	throw TException<int>(_num,__FILE__,__LINE__,"int exception!");
 	
+	cout << "throw failed!" << endl;
 }
 
 int main()

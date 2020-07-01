@@ -13,7 +13,7 @@ bool String_t::m_caseSens = true;
 
 // Operators
 
-String_t& String_t::operator=(String_t& _s)
+String_t& String_t::operator=(const String_t& _s)
 {
 	if(this != &_s)
 	{
@@ -44,7 +44,7 @@ String_t& String_t::operator+=(String_t& _s)
 
 ostream& operator<<(ostream& os, const String_t& _s)
 {
-	os << "string value -> " << _s.GetString();
+	os << _s.GetString();
 	
 	return os;
 }

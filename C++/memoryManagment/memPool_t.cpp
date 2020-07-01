@@ -47,7 +47,8 @@ unsigned int memPool_t::WriteData(const void* _writeBuffer, unsigned int _size, 
 
 unsigned int memPool_t::ReadDataFromPool(void* _readBuffer, unsigned int _size, unsigned int _position)
 {
-	size_t page = FindPage(_position);
+	unsigned int currentPos = _position;
+	size_t page = FindPage(&_position);
 	
 	unsigned int BytesRead = m_vector[page++]->ReadData(_readBuffer,_size,_position);
 	
@@ -56,21 +57,24 @@ unsigned int memPool_t::ReadDataFromPool(void* _readBuffer, unsigned int _size, 
 		BytesRead += m_vector[page++]->ReadData(((char*)_readBuffer) + BytesRead,_size - BytesRead,0);
 	}
 	
-	SetCurrentPosition(BytesRead + _position);
+	SetCurrentPosition(BytesRead + currentPos);
 	
 	return BytesRead;
 }
 
 unsigned int memPool_t::WriteDataToPool(const void* _writeBuffer, unsigned int _size, unsigned int _position)
 {
-	unsigned int BytesWritten = WriteByPages(_writeBuffer,_size,_position,FindPage(_position));
+	unsigned int currentPos = _position;
+	size_t page = FindPage(&_position);
+	
+	unsigned int BytesWritten = WriteByPages(_writeBuffer,_size,_position,page);
 	
 	if((BytesWritten + _position) > GetActualSize())
 	{
 		SetNewActualSize(BytesWritten + _position);
 	}
 	
-	SetCurrentPosition(BytesWritten + _position);
+	SetCurrentPosition(BytesWritten + currentPos);
 	
 	return BytesWritten;
 }
@@ -89,16 +93,18 @@ unsigned int memPool_t::WriteByPages(const void* _writeBuffer, unsigned int _siz
 	return BytesWritten;
 }
 
-size_t memPool_t::FindPage(unsigned int _position)
+size_t memPool_t::FindPage(unsigned int *_position)
 {
-	unsigned int capacitySum = 0;
+	unsigned int capacity = 0;
 	size_t pageNum = 0;
 	
-	capacitySum += m_vector[pageNum]->GetCapacity();
+	capacity = m_vector[pageNum]->GetCapacity();
 	
-	while(capacitySum < _position && pageNum < m_vector.size())
+	while(capacity < *_position && pageNum < m_vector.size())
 	{
-		capacitySum += m_vector[pageNum++]->GetCapacity();
+		*_position -= capacity;
+		
+		capacity = m_vector[pageNum++]->GetCapacity();
 	}
 	
 	return pageNum;

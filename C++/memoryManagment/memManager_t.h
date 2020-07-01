@@ -5,6 +5,9 @@ class memManager_t
 {
 	public:
 
+	// DTOR	
+		virtual ~memManager_t() = 0;
+
 	// CTOR
 	
 		memManager_t() { m_actualSize = m_position = 0; }
@@ -29,8 +32,6 @@ class memManager_t
 	
 	protected:
 	
-	// DTOR	
-		virtual ~memManager_t() = 0;
 		
 		void SetNewActualSize(unsigned int _actualSize) { m_actualSize = _actualSize; }
 	

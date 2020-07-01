@@ -167,6 +167,8 @@ int main()
 		}
 		
 		if(0 != cont){ Run(manager); }
+		
+		delete manager;
 	}
 	
 	return 0;

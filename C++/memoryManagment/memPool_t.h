@@ -51,7 +51,7 @@ class memPool_t:public memManager_t
 		
 		bool CreateNewPage();
 
-		size_t FindPage(unsigned int _position);
+		size_t FindPage(unsigned int *_position);
 		
 		unsigned int ReadDataFromPool(void* _readBuffer, unsigned int _size, unsigned int _position);
 		

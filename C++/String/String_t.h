@@ -1,6 +1,7 @@
 #ifndef __STRING_T_H__
 #define __STRING_T_H__
 
+#include <cstring>
 #include <stdint.h>
 #include <iostream>
 using namespace std;
@@ -68,7 +69,7 @@ class String_t
 	// Operators
 		
 		/*Copy all _s members to this members*/
-		String_t& operator=(String_t& _s);
+		String_t& operator=(const String_t& _s);
 		
 		/*Add _str to the buffer*/
 		String_t& operator+=(const char *_str);

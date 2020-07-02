@@ -15,31 +15,35 @@ class city
 		~city();
 		
 	//CTOR
+	
+		city();
 		
-		city(cT _id);
+		city(const cT& _id);
 		
 		city(city& _c);
 		
 	//operator
 		
-		city<cT,sT,bT>& operator=(const city& _c);
+		city& operator=(const city& _c);
 	
 	//Mem functions
 	
-		void SetCityID(cT _id);
+		// set new id to the city
+		void SetCityID(const cT& _id);
 		
-		cT GetCityID();
+		// get the city id
+		const cT& GetCityID();
 		
-		void AddStreet(street<sT,bT> _s);
+		// add new street to the city
+		void AddStreet(const street<sT,bT>& _s);
 		
-		street<sT,bT>& GetStreet(sT _idS);
+		// get street from the city by id (throw exception const char* if not found)
+		const street<sT,bT>& GetStreet(const sT& _idS);
 	
 	private:
 		
 		cT m_id;
-	
 		vector<street<sT,bT> > m_vector;
-
 };
 
 //DTOR
@@ -50,7 +54,10 @@ city<cT,sT,bT>::~city() {}
 //CTOR
 
 template <class cT, class sT, class bT>
-city<cT,sT,bT>::city(cT _id)
+city<cT,sT,bT>::city() {}
+
+template <class cT, class sT, class bT>
+city<cT,sT,bT>::city(const cT& _id)
 {
 	m_id = _id;
 }
@@ -74,25 +81,25 @@ city<cT,sT,bT>& city<cT,sT,bT>::operator=(const city& _c)
 //Mem functions
 
 template <class cT, class sT, class bT>
-void city<cT,sT,bT>::SetCityID(cT _id)
+void city<cT,sT,bT>::SetCityID(const cT& _id)
 {
 	m_id = _id;
 }
 
 template <class cT, class sT, class bT>
-cT city<cT,sT,bT>::GetCityID()
+const cT& city<cT,sT,bT>::GetCityID()
 {
 	return m_id;
 }
 
 template <class cT, class sT, class bT>
-void city<cT,sT,bT>::AddStreet(street<sT,bT> _s)
+void city<cT,sT,bT>::AddStreet(const street<sT,bT>& _s)
 {
 	m_vector.insert(m_vector.end(),_s);
 }
 
 template <class cT, class sT, class bT>
-street<sT,bT>& city<cT,sT,bT>::GetStreet(sT _idS)
+const street<sT,bT>& city<cT,sT,bT>::GetStreet(const sT& _idS)
 {
 	int sNum = 0;
 	
@@ -101,7 +108,12 @@ street<sT,bT>& city<cT,sT,bT>::GetStreet(sT _idS)
 		++sNum;
 	}
 	
-	return (sNum == m_vector.size()) ? m_vector[sNum - 1] : m_vector[sNum];
+	if(sNum == m_vector.size())
+	{
+		throw("street not found!");
+	}
+	
+	return m_vector[sNum];
 }
 
 

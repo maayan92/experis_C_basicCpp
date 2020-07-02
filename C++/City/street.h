@@ -15,31 +15,35 @@ class street
 		~street();
 		
 	//CTOR
+	
+		street();
 		
-		street(sT _id);
+		street(const sT& _id);
 		
 		street(const street& _s);
 		
 	//operator
 		
-		street<sT,bT>& operator=(const street& _s);
+		street& operator=(const street& _s);
 	
 	//Mem functions
 	
-		void SetStreetID(sT _id);
+		// set new id to the street
+		void SetStreetID(const sT& _id);
 		
-		sT GetStreetID();
+		// get the street id
+		const sT& GetStreetID();
 		
-		void AddBuilding2Street(building<bT> _b);
+		// add new building to the street
+		void AddBuilding2Street(const building<bT>& _b);
 		
-		building<bT>& GetBuilding(bT _idB);
+		// get building from the street by id (throw exception const char* if not found)
+		const building<bT>& GetBuilding(const bT& _idB);
 	
 	private:
 		
 		sT m_id;
-	
 		vector<building<bT> > m_vector;
-
 };
 
 //DTOR
@@ -50,7 +54,10 @@ street<sT,bT>::~street() {}
 //CTOR
 
 template <class sT, class bT>
-street<sT,bT>::street(sT _id)
+street<sT,bT>::street() {}
+
+template <class sT, class bT>
+street<sT,bT>::street(const sT& _id)
 {
 	m_id = _id;
 }
@@ -74,34 +81,39 @@ street<sT,bT>& street<sT,bT>::operator=(const street& _s)
 //Mem functions
 
 template <class sT, class bT>
-void street<sT,bT>::SetStreetID(sT _id)
+void street<sT,bT>::SetStreetID(const sT& _id)
 {
 	m_id = _id;
 }
 
 template <class sT, class bT>
-sT street<sT,bT>::GetStreetID()
+const sT& street<sT,bT>::GetStreetID()
 {
 	return m_id;
 }
 
 template <class sT, class bT>
-void street<sT,bT>::AddBuilding2Street(building<bT> _b)
+void street<sT,bT>::AddBuilding2Street(const building<bT>& _b)
 {
 	m_vector.insert(m_vector.end(),_b);
 }
 
 template <class sT, class bT>
-building<bT>& street<sT,bT>::GetBuilding(bT _idB)
+const building<bT>& street<sT,bT>::GetBuilding(const bT& _idB)
 {
 	int bNum = 0;
 	
-	while(bNum < m_vector.size() && _idB != m_vector[bNum].getBuildingID())
+	while(bNum < m_vector.size() && _idB != m_vector[bNum].GetBuildingID())
 	{
 		++bNum;
 	}
 	
-	return (bNum == m_vector.size()) ? m_vector[bNum - 1] : m_vector[bNum];
+	if(bNum == m_vector.size())
+	{
+		throw("building not found!");
+	}
+	
+	return m_vector[bNum];
 }
 
 

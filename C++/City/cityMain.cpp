@@ -18,12 +18,30 @@ int main()
 	building<int> b2(s2.GetBuilding(3));
 	
 	cout << "city id -> " << c.GetCityID() << endl;
-	cout << "street id -> " << s2.GetStreetID() << endl;
-	cout << "buildeng id -> " << b2.getBuildingID() << endl;
-	
-	street<char,int> s3(c.GetStreet('f'));
-	
-	cout << "street with id 'f' " << ((s3.GetStreetID() != 'f') ? "not found" : "found") << " in the city" << endl;
+	try
+	{
+		cout << "street id -> " << s2.GetStreetID() << endl;
+	}
+	catch(const char* exc)
+	{
+		cout << exc << endl;;
+	}
+	try
+	{
+		cout << "buildeng id -> " << b2.GetBuildingID() << endl;
+	}
+	catch(const char* exc)
+	{
+		cout << exc << endl;;
+	}
+	try
+	{
+		street<char,int> s3(c.GetStreet('f'));
+	}
+	catch(const char* exc)
+	{
+		cout << exc << endl;;
+	}
 	
 	
 	return 0;

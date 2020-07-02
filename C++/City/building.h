@@ -12,24 +12,27 @@ class building
 		
 	//CTOR
 	
-		building(T _id);
+		building();
+	
+		building(const T& _id);
 		
 		building(const building& _b);
 		
 	//operator
 		
-		building<T>& operator=(const building& _b);
+		building& operator=(const building& _b);
 		
 	//Mem functions
 	
-		void setBuidingID(T _id);
+		// set new id to the building 
+		void SetBuidingID(const T& _id);
 		
-		T getBuildingID()const;
+		// get the building id
+		const T& GetBuildingID()const;
 
 	private:
 	
 		T m_id;
-		
 };
 
 //DTOR
@@ -40,7 +43,10 @@ building<T>::~building() {}
 //CTOR
 
 template <class T>
-building<T>::building(T _id)
+building<T>::building() {}
+
+template <class T>
+building<T>::building(const T& _id)
 {
 	m_id = _id;
 }
@@ -62,13 +68,13 @@ building<T>& building<T>::operator=(const building& _b)
 //Mem functions
 
 template <class T>
-void building<T>::setBuidingID(T _id)
+void building<T>::SetBuidingID(const T& _id)
 {
 	m_id = _id;
 }
 
 template <class T>
-T building<T>::getBuildingID()const
+const T& building<T>::GetBuildingID()const
 {
 	return m_id;
 }

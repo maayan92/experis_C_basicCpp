@@ -2,12 +2,13 @@
 TARGET= containerMain.out 
 CC= g++ 
 CFLAGS= -ansi -pedantic -g -I./
-OBJS= container.h array.h containerMain.o
+INC= container.h array.h dList.h
+OBJS= containerMain.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
 
-containerMain.o: containerMain.cpp
+containerMain.o: containerMain.cpp $(INC)
 	$(CC) $(CFLAGS) -c containerMain.cpp
 
 clean:

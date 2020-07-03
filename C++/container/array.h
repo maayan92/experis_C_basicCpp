@@ -13,11 +13,10 @@ class array:public container<T>
 	
 		//int Count()const;
 		//bool IsEmpty()const;
-		//unsigned int GetNumOfElement()const;
 	
 	// DTOR
 	
-		~array() { delete[] m_array; this->SetNumOfElements(0); }
+		virtual ~array() { delete[] m_array; this->SetNumOfElements(0); }
 	
 	// CTOR
 	
@@ -51,16 +50,19 @@ class array:public container<T>
 		//insert the _element in the last position, throw const char* on error.
 		virtual bool Insert(const T* _element);
 		
-		/*
-		virtual bool Remove(const T& _value); //
+		//remove element with _value.
+		virtual bool Remove(const T& _value);
 		
-		virtual bool RemoveAll(); //
+		//remove all elements.
+		virtual void RemoveAll() { this->SetNumOfElements(0); }
 		
-		virtual bool RemoveAndDelete(); //
+		//use RemoveAndDelete/RemoveAndDeleteAll only when elements of the object are with allocation.
 		
-		virtual bool RemoveAndDeleteAll(); //
-		*/
-	
+		//remove element and delete the pointer from memory.
+		virtual bool RemoveAndDelete(const T& _value);
+		
+		//remove all elements and delete them.
+		virtual void RemoveAndDeleteAll();
 	
 	private:
 
@@ -77,11 +79,17 @@ class array:public container<T>
 		// resize the array.
 		bool Resize();
 		
+		// search element in the array, return _element index or -1.
+		int SearchElement(const T* _element)const;
+		
+		//insert a new element at position _index.
+		bool InsertByPosition(const T* _element, unsigned int _index);
+		
 		// move elements in [_index,numOfElements] range one step to the right.
 		void ShiftRight(unsigned int _index);
 		
-		// search element in the array, return _element index or -1.
-		int SearchElement(const T* _element)const;
+		// move elements in [_index+1,numOfElements] range one step to the left.
+		void ShiftLeft(unsigned int _index);
 };
 
 template<class T>
@@ -105,6 +113,8 @@ array<T>& array<T>::operator=(const array& _arr)
 	delete[] m_array;
 	
 	CopyAllMembers(_arr);
+	
+	return *this;
 }
 
 // mem function
@@ -112,73 +122,36 @@ array<T>& array<T>::operator=(const array& _arr)
 template<class T>
 bool array<T>::Append(const T* _element, unsigned int _index)
 {
-	if(_index >= this->GetNumOfElement() || _index < 0)
-	{
-		throw("invalid index!");
-		return false;
-	}
-	
-	if(!_element)
-	{
-		throw("invalid element!");
-		return false;
-	}
-	
-	if(m_capacity == this->GetNumOfElement() && !Resize())
-	{
-		throw("realloc failed!");
-		return false;
-	}
-	
-	ShiftRight(_index+1);
-	m_array[_index+1] = (T*)_element;
-	
-	this->SetNumOfElements(this->GetNumOfElement() + 1);
-			
-	return true;
+	return InsertByPosition(_element,_index+1);
 }
 
 template<class T>
 bool array<T>::Prepend(const T* _element, unsigned int _index)
 {
-	if((_index-1) > this->GetNumOfElement() || (_index-1) < 0)
-	{
-		throw("invalid index!");
-		return false;
-	}
-	
-	if(!_element)
-	{
-		throw("invalid element!");
-		return false;
-	}
-	
-	if(m_capacity == this->GetNumOfElement() && !Resize())
-	{
-		throw("realloc failed!");
-		return false;
-	}
-	
-	ShiftRight(_index-1);
-	m_array[_index-1] = (T*)_element;
-	
-	this->SetNumOfElements(this->GetNumOfElement() + 1);
-			
-	return true;
+	return InsertByPosition(_element,_index-1);
 }
 
 
 template<class T>
 bool array<T>::Contains(const T* _element)const
 {
-	return (SearchElement(_element) == -1) ? false : true;
+	return (-1 == SearchElement(_element)) ? false : true;
 }
 
 template<class T>
 const T* array<T>::Find(const T& _value)const
 {
-	int index = SearchElement(&_value);
-	return (-1 == index) ? NULL : m_array[index];
+	int i;
+	
+	for(i = 0;i < this->Count();++i)
+	{
+		if(_value == *m_array[i])
+		{
+			return m_array[i];
+		}
+	}
+	
+	return NULL;
 }
 
 template<class T>
@@ -196,17 +169,66 @@ bool array<T>::Insert(const T* _element)
 		return false;
 	}
 	
-	if(this->GetNumOfElement() == m_capacity && !Resize())
+	if(this->Count() == m_capacity && !Resize())
 	{
 		throw("realloc failed!");
 		return false;
 	}
 	
-	m_array[this->GetNumOfElement()] = (T*)_element;
+	m_array[this->Count()] = (T*)_element;
 	
-	this->SetNumOfElements(this->GetNumOfElement() + 1);
+	this->SetNumOfElements(this->Count() + 1);
 	
 	return true;
+}
+
+template<class T>
+bool array<T>::Remove(const T& _value)
+{
+	int index = SearchElement(&_value);
+	
+	if(-1 == index)
+	{
+		return false;
+	}
+	
+	ShiftLeft(index);
+	this->SetNumOfElements(this->Count() - 1);
+	
+	return true;
+}
+
+template<class T>
+bool array<T>::RemoveAndDelete(const T& _value)
+{
+	int index = SearchElement(&_value);
+	
+	if(-1 == index)
+	{
+		return false;
+	}
+	
+	T* temp = m_array[index];
+	
+	ShiftLeft(index);
+	this->SetNumOfElements(this->Count() - 1);
+	
+	delete temp;
+	
+	return true;
+}
+
+template<class T>
+void array<T>::RemoveAndDeleteAll()
+{
+	int i;
+	
+	for(i = 0;i < this->Count();++i)
+	{
+		delete m_array[i];
+	}
+	
+	this->SetNumOfElements(0);
 }
 
 // private functions
@@ -233,22 +255,12 @@ bool array<T>::Resize()
 template<class T>
 void array<T>::CopyAllMembers(const array& _arr)
 {
-	m_array = new T*[_arr.m_capacity];
-	memcpy(m_array,_arr.m_array,sizeof(m_array)*m_capacity);
-	
 	m_capacity = _arr.m_capacity;
 	m_reSize = _arr.m_reSize;
-}
-
-template<class T>
-void array<T>::ShiftRight(unsigned int _index)
-{
-	int i;
+	this->SetNumOfElements(_arr.Count());
 	
-	for(i = this->GetNumOfElement();i >= _index; --i)
-	{
-		m_array[i] = m_array[i-1];
-	}
+	m_array = new T*[m_capacity];
+	memcpy(m_array,_arr.m_array,sizeof(m_array)*this->Count());
 }
 
 template<class T>
@@ -261,7 +273,7 @@ int array<T>::SearchElement(const T* _element)const
 	
 	int i;
 	
-	for(i = 0;i < this->GetNumOfElement();++i)
+	for(i = 0;i < this->Count();++i)
 	{
 		if(*_element == *m_array[i])
 		{
@@ -271,5 +283,57 @@ int array<T>::SearchElement(const T* _element)const
 	
 	return -1;
 }
+
+template<class T>
+bool array<T>::InsertByPosition(const T* _element, unsigned int _index)
+{
+	if(_index > this->Count() || _index < 0)
+	{
+		throw("invalid index!");
+		return false;
+	}
+	
+	if(!_element)
+	{
+		throw("invalid element!");
+		return false;
+	}
+	
+	if(m_capacity == this->Count() && !Resize())
+	{
+		throw("realloc failed!");
+		return false;
+	}
+	
+	ShiftRight(_index);
+	m_array[_index] = (T*)_element;
+	
+	this->SetNumOfElements(this->Count() + 1);
+	
+	return true;
+}
+
+template<class T>
+void array<T>::ShiftRight(unsigned int _index)
+{
+	int i;
+	
+	for(i = this->Count();i >= _index; --i)
+	{
+		m_array[i] = m_array[i-1];
+	}
+}
+
+template<class T>
+void array<T>::ShiftLeft(unsigned int _index)
+{
+	while(_index < (this->Count() - 1))
+	{
+		m_array[_index] = m_array[_index+1];
+		++_index;
+	}
+}
+
+
 
 #endif

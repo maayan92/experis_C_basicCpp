@@ -26,20 +26,18 @@ class container
 		virtual int Index(const T* _element)const = 0;
 		
 		virtual bool Insert(const T* _element) = 0;
-		/*
-		virtual bool Remove(const T& _value) = 0; //
 		
-		virtual bool RemoveAll() = 0; //
+		virtual bool Remove(const T& _value) = 0;
 		
-		virtual bool RemoveAndDelete() = 0; // 
+		virtual void RemoveAll() = 0;
 		
-		virtual bool RemoveAndDeleteAll() = 0; //
-		*/
+		virtual bool RemoveAndDelete(const T& _value) = 0;
+		
+		virtual void RemoveAndDeleteAll() = 0;
+		
 		int Count()const { return numOfElemnts; }
 		
 		bool IsEmpty()const { return (0 == numOfElemnts); }
-		
-		unsigned int GetNumOfElement()const { return numOfElemnts; }
 
 	protected:
 		

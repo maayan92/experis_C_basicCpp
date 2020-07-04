@@ -5,160 +5,150 @@
 #include <iostream>
 using namespace std;
 
+const int size = 200;
+
+void Run(container<int> *_contain)
+{
+	int cont = 1, data[size], i = 0, dataRF, *val;
+	unsigned int action, position;
+	bool res;
+	
+	while (cont) {
+	
+		cout << endl << "Choose action: " << endl;
+		cout << "1 - Insert new element " << endl;
+		cout << "2 - Append new element " << endl;
+		cout << "3 - Prepend new element " << endl;
+		cout << "4 - Find data " << endl;
+		cout << "5 - Remove data " << endl;
+		cout << "6 - Get number of elements " << endl;
+		cout << "7 - Is container empty " << endl;
+		
+		cout << "Any other number - stop " << endl;
+		
+		cin >>  action;
+		switch (action) {
+		
+			case 1:	
+				cout << "\033[1;31mif the insert fails an exception will occur\033[0m" << endl;
+				
+				cout << "Insert data: " << endl;
+				cin >> data[i];
+				
+				try{
+					res = _contain->Insert(&data[i]);
+				}
+				catch(const char* exc){
+					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				}
+				
+				++i;
+				
+				break;
+				
+			case 2:	
+				cout << "\033[1;31mif the append fails an exception will occur\033[0m" << endl;
+				
+				cout << "Insert data: " << endl;
+				cin >> data[i];
+				cout << "Insert position: " << endl;
+				cin >> position;
+				
+				try{
+					res = _contain->Append(&data[i],position);
+				}
+				catch(const char* exc){
+					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				}
+				
+				++i;
+			
+				break;
+				
+			case 3:
+				cout << "\033[1;31mif the prepend fails an exception will occur\033[0m" << endl;
+
+				cout << "Insert data: " << endl;
+				cin >> data[i];
+				cout << "Insert position: " << endl;
+				cin >> position;
+				
+				try{
+					res = _contain->Prepend(&data[i],position);
+				}
+				catch(const char* exc){
+					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				}
+				
+				++i;
+			
+				break;
+			
+			case 4:
+				cout << "Insert data to find: " << endl;
+				cin >> dataRF;
+			
+				val = (int*)_contain->Find(dataRF);
+				
+				cout << "\033[1;31m" << ((NULL != val) ? "data found!" : "data not found!") << "\033[0m" << endl;
+				
+				break;
+					
+			case 5:	
+				cout << "Insert data to remove: " << endl;
+				cin >> dataRF;
+			
+				cout << "\033[1;31m" << ((_contain->Remove(dataRF)) ? "data removed!" : "data not found!") << "\033[0m" << endl;
+				
+				break;
+				
+			case 6:
+				cout << "\033[1;31mnumber of elements -> " << _contain->Count() << "\033[0m" << endl; break;
+				
+			case 7:
+				cout << "\033[1;31mis empty? -> " << (_contain->IsEmpty() ? "true" : "false") << "\033[0m" << endl; break;
+				
+			default: 
+				cont = 0;
+				break;
+		}
+	}
+}
+
 int main()
 {
-	array<int> arr(1,5);
-	array<int> arr2(arr);
-	array<int> arr3;
+	int cont = 1;
+	unsigned int action;
+	container<int> *contain = NULL;
 	
-	int a = 8, b = 10, c = 2, d = 1;
+	while (cont) {
 	
-	try{
-		arr.Insert(&a);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	try{
-		arr2.Insert(&c);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	
-	try{
-		arr.Append(&b,3);
-	}
-	catch(const char* exc){
-		cout << "append index 3 -> " << exc << endl;
-	}
-	
-	try{
-		arr.Append(&c,0);
-	}
-	catch(const char* exc){
-		cout << "append index 0 -> " << exc << endl;
-	}
-	
-	try{
-		arr.Prepend(&d,2);
-	}
-	catch(const char* exc){
-		cout << "prepend index 3 -> " << exc << endl;
-	}
-	
-	
-	cout << arr.Contains(&a) << endl;
-	cout << arr.Contains(&b) << endl;
-	
-	cout << "index of 8 -> " << arr.Index(&a) << endl;
-	cout << "index of 1 -> " << arr.Index(&d) << endl;
-	cout << "index of 2 -> " << arr.Index(&c) << endl;
-	
-	const int* val = arr.Find(2);
-	
-	(NULL != val) ? cout << *val : cout;
-	cout << endl;
-	
-	arr3 = arr;
-	
-	arr.Remove(8);
-	
-	cout << "index of 8 -> " << arr.Index(&a) << endl;
-	cout << "index of 1 -> " << arr.Index(&d) << endl;
-	cout << "index of 2 -> " << arr.Index(&c) << endl;
-	
-	cout << "number of elements -> " << arr.Count() << endl;
-	cout << "is empty? -> " << arr.IsEmpty() << endl;
-	
-	arr.RemoveAll();
-	
-	cout << "index of 1 -> " << arr.Index(&d) << endl;
-	cout << "index of 2 -> " << arr.Index(&c) << endl;
-	
-	cout << "number of elements -> " << arr.Count() << endl;
-	cout << "is empty? -> " << arr.IsEmpty() << endl;
-	
-	cout << endl << "copy CTOR: " << endl;
-	
-	cout << "index of 8 -> " << arr2.Index(&a) << endl;
-	cout << "index of 1 -> " << arr2.Index(&d) << endl;
-	cout << "index of 2 -> " << arr2.Index(&c) << endl;
-	
-	cout << "number of elements -> " << arr2.Count() << endl;
-	cout << "is empty? -> " << arr2.IsEmpty() << endl;
-	
-	cout << endl << "operator=: " << endl;
-	
-	cout << "index of 8 -> " << arr3.Index(&a) << endl;
-	cout << "index of 1 -> " << arr3.Index(&d) << endl;
-	cout << "index of 2 -> " << arr3.Index(&c) << endl;
-	
-	cout << "number of elements -> " << arr3.Count() << endl;
-	cout << "is empty? -> " << arr3.IsEmpty() << endl;
-	
-	
-	cout << endl << "list:" << endl;
-	dList<int> list;
-	
-	try{
-		list.Insert(&a);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	
-	try{
-		list.Insert(&b);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	
-	try{
-		list.Append(&c,0);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	
-	try{
-		list.Prepend(&d,1);
-	}
-	catch(const char* exc){
-		cout << exc << endl;
-	}
-	
-	cout << list.Contains(&c) << endl;
-	
-	cout << "number of elements -> " << list.Count() << endl;
-	cout << "is empty? -> " << list.IsEmpty() << endl;
-	
-	const int* valL = list.Find(8);
-	
-	(NULL != valL) ? cout << *valL : cout;
-	cout << endl;
-	
-	cout << "index of 1 -> " << list.Index(&d) << endl;
-	cout << "index of 8 -> " << list.Index(&a) << endl;
-	cout << "index of 2 -> " << list.Index(&c) << endl;
-	cout << "index of 10 -> " << list.Index(&b) << endl;
+		cout << endl << "Choose action: " << endl;
+		cout << "1 - for creating array container " << endl;
+		cout << "2 - for creating double list container " << endl;
+		
+		cout << "Any other number - stop " << endl;
 
-	list.Remove(2);
-	
-	cout << "index of 1 -> " << list.Index(&d) << endl;
-	cout << "index of 8 -> " << list.Index(&a) << endl;
-	cout << "index of 2 -> " << list.Index(&c) << endl;
-	cout << "index of 10 -> " << list.Index(&b) << endl;
-	
-	list.RemoveAll();
-	
-	cout << "index of 1 -> " << list.Index(&d) << endl;
-	cout << "index of 8 -> " << list.Index(&a) << endl;
-	cout << "index of 2 -> " << list.Index(&c) << endl;
-	cout << "index of 10 -> " << list.Index(&b) << endl;
-	
-	
+		cin >>  action;
+		switch (action) {
+		
+			case 1:	
+				contain = new array<int>; break;
+				
+			case 2:	
+				contain = new dList<int>; break;
+				
+			default: 
+				cont = 0; break;
+		}
+		
+		if(0 != cont)
+		{
+			Run(contain); 
+			delete contain;
+		}
+		
+	}
 	
 	return 0;
 }

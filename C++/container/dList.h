@@ -22,26 +22,33 @@ class dList:public container<T>
 	
 		dList() { m_head.m_next = &m_tail; m_tail.m_prev = &m_head; }
 		
-		dList(const dList& _list) {} // TODO
+		dList(const dList& _list);
 		
 	// operator
 		
-		dList& operator=(const dList& _list) {} // TODO
+		dList& operator=(const dList& _list);
 		
 	// mem functions
 		
+		//insert the _element in one position right of the _index, throw const char* on error.
 		virtual bool Append(const T* _element, unsigned int _index);
 		
+		//insert the _element in one position left of the _index, throw const char* on error.
 		virtual bool Prepend(const T* _element, unsigned int _index);
 		
+		//check if the list contains the _element.
 		virtual bool Contains(const T* _element)const;
 		
+		//find the element with _value.
 		virtual const T* Find(const T& _value)const;
 		
+		//return the index of the _element position in the list, -1 if the _element is not in the list.
 		virtual int Index(const T* _element)const;
 		
+		//insert the _element in the last position, throw const char* on error.
 		virtual bool Insert(const T* _element);
 		
+		//remove element with _value.
 		virtual bool Remove(const T& _value);
 		
 		//remove all elements.
@@ -71,14 +78,6 @@ class dList:public container<T>
 				
 				Node* operator=(const Node* _node) { CopyNode(_node); return *this; }
 				
-				//const T* GetData()const { return m_element; }
-				
-				//void SetNext(const Node* _next) { m_next = (Node*)_next; }
-				//Node* GetNext()const { return m_next; }
-				
-				//void SetPrev(const Node* _prev) { m_prev = (Node*)_prev; }
-				//Node* GetPrev()const { return m_prev; }
-				
 			private:
 			
 				T* m_element;
@@ -91,7 +90,11 @@ class dList:public container<T>
 		Node m_head;
 		Node m_tail;
 		
+		void CopyAllList(const dList& _list);
+		
 		void RemoveAllElements();
+		
+		Node* RemoveFromList(const T& _value);
 		
 		bool InsertByPosition(const T* _element, unsigned int _index);
 		
@@ -102,15 +105,38 @@ class dList:public container<T>
 		int SearchElement(const T* _element)const;
 
 		Node* FindElementByVal(const T& _value)const;
-		
-		Node* RemoveFromList(const T& _value);
 };
+
+// DTOR
 
 template<class T>
 dList<T>::~dList()
 {
 	RemoveAllElements();
 }
+
+// CTOR
+
+template<class T>
+dList<T>::dList(const dList& _list):m_head(_list.m_head),m_tail(_list.m_tail)
+{
+	CopyAllList(_list);
+}
+
+template<class T>
+dList<T>& dList<T>::operator=(const dList& _list)
+{
+	if(this != &_list)
+	{
+		RemoveAllElements();
+		
+		CopyAllList(_list);
+	}
+	
+	return *this;
+}
+
+// mem functions
 
 template<class T>
 bool dList<T>::Append(const T* _element, unsigned int _index)
@@ -133,7 +159,9 @@ bool dList<T>::Contains(const T* _element)const
 template<class T>
 const T* dList<T>::Find(const T& _value)const
 {
-	return FindElementByVal(_value)->m_element;
+	Node* find = FindElementByVal(_value);
+	
+	return (!find) ? NULL : find->m_element;
 }
 
 template<class T>
@@ -147,6 +175,7 @@ bool dList<T>::Insert(const T* _element)
 {
 	if(!_element)
 	{
+		throw("invalid element!");
 		return false;
 	}
 	
@@ -209,9 +238,28 @@ void dList<T>::RemoveAndDeleteAll()
 		delete temp->m_element;
 		delete temp;
 	}
+	
+	this->SetNumOfElements(0);
 }
 
 // private functions
+
+template<class T>
+void dList<T>::CopyAllList(const dList& _list)
+{
+	m_head = _list.m_head;
+	m_tail = _list.m_tail;
+	
+	Node* temp = _list.m_head;
+	
+	while(temp != _list.m_tail)
+	{
+		InsetToList(temp->m_element,m_tail->m_prev);
+		temp = temp->m_next;
+	}
+	
+	SetNumOfElements(_list.Count());
+}
 
 template<class T>
 void dList<T>::RemoveAllElements()
@@ -225,6 +273,28 @@ void dList<T>::RemoveAllElements()
 		
 		delete temp;
 	}
+	
+	this->SetNumOfElements(0);
+}
+
+template<class T>
+class dList<T>::Node* dList<T>::RemoveFromList(const T& _value)
+{
+	Node* remove = FindElementByVal(_value);
+	if(!remove)
+	{
+		return NULL;
+	}
+	
+	remove->m_next->m_prev = remove->m_prev;
+	remove->m_prev->m_next = remove->m_next;
+	
+	remove->m_next = NULL;
+	remove->m_prev = NULL;
+	
+	this->SetNumOfElements(this->Count() - 1);
+	
+	return remove;
 }
 
 template<class T>
@@ -296,7 +366,6 @@ template<class T>
 class dList<T>::Node* dList<T>::FindElementByVal(const T& _value)const
 {
 	Node* n(m_head.m_next);
-	int i = 0;
 	
 	while(n != (&m_tail))
 	{
@@ -306,28 +375,9 @@ class dList<T>::Node* dList<T>::FindElementByVal(const T& _value)const
 		}
 		
 		n = n->m_next;
-		++i;
 	}
 	
 	return NULL;
-}
-
-template<class T>
-class dList<T>::Node* dList<T>::RemoveFromList(const T& _value)
-{
-	Node* remove = FindElementByVal(_value);
-	if(!remove)
-	{
-		return NULL;
-	}
-	
-	remove->m_next->m_prev = remove->m_prev;
-	remove->m_prev->m_next = remove->m_next;
-	
-	remove->m_next = NULL;
-	remove->m_prev = NULL;
-	
-	return remove;
 }
 
 

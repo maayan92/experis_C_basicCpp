@@ -93,7 +93,7 @@ class array:public container<T>
 };
 
 template<class T>
-unsigned int array<T>::dCapacity = 10;
+unsigned int array<T>::dCapacity = 5;
 template<class T>
 unsigned int array<T>::dReSize = 5;
 
@@ -318,7 +318,7 @@ void array<T>::ShiftRight(unsigned int _index)
 {
 	int i;
 	
-	for(i = this->Count();i >= _index; --i)
+	for(i = this->Count();i > _index; --i)
 	{
 		m_array[i] = m_array[i-1];
 	}

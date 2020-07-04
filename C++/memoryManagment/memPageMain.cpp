@@ -166,9 +166,11 @@ int main()
 				cont = 0; break;
 		}
 		
-		if(0 != cont){ Run(manager); }
-		
-		delete manager;
+		if(0 != cont)
+		{
+			Run(manager);
+			delete manager;
+		}
 	}
 	
 	return 0;

@@ -3,6 +3,8 @@
 
 #include <string.h>
 #include "container.h"
+#include "TException.h"
+using namespace std;
 
 template<class T>
 class array:public container<T>
@@ -20,9 +22,10 @@ class array:public container<T>
 	
 	// CTOR
 	
-		array(){ m_array = new T*[dCapacity]; m_capacity = dCapacity; m_reSize = dReSize; }
+		array(){ m_array = new(nothrow) T*[dCapacity]; m_capacity = dCapacity; m_reSize = dReSize; }
 		
-		array(unsigned int _capacity, unsigned int _reSize) { m_array = new T*[_capacity]; m_capacity = _capacity; m_reSize = _reSize; }
+		array(unsigned int _capacity, unsigned int _reSize) 
+			{ m_array = new(nothrow) T*[_capacity]; m_capacity = _capacity; m_reSize = _reSize; }
 
 		array(const array& _arr);
 		
@@ -32,10 +35,10 @@ class array:public container<T>
 		
 	// mem functions
 		
-		//insert the _element in one position right of the _index, throw const char* on error.
+		//insert the _element in one position right of the _index, throw TException<int> on error.
 		virtual bool Append(const T* _element, unsigned int _index);
 		
-		//insert the _element in one position left of the _index, throw const char* on error.
+		//insert the _element in one position left of the _index, throw TException<int> on error.
 		virtual bool Prepend(const T* _element, unsigned int _index);
 		
 		//check if the array contains the _element.
@@ -47,7 +50,7 @@ class array:public container<T>
 		//return the index of the _element position in the array, -1 if the _element is not in the array.
 		virtual int Index(const T* _element)const;
 		
-		//insert the _element in the last position, throw const char* on error.
+		//insert the _element in the last position, throw TException<int> on error.
 		virtual bool Insert(const T* _element);
 		
 		//remove element with _value.
@@ -73,29 +76,29 @@ class array:public container<T>
 		static unsigned int dCapacity;
 		static unsigned int dReSize;
 		
-		// copies all data-memeber from _arr to the object. 
+		//copies all data-memeber from _arr to the object. 
 		void CopyAllMembers(const array& _arr);
 		
-		// resize the array.
+		//resize the array.
 		bool Resize();
 		
-		// search element in the array, return _element index or -1.
+		//search element in the array, return _element index or -1.
 		int SearchElement(const T* _element)const;
 		
 		//insert a new element at position _index.
 		bool InsertByPosition(const T* _element, unsigned int _index);
 		
-		// move elements in [_index,numOfElements] range one step to the right.
+		//move elements in [_index,numOfElements] range one step to the right.
 		void ShiftRight(unsigned int _index);
 		
-		// move elements in [_index+1,numOfElements] range one step to the left.
+		//move elements in [_index+1,numOfElements] range one step to the left.
 		void ShiftLeft(unsigned int _index);
 };
 
 template<class T>
-unsigned int array<T>::dCapacity = 5;
+unsigned int array<T>::dCapacity = 4;
 template<class T>
-unsigned int array<T>::dReSize = 5;
+unsigned int array<T>::dReSize = 2;
 
 // CTOR
 
@@ -110,9 +113,12 @@ array<T>::array(const array& _arr)
 template<class T>
 array<T>& array<T>::operator=(const array& _arr)
 {
-	delete[] m_array;
-	
-	CopyAllMembers(_arr);
+	if(this != &_arr)
+	{
+		delete[] m_array;
+		
+		CopyAllMembers(_arr);
+	}
 	
 	return *this;
 }
@@ -165,13 +171,13 @@ bool array<T>::Insert(const T* _element)
 {
 	if(!_element)
 	{
-		throw("invalid element!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid element!");
 		return false;
 	}
 	
 	if(this->Count() == m_capacity && !Resize())
 	{
-		throw("realloc failed!");
+		throw TException<int>(0,__FILE__,__LINE__,"realloc failed!");
 		return false;
 	}
 	
@@ -236,7 +242,7 @@ void array<T>::RemoveAndDeleteAll()
 template<class T>
 bool array<T>::Resize()
 {
-	T** temp = new T*[m_capacity + m_reSize];
+	T** temp = new(nothrow) T*[m_capacity + m_reSize];
 	if(!temp)
 	{
 		return false;
@@ -259,7 +265,7 @@ void array<T>::CopyAllMembers(const array& _arr)
 	m_reSize = _arr.m_reSize;
 	this->SetNumOfElements(_arr.Count());
 	
-	m_array = new T*[m_capacity];
+	m_array = new(nothrow) T*[m_capacity];
 	memcpy(m_array,_arr.m_array,sizeof(m_array)*this->Count());
 }
 
@@ -289,19 +295,19 @@ bool array<T>::InsertByPosition(const T* _element, unsigned int _index)
 {
 	if(_index > this->Count() || _index < 0)
 	{
-		throw("invalid index!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid index!");
 		return false;
 	}
 	
 	if(!_element)
 	{
-		throw("invalid element!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid element!");
 		return false;
 	}
 	
 	if(m_capacity == this->Count() && !Resize())
 	{
-		throw("realloc failed!");
+		throw TException<int>(0,__FILE__,__LINE__,"realloc failed!");
 		return false;
 	}
 	

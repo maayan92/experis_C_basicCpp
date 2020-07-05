@@ -1,6 +1,7 @@
 #include "container.h"
 #include "array.h"
 #include "dList.h"
+#include "TException.h"
 
 #include <iostream>
 using namespace std;
@@ -38,8 +39,10 @@ void Run(container<int> *_contain)
 				try{
 					res = _contain->Insert(&data[i]);
 				}
-				catch(const char* exc){
-					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				catch(TException<int>& exc){
+					cout << "\033[0;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
 				}
 				
 				++i;
@@ -57,8 +60,10 @@ void Run(container<int> *_contain)
 				try{
 					res = _contain->Append(&data[i],position);
 				}
-				catch(const char* exc){
-					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				catch(TException<int>& exc){
+					cout << "\033[0;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
 				}
 				
 				++i;
@@ -76,8 +81,10 @@ void Run(container<int> *_contain)
 				try{
 					res = _contain->Prepend(&data[i],position);
 				}
-				catch(const char* exc){
-					cout << "\033[0;32m" << exc << "\033[0m" << endl;
+				catch(TException<int>& exc){
+					cout << "\033[0;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
 				}
 				
 				++i;

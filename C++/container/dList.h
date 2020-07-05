@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include "container.h"
+#include "TException.h"
 
 template<class T>
 class dList:public container<T>
@@ -30,10 +31,10 @@ class dList:public container<T>
 		
 	// mem functions
 		
-		//insert the _element in one position right of the _index, throw const char* on error.
+		//insert the _element in one position right of the _index, throw TException<int> on error.
 		virtual bool Append(const T* _element, unsigned int _index);
 		
-		//insert the _element in one position left of the _index, throw const char* on error.
+		//insert the _element in one position left of the _index, throw TException<int> on error.
 		virtual bool Prepend(const T* _element, unsigned int _index);
 		
 		//check if the list contains the _element.
@@ -45,7 +46,7 @@ class dList:public container<T>
 		//return the index of the _element position in the list, -1 if the _element is not in the list.
 		virtual int Index(const T* _element)const;
 		
-		//insert the _element in the last position, throw const char* on error.
+		//insert the _element in the last position, throw TException<int> on error.
 		virtual bool Insert(const T* _element);
 		
 		//remove element with _value.
@@ -73,7 +74,8 @@ class dList:public container<T>
 				~Node() {}
 				
 				Node() {}
-				Node(const T* _element, const Node* _next, const Node* _prev) { m_element = (T*)_element; m_next = (Node*)_next; m_prev = (Node*)_prev; }
+				Node(const T* _element, const Node* _next, const Node* _prev) 
+					{ m_element = (T*)_element; m_next = (Node*)_next; m_prev = (Node*)_prev; }
 				Node(const Node* _node) { CopyNode(_node); }
 				
 				Node* operator=(const Node* _node) { CopyNode(_node); return *this; }
@@ -90,20 +92,28 @@ class dList:public container<T>
 		Node m_head;
 		Node m_tail;
 		
+		//copy all list's elements.
 		void CopyAllList(const dList& _list);
 		
-		void RemoveAllElements();
+		//remove all list's elements.
+		void RemoveAllNodes();
 		
+		//remove element with _value from the list.
 		Node* RemoveFromList(const T& _value);
 		
+		//insert _element to _index position, move right all elements till _index position.
 		bool InsertByPosition(const T* _element, unsigned int _index);
 		
+		//set the _element at _index position.
 		void SetAtPosition(const T* _element, unsigned int _index);
 		
+		//insert _element to list after _node.
 		void InsetToList(const T* _element, Node* _node);
 		
+		//seach _element in the list.
 		int SearchElement(const T* _element)const;
-
+		
+		//find element with _value in the list.
 		Node* FindElementByVal(const T& _value)const;
 };
 
@@ -112,7 +122,7 @@ class dList:public container<T>
 template<class T>
 dList<T>::~dList()
 {
-	RemoveAllElements();
+	RemoveAllNodes();
 }
 
 // CTOR
@@ -128,7 +138,7 @@ dList<T>& dList<T>::operator=(const dList& _list)
 {
 	if(this != &_list)
 	{
-		RemoveAllElements();
+		RemoveAllNodes();
 		
 		CopyAllList(_list);
 	}
@@ -175,7 +185,7 @@ bool dList<T>::Insert(const T* _element)
 {
 	if(!_element)
 	{
-		throw("invalid element!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid element!");
 		return false;
 	}
 	
@@ -202,7 +212,7 @@ bool dList<T>::Remove(const T& _value)
 template<class T>
 void dList<T>::RemoveAll()
 {
-	RemoveAllElements();
+	RemoveAllNodes();
 }
 
 template<class T>
@@ -226,10 +236,11 @@ template<class T>
 void dList<T>::RemoveAndDeleteAll()
 {
 	Node* n(m_head.m_next);
+	Node* temp;
 	
 	while(n != (&m_tail))
 	{
-		Node* temp(n);
+		temp = n;
 		n = n->m_next;
 		
 		temp->m_next = NULL;
@@ -262,7 +273,7 @@ void dList<T>::CopyAllList(const dList& _list)
 }
 
 template<class T>
-void dList<T>::RemoveAllElements()
+void dList<T>::RemoveAllNodes()
 {
 	Node* n(m_head.m_next);
 	
@@ -302,13 +313,13 @@ bool dList<T>::InsertByPosition(const T* _element, unsigned int _index)
 {
 	if(_index > this->Count() || _index < 0)
 	{
-		throw("invalid index!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid index!");
 		return false;
 	}
 	
 	if(!_element)
 	{
-		throw("invalid element!");
+		throw TException<int>(0,__FILE__,__LINE__,"invalid element!");
 		return false;
 	}
 	

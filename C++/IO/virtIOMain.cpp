@@ -42,6 +42,7 @@ template<class T>
 void ReadTryCatch(virtIO &_io)
 {
 	T data;
+	int succeed = 1;
 	
 	try
 	{
@@ -49,13 +50,14 @@ void ReadTryCatch(virtIO &_io)
 	}
 	catch(TException<virtIO::status> exc)
 	{
-		cout << "\033[0;32mexception -> " << exc.GetException() << endl;
+		cout << "\033[1;32mexception -> " << exc.GetException() << endl;
 		cout << "message -> " << exc.GetExcMessage() << endl;
 		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> \033[0m" << exc.GetLineNumber() << endl;
+		cout << "line number -> " << exc.GetLineNumber() << "\033[0m" << endl;
+		succeed = 0;
 	}
 	
-	cout << data << endl;
+	if(succeed) cout << "\033[1;31m" << data << "\033[0m" << endl;
 }
 
 template<class T>
@@ -72,10 +74,10 @@ void WriteTryCatch(virtIO &_io)
 	}
 	catch(TException<virtIO::status> exc)
 	{
-		cout << "\033[0;32mexception -> " << exc.GetException() << endl;
+		cout << "\033[1;32mexception -> " << exc.GetException() << endl;
 		cout << "message -> " << exc.GetExcMessage() << endl;
 		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> \033[0m" << exc.GetLineNumber() << endl;
+		cout << "line number -> " << exc.GetLineNumber() << "\033[0m" << endl;
 	}
 	
 	cout << "\033[1;31m" << data << "\033[0m" << endl;
@@ -169,10 +171,10 @@ void WriteReadVoid(virtIO *_io)
 			}
 			catch(TException<virtIO::status> exc)
 			{
-				cout << "\033[0;32mexception -> " << exc.GetException() << endl;
+				cout << "\033[1;32mexception -> " << exc.GetException() << endl;
 				cout << "message -> " << exc.GetExcMessage() << endl;
 				cout << "file name -> " << exc.GetFileName() << endl;
-				cout << "line number -> \033[0m" << exc.GetLineNumber() << endl;
+				cout << "line number -> " << exc.GetLineNumber() << "\033[0m" << endl;
 			}
 		}
 		else if(2 == cont)
@@ -183,13 +185,13 @@ void WriteReadVoid(virtIO *_io)
 			}
 			catch(TException<virtIO::status> exc)
 			{
-				cout << "\033[0;32mexception -> " << exc.GetException() << endl;
+				cout << "\033[1;32mexception -> " << exc.GetException() << endl;
 				cout << "message -> " << exc.GetExcMessage() << endl;
 				cout << "file name -> " << exc.GetFileName() << endl;
-				cout << "line number -> \033[0m" << exc.GetLineNumber() << endl;
+				cout << "line number -> " << exc.GetLineNumber() << "\033[0m" << endl;
 			}
 			
-			cout << *buf << endl;
+			cout << "\033[1;31m" << buf << "\033[0m" << endl;
 		}
 	}
 }
@@ -219,21 +221,25 @@ void Run(virtIO *_io)
 		cout << "Any other number - stop " << endl;
 
 		cin >>  action;
+		
+		system("clear");
+		cout << endl << endl;
+		
 		switch (action) {
 		
 			case 1:	system("clear"); Write(_io); break;
 				
 			case 2:	system("clear"); Read(_io); break;
 				
-			case 3: cout << "\033[0;32mposition -> " << _io->GetPosition() << "\033[0m" << endl; break;
+			case 3: cout << "\033[1;31mposition -> " << _io->GetPosition() << "\033[0m" << endl; break;
 			
 			case 4: cout << "Insert position: " << endl;
 				cin >> position;
 				
-				cout << "position set " << (_io->SetPosition(position) ? "successfully!" : "failed!") << endl;
+				cout << "\033[1;31mposition set " << (_io->SetPosition(position) ? "successfully!" : "failed!") << "\033[0m" << endl;
 				break;
 					
-			case 5:	cout << "\033[0;32mlength -> " << _io->GetFileLength() << "\033[0m" << endl; break;
+			case 5:	cout << "\033[1;31mlength -> " << _io->GetFileLength() << "\033[0m" << endl; break;
 				
 			case 6: cout << "\033[1;31mfile name -> " << _io->GetFileName() << "\033[0m" << endl; break;
 				
@@ -270,24 +276,25 @@ int main()
 		cout << endl << "Choose action: " << endl;
 		cout << "1 - for creating ascii file " << endl;
 		cout << "2 - for creating bin file " << endl;
-		
 		cout << "Any other number - stop " << endl;
-
 		cin >>  action;
 		
 		system("clear");
 		
+		ChooseMode(mode);
+		ChooseFileName(fileName);
+		
 		switch (action) {
 		
-			case 1:	
-				ChooseMode(mode);
-				ChooseFileName(fileName);
-				io = new asciiIO(fileName,mode); break;
+			case 1: io = new asciiIO(fileName,mode); 
+				system("clear");
+				cout << endl << "\033[1;31m------------ Ascii file ------------\033[0m" << endl;
+				break;
 				
-			case 2:	
-				ChooseMode(mode);
-				ChooseFileName(fileName);
-				io = new binIO(fileName,mode); break;
+			case 2:	io = new binIO(fileName,mode); 
+				system("clear");
+				cout << endl << "\033[1;31m------------ Binary file ------------\033[0m" << endl;
+				break;
 				
 			default: 
 				cont = 0; break;

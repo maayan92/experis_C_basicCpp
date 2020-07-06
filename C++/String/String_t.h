@@ -102,7 +102,7 @@ class String_t
 		char& operator[](int _index);
 		
 		/*return sub string that start at position _start and with length _len*/
-		String_t operator()(uint _start, uint _len)const;
+		String_t operator()(unsigned int _start, unsigned int _len)const;
 		
 	// Static functions
 		

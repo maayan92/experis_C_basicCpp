@@ -31,9 +31,15 @@ class tContainer
 {
 	public:
 	
+	// DTOR
+	
 		~tContainer() {}
 	
+	// CTOR
+	
 		tContainer() {}
+		
+	// mem functions
 		
 		bool IsEmpty()const { return m_container.empty(); }
 		
@@ -66,6 +72,8 @@ class tContainer
 		tContainer& operator=(const tContainer& _cont);
 		
 };
+
+// mem functions
 
 template<typename T, typename container>
 void tContainer<T,container>::InsertNemElement(const T* _element)//throw exception

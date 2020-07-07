@@ -9,9 +9,13 @@ class virtIO
 {
 	public:
 	
+	// DTOR
+	
 		virtual ~virtIO() = 0;
 	
-		virtIO();
+	// CTOR
+	
+		virtIO() { m_status = cant_open_file_e; m_file = NULL; }
 		
 		enum status
 		{
@@ -22,7 +26,7 @@ class virtIO
                    	readErr_e
 		};
 		
-		// write to file
+	// write to file
 		
 		virtual virtIO& operator<<(int _value) = 0;
 		virtual virtIO& operator<<(float _value) = 0;
@@ -35,7 +39,7 @@ class virtIO
 		virtual virtIO& operator<<(unsigned short _value) = 0;
 		virtual virtIO& operator<<(unsigned long _value) = 0;
 		
-		// read from file
+	// read from file
 		
 		virtual virtIO& operator>>(int& _value) = 0;
 		virtual virtIO& operator>>(float& _value) = 0;
@@ -47,6 +51,8 @@ class virtIO
 		virtual virtIO& operator>>(unsigned char& _value) = 0;
 		virtual virtIO& operator>>(unsigned short& _value) = 0;
 		virtual virtIO& operator>>(unsigned long& _value) = 0;
+
+	// mem functions
 
 		void CloseFile() { if(m_file){ fclose(m_file); m_file = NULL; } }
 	
@@ -69,8 +75,6 @@ class virtIO
 	protected:
 	
 		FILE* GetFile()const { return m_file; }
-	
-		void SetFileName(String_t _name) { m_name = _name; }
 	
 	private:
 		FILE *m_file;

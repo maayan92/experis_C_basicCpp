@@ -1,15 +1,13 @@
 #include "virtIO.h"
 
+// DTOR
+
 virtIO::~virtIO()
 {
 	CloseFile();
 }
 
-virtIO::virtIO()
-{
-	m_status = cant_open_file_e;
-	m_file = NULL;
-}
+// mem functions
 
 bool virtIO::Open(const String_t& _name, const String_t& _mode)
 {

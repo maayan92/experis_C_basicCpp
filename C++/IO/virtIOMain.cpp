@@ -65,11 +65,12 @@ void WriteTryCatch(virtIO &_io)
 {
 	T data;
 	
+	cout << "Insert data to write: " << endl;
+	cin >> data;
+	if(!cin.good()) { cout << "\033[1;31mwrong input type!\033[0m" << endl; return; }
+	
 	try
 	{
-		cout << "Insert data to write: " << endl;
-		cin >> data;
-		
 		_io << data << ' ';
 	}
 	catch(TException<virtIO::status> exc)
@@ -281,17 +282,18 @@ int main()
 		
 		system("clear");
 		
-		ChooseMode(mode);
-		ChooseFileName(fileName);
-		
 		switch (action) {
 		
-			case 1: io = new asciiIO(fileName,mode); 
+			case 1: ChooseMode(mode);
+				ChooseFileName(fileName);
+				io = new asciiIO(fileName,mode); 
 				system("clear");
 				cout << endl << "\033[1;31m------------ Ascii file ------------\033[0m" << endl;
 				break;
 				
-			case 2:	io = new binIO(fileName,mode); 
+			case 2:	ChooseMode(mode);
+				ChooseFileName(fileName);
+				io = new binIO(fileName,mode); 
 				system("clear");
 				cout << endl << "\033[1;31m------------ Binary file ------------\033[0m" << endl;
 				break;

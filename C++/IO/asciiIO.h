@@ -9,13 +9,17 @@ class asciiIO:public virtIO
 {
 	public:
 		
+	// DTOR
+	
 		virtual ~asciiIO() {}
+		
+	// CTOR
 		
 		asciiIO() {}
 		
 		asciiIO(const String_t& _name, const String_t& _mode) { Open(_name,_mode); }
 
-		// write to file
+	// write to file
 		 
 		virtual asciiIO& operator<<(int _value) { return WriteToFile(_value,"%d"); }
 		virtual asciiIO& operator<<(float _value) { return WriteToFile(_value,"%f"); }
@@ -28,7 +32,7 @@ class asciiIO:public virtIO
 		virtual asciiIO& operator<<(unsigned short _value) { return WriteToFile(_value,"%hu"); }
 		virtual asciiIO& operator<<(unsigned long _value) { return WriteToFile(_value,"%lu"); }
 
-		// read from file
+	// read from file
 		
 		virtual asciiIO& operator>>(int& _value) { return ReadFromFile(_value,"%d"); }
 		virtual asciiIO& operator>>(float& _value) { return ReadFromFile(_value,"%f"); }
@@ -53,28 +57,26 @@ class asciiIO:public virtIO
 		asciiIO& ReadFromFile(T& _value, const String_t& _format);
 };
 
+// private functions
+
 template<class T>
 asciiIO& asciiIO::WriteToFile(const T& _value, const String_t& _format)
 {
 	if(!this->GetFile())
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"file is not open!");
+		SetStatus(writeErr_e);
+		throw TException<status>(writeErr_e,__FILE__,__LINE__,"file is not open!");
 	}
 	
 	if(GetFileMode() == "r")
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"wrong mode for write!");
-	}
-	
-	if(0 > fprintf(this->GetFile(),_format.GetString(),_value))
-	{
 		SetStatus(writeErr_e);
-		throw TException<status>(writeErr_e,__FILE__,__LINE__,"failed to write!");
+		throw TException<status>(writeErr_e,__FILE__,__LINE__,"wrong mode for write!");
 	}
 	
+	fprintf(this->GetFile(),_format.GetString(),_value);
 	SetStatus(ok_e);
+	
 	return *this;
 }
 		
@@ -83,23 +85,19 @@ asciiIO& asciiIO::ReadFromFile(T& _value, const String_t& _format)
 {
 	if(!this->GetFile())
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"file is not open!");
+		SetStatus(readErr_e);
+		throw TException<status>(readErr_e,__FILE__,__LINE__,"file is not open!");
 	}
 	
 	if(GetFileMode() == "a" || GetFileMode() == "w")
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"wrong mode for read!");
-	}
-	
-	if(0 > fscanf(this->GetFile(),_format.GetString(),&_value))
-	{
 		SetStatus(readErr_e);
-		throw TException<status>(readErr_e,__FILE__,__LINE__,"failed to read!");
+		throw TException<status>(readErr_e,__FILE__,__LINE__,"wrong mode for read!");
 	}
 	
+	fscanf(this->GetFile(),_format.GetString(),&_value);
 	SetStatus(ok_e);
+	
 	return *this;
 }
 

@@ -10,7 +10,11 @@ class binIO:public virtIO
 {
 	public:
 		
+	// DTOR
+		
 		~binIO() {}
+		
+	// CTOR
 		
 		binIO() { m_readWrite = NO_R_NO_W; }
 		
@@ -23,7 +27,7 @@ class binIO:public virtIO
 			WRITE
 		};
 		
-		// write to file
+	// write to file
 		 
 		virtual binIO& operator<<(int _value) { return WriteToFile(_value); }
 		virtual binIO& operator<<(float _value) { return WriteToFile(_value); }
@@ -36,7 +40,7 @@ class binIO:public virtIO
 		virtual binIO& operator<<(unsigned short _value) { return WriteToFile(_value); }
 		virtual binIO& operator<<(unsigned long _value) { return WriteToFile(_value); }
 
-		// read from file
+	// read from file
 		
 		virtual binIO& operator>>(int& _value) { return ReadFromFile(_value); }
 		virtual binIO& operator>>(float& _value) { return ReadFromFile(_value); }
@@ -49,11 +53,15 @@ class binIO:public virtIO
 		virtual binIO& operator>>(unsigned short& _value) { return ReadFromFile(_value); }
 		virtual binIO& operator>>(unsigned long& _value) { return ReadFromFile(_value); }
 		
+	// mem functions
+		
 		//write
     		binIO& operator<<(const void* _buf);
+    		
     		//read
 		binIO& operator>>(void* _buf);
 		
+		//write or read to/from file
 		void operator,(unsigned int len);
 	
 	private:
@@ -75,32 +83,26 @@ class binIO:public virtIO
 		void Read(T* _value, int _len);
 };
 
-template<class T>
-binIO& binIO::WriteToFile(const T& _value)
-{
-	Write(&_value,sizeof(T));
-	return *this;
-}
-		
-template<class T>
-binIO& binIO::ReadFromFile(T& _value)
-{
-	Read(&_value,sizeof(T));
-	return *this;
-}
+// mem functions
 
 binIO& binIO::operator<<(const void* _buf)
 {
-	m_buffer = (void*)_buf;
-	m_readWrite = WRITE;
+	if(_buf)
+	{
+		m_buffer = (void*)_buf;
+		m_readWrite = WRITE;
+	}
 	
 	return *this;
 }
 
 binIO& binIO::operator>>(void* _buf)
 {
-	m_buffer = _buf;
-	m_readWrite = READ;
+	if(_buf)
+	{
+		m_buffer = _buf;
+		m_readWrite = READ;
+	}
 	
 	return *this;
 }
@@ -120,27 +122,38 @@ void binIO::operator,(unsigned int _len)
 	m_readWrite = NO_R_NO_W;
 }
 
+// private functions
+
+template<class T>
+binIO& binIO::WriteToFile(const T& _value)
+{
+	Write(&_value,sizeof(T));
+	return *this;
+}
+		
+template<class T>
+binIO& binIO::ReadFromFile(T& _value)
+{
+	Read(&_value,sizeof(T));
+	return *this;
+}
+
 template<class T>
 void binIO::Write(T* _value, int _len)
 {
 	if(!this->GetFile())
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"file is not open!");
+		SetStatus(writeErr_e);
+		throw TException<status>(writeErr_e,__FILE__,__LINE__,"file is not open!");
 	}
 	
 	if(GetFileMode() == "rb")
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"wrong mode for write!");
-	}
-	
-	if(0 == fwrite(_value,_len,1,GetFile()))
-	{
 		SetStatus(writeErr_e);
-		throw TException<status>(writeErr_e,__FILE__,__LINE__,"failed to write!");
+		throw TException<status>(writeErr_e,__FILE__,__LINE__,"wrong mode for write!");
 	}
 	
+	fwrite(_value,_len,1,GetFile());
 	SetStatus(ok_e);
 }
 
@@ -149,22 +162,17 @@ void binIO::Read(T* _value, int _len)
 {
 	if(!this->GetFile())
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"file is not open!");
+		SetStatus(readErr_e);
+		throw TException<status>(readErr_e,__FILE__,__LINE__,"file is not open!");
 	}
 	
 	if(GetFileMode() == "ab" || GetFileMode() == "wb")
 	{
-		SetStatus(bad_access_e);
-		throw TException<status>(bad_access_e,__FILE__,__LINE__,"wrong mode for read!");
-	}
-	
-	if(0 == fread(_value,_len,1,GetFile()))
-	{
 		SetStatus(readErr_e);
-		throw TException<status>(readErr_e,__FILE__,__LINE__,"failed to read!");
+		throw TException<status>(readErr_e,__FILE__,__LINE__,"wrong mode for read!");
 	}
 	
+	fread(_value,_len,1,GetFile());
 	SetStatus(ok_e);
 }
 

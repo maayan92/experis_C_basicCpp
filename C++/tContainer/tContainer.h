@@ -33,7 +33,7 @@ class tContainer
 	
 	// DTOR
 	
-		~tContainer() {}
+		~tContainer() { m_container.clear(); }
 	
 	// CTOR
 	
@@ -51,7 +51,7 @@ class tContainer
 		
 		const T* GetLastElement()const { return (m_container.rbegin() == m_container.rend()) ? 0 : *m_container.rbegin(); }
 		
-		const T* Find(const T& _value);
+		const T* Find(const T& _value)const;
 		
 		T* RemoveByValue(const T& _value);
 		
@@ -67,10 +67,12 @@ class tContainer
 		
 		container m_container;
 		typedef typename container::iterator iter;
+		typedef typename container::const_iterator c_iter;
 		
 		tContainer(const tContainer& _cont);
 		tContainer& operator=(const tContainer& _cont);
 		
+		const T* GetElementByPosition(size_t _position);
 };
 
 // mem functions
@@ -85,22 +87,22 @@ void tContainer<T,container>::InsertNemElement(const T* _element)//throw excepti
 }
 
 template<typename T, typename container>
-const T* tContainer<T,container>::Find(const T& _value)
+const T* tContainer<T,container>::Find(const T& _value)const
 {
-	iter m_iter = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
+	c_iter itr = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
 	
-	return (m_iter == m_container.end()) ? 0 : *m_iter;
+	return (itr == m_container.end()) ? 0 : *itr;
 }
 
 template<typename T, typename container>
 T* tContainer<T,container>::RemoveByValue(const T& _value)
 {
-	iter m_iter = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
+	iter itr = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
 	
-	if(m_iter != m_container.end())
+	if(itr != m_container.end())
 	{
-		T* element = *m_iter;
-		m_container.erase(m_iter);
+		T* element = *itr;
+		m_container.erase(itr);
 		return element;
 	}
 	
@@ -116,12 +118,12 @@ void tContainer<T,container>::RemoveAll()
 template<typename T, typename container>
 bool tContainer<T,container>::RemoveAndDeleteByValue(const T& _value)
 {
-	iter m_iter = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
+	iter itr = find_if(m_container.begin(), m_container.end(), Equal<T>(_value));
 	
-	if(m_iter != m_container.end())
+	if(itr != m_container.end())
 	{
-		T* element = *m_iter;
-		m_container.erase(m_iter);
+		T* element = *itr;
+		m_container.erase(itr);
 		delete element;
 		
 		return true;
@@ -133,16 +135,16 @@ bool tContainer<T,container>::RemoveAndDeleteByValue(const T& _value)
 template<typename T, typename container>
 void tContainer<T,container>::RemoveAndDeleteAll()
 {
-	iter m_iter = m_container.begin();
+	iter itr = m_container.begin();
 	T* element;
 	
-	while(m_iter != m_container.end())
+	while(itr != m_container.end())
 	{
-		element = *m_iter;
-		m_container.erase(m_iter);
+		element = *itr;
+		m_container.erase(itr);
 		delete element;
 		
-		m_iter = m_container.begin();
+		itr = m_container.begin();
 	}
 }
 
@@ -150,17 +152,33 @@ template<typename T, typename container>
 const T* tContainer<T,container>::operator[](size_t _position)
 {
 
-	if(_position >= m_container.size())
+	if(_position >= m_container.size() || _position < 0)
 	{
 		return 0;
 	}
+
+	if(typeid(m_container) == typeid(vector<T*>))
+	{
+		return (*(vector<T*>*)&m_container)[_position];
+	}
 	
-	iter m_iter = m_container.begin();
-	advance(m_iter, _position);
-	
-	return *m_iter;
+	return GetElementByPosition(_position);
 }
 
+template<typename T, typename container>
+const T* tContainer<T,container>::GetElementByPosition(size_t _position)
+{
+	size_t i = 0;
+	iter itr = m_container.begin();
+	
+	while(i < _position)
+	{
+		itr++;
+		++i;
+	}
+	
+	return *itr;
+}
 
 
 

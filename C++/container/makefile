@@ -1,7 +1,7 @@
 
 TARGET= containerMain.out 
 CC= g++ 
-CFLAGS= -ansi -pedantic -g -I./ -I../TException -I../String -std=c++11
+CFLAGS= -ansi -pedantic -g -I./ -I../TException -I../String
 INC= container.h array.h dList.h ../TException/TException.h
 OBJS= ../String/String_t.cpp containerMain.o
 

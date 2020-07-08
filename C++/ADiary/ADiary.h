@@ -40,6 +40,7 @@ class ADiary
 	private:
 		
 		map<float,meeting*> m_ADiary;
+		
 		typedef map<float,meeting*>::iterator mapItr;
 		typedef map<float,meeting*>::const_iterator mapCItr;
 		
@@ -116,7 +117,7 @@ void ADiary::LoadToFile(const string& _fileName)
 	
 	while(itr != m_ADiary.end())
 	{
-		diaryFile << itr->second->GetBeginHour() << ' ' << itr->second->GetEndHour() << ' ' << itr->second->GetSubject() << endl;
+		diaryFile << itr->second->GetBeginHour() << '\t' << itr->second->GetEndHour() << '\t' << itr->second->GetSubject() << endl;
 		
 		++itr;
 	}

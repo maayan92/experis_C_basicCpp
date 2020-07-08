@@ -2,105 +2,140 @@
 #include "meeting.h"
 
 
+const int size = 200;
+
 int main()
 {
-	meeting* newMeeting = new meeting(8.0,9.0,"meet1");
-	meeting* newMeeting2 = new meeting(10.0,11.0,"meet2");
-	meeting* newMeeting3 = new meeting(8.5,9.5,"meet3");
-	meeting* newMeeting4 = new meeting(9.0,10.0,"meet4");
-	
+	int cont = 1,i = 0, action;
+	meeting* meetings[size];
+	float begin, end;
+	string subject, fileName = "ADiary.txt";
 	ADiary ad;
-
-	try
-	{
-		ad.InsertNewMeeting(8.0,newMeeting);
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
-	}
 	
-	try
-	{
-		ad.InsertNewMeeting(10.0,newMeeting2);
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
-	}
-	
-	try
-	{
-		ad.InsertNewMeeting(8.5,newMeeting3);
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
-	}
+	cout << endl << "\033[1;34m-------- Appointment Diary --------\033[0m" << endl;
 
-	try
-	{
-		ad.InsertNewMeeting(9.5,newMeeting4);
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
-	}
-
-	cout << "find -> " << ((meeting)(*ad.FindMeeting(8.0))) << endl;
+	while (cont) {
 	
-	try
-	{
-		ad.LoadToFile("adiary.txt");
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
+		cout << endl << "Choose action: " << endl;
+		cout << "1 - Insert new meeting " << endl;
+		cout << "2 - Remove meeting " << endl;
+		cout << "3 - Find meeting " << endl;
+		cout << "4 - Get number of meetings " << endl;
+		cout << "5 - Load to file " << endl;
+		cout << "6 - Load from file " << endl;
+		cout << "7 - Clean appointment diary " << endl;
+		
+		cout << "Any other number - stop " << endl;
+		
+		cin >>  action;
+		
+		system("clear");
+		cout << endl << "\033[1;34m-------- Appointment Diary --------\033[0m" << endl;
+		
+		switch (action) {
+		
+			case 1:	
+				cout << endl << "\033[1;33mif the insert fails an exception will occur\033[0m" << endl;
+				
+				cout << "Insert begin hour: " << endl;
+				cin >> begin;
+				cout << "Insert end hour: " << endl;
+				cin >> end;
+				cout << "Insert meeting subject: " << endl;
+				cin >> subject;
+				
+				meetings[i] = new meeting(begin,end,subject);
+				
+				try{
+					ad.InsertNewMeeting(begin,meetings[i]);
+				}
+				catch(TException<int>& exc){
+					cout << "\033[1;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
+				}
+				
+				++i;
+				
+				break;
+				
+			case 2:	
+				cout << endl << "Insert begin hour: " << endl;
+				cin >> begin;
+				
+				if(ad.RemoveMeeting(begin))
+				{
+					cout << "\033[1;31mmeeting removed!\033[0m" << endl;
+					break;
+				}
+				
+				cout << "\033[1;32mmeeting not found!\033[0m" << endl;
+		
+				break;
+				
+			case 3:
+				cout << endl << "Insert begin hour: " << endl;
+				cin >> begin;
+				
+				if(ad.FindMeeting(begin))
+				{
+					cout << "\033[1;31mmeeting found!\033[0m" << endl;
+					break;
+				}
+				
+				cout << "\033[1;32mmeeting not found!\033[0m" << endl;
+		
+				break;
+			
+			case 4:
+				cout << endl << "\033[1;31mnumber of meetings -> " << ad.GetNumOfMeetings() << "\033[0m" << endl; break;
+					
+			case 5:	
+				cout << endl << "\033[1;33mif the file opening fails an exception will occur\033[0m" << endl;
+				
+				try
+				{
+					ad.LoadToFile(fileName);
+				}
+				catch(TException<int> exc)
+				{
+					cout << "\033[1;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
+				}
+				
+				break;
+				
+			case 6:
+				cout << endl << "\033[1;33mif the file opening fails an exception will occur\033[0m" << endl;
+				
+				try
+				{
+					ad.LoadFromFile(fileName);
+				}
+				catch(TException<int> exc)
+				{
+					cout << "\033[1;32m" << exc.GetExcMessage() << endl;
+					cout << "at file -> " << exc.GetFileName() << endl;
+					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
+				}
+				
+				break;
+				
+			case 7:
+				ad.CleanAD();
+				
+				cout << endl << "\033[1;31m" << (!ad.GetNumOfMeetings() ? "diary cleaning succeeded" : "diary cleaning failed") << "\033[0m" << endl;
+				
+				break;
+				
+			default: 
+				cont = 0;
+				break;
+		}
 	}
 	
 	ad.CleanAD();
-	
-	meeting *m = (meeting*)(ad.FindMeeting(8.0));
-	meeting *m2 = (meeting*)(ad.FindMeeting(10.0));
-	meeting *m3 = (meeting*)(ad.FindMeeting(9.0));
-	
-	cout << "find 8 -> " << (!m ? "not found!" : "found!") << endl;
-	cout << "find 10 -> " << (!m2 ? "not found!" : "found!") << endl;
-	cout << "find 9 -> " << (!m3 ? "not found!" : "found!") << endl;
-	
-	try
-	{
-		ad.LoadFromFile("adiary.txt");
-	}
-	catch(TException<int> exc)
-	{
-		cout << "message -> " << exc.GetExcMessage() << endl;
-		cout << "file name -> " << exc.GetFileName() << endl;
-		cout << "line number -> " << exc.GetLineNumber() << endl;
-	}
-	
-	m = (meeting*)(ad.FindMeeting(8.0));
-	m2 = (meeting*)(ad.FindMeeting(10.0));
-	m3 = (meeting*)(ad.FindMeeting(9.0));
-	
-	cout << "find 8 -> " << (!m ? "not found!" : "found!") << endl;
-	cout << "find 10 -> " << (!m2 ? "not found!" : "found!") << endl;
-	cout << "find 9 -> " << (!m3 ? "not found!" : "found!") << endl;
-	
-	cout << "number of meetinngs -> " << ad.GetNumOfMeetings() << endl;
-	
-	delete newMeeting3;
-	
 
 	return 0;
 }

@@ -158,11 +158,12 @@ void analyzer::CheckIfVarExist(const string& _token)
 			{
 				cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' was not declared\033[0m" << endl;
 			}
+			else
+			{
+				cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' unknown word\033[0m" << endl;
+			}
 		}
-		else
-		{
-			cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' unknown word\033[0m" << endl;
-		}
+		
 	}
 	
 }

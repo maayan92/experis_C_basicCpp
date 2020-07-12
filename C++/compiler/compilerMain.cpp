@@ -2,14 +2,17 @@
 
 int main(int _argc, char* _argv[])
 {
-	int i = 0;
+	int i = 1;
 	compiler c;
+	string fileName;
 	
-	c.Compilation("QQCompiler.txt");
-/*
-	while(i < _argv)
+	while(i < _argc)
 	{
+		fileName = _argv[i];
+		cout << "\033[4m\033[3m\033[1;38min file: '" << fileName << "':\033[0m" << endl << endl;
+		c.Compilation(fileName);
+		++i;
 	}
-*/
+
 	return 0;
 }

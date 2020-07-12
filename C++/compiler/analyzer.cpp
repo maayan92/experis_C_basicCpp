@@ -25,19 +25,19 @@ void analyzer::AnalyzeTokens(queue<string>& _tokens, int _lineNum)
 
 	if(!mainFlag && 0 != _tokens.front().compare("main"))
 	{
-		cout << "\033[1;31mline " << m_lineNum << "\t- error, no 'main' before\033[0m" << endl;
+		cout << "\033[1;31mline " << m_lineNum << "\t- error: no 'main' before\033[0m" << endl;
 		mainFlag = true;
 	}
 	
-	string token = _tokens.front();
+	string token;
 
 	while(!_tokens.empty())
 	{
+		token = _tokens.front();
+		
 		CheckTokenCommand(token);
 		
 		_tokens.pop();
-		
-		token = _tokens.front();
 	}
 }
 
@@ -47,7 +47,7 @@ void analyzer::CheckBrackets()
 	if(m_countBrackets['[']) cout << endl << "\033[1;31m// error – " << m_countBrackets['['] << " '[' " << "not closed\033[0m";
 	if(m_countBrackets['{']) cout << endl << "\033[1;31m// error – " << m_countBrackets['{'] << " '{' " << "not closed\033[0m";
 	
-	cout << endl;
+	cout << endl << endl;
 }
 
 void analyzer::ResetAll()
@@ -59,6 +59,7 @@ void analyzer::ResetAll()
 	m_countBrackets['('] = 0;
 	m_countBrackets['['] = 0;
 	m_countBrackets['{'] = 0;
+	m_variables.clear();
 }
 
 void analyzer::CheckTokenCommand(const string& _token)
@@ -67,7 +68,7 @@ void analyzer::CheckTokenCommand(const string& _token)
 	{
 		if(isPreType)
 		{
-			cout << "\033[1;31mline " << m_lineNum << "\t- error, multiple type declaration\033[0m" << endl;
+			cout << "\033[1;31mline " << m_lineNum << "\t- error: multiple type declaration\033[0m" << endl;
 			isPreType = false;
 		}
 		else { isPreType = true; }
@@ -87,7 +88,7 @@ void analyzer::CheckTokenCommand(const string& _token)
 	if(!_token.compare("else"))
 	{
 		CheckPreType(_token);
-		if(!wasIf){ cout << "\033[1;31mline " << m_lineNum << "\t- error, 'else' without 'if'\033[0m" << endl; }
+		if(!wasIf){ cout << "\033[1;31mline " << m_lineNum << "\t- error: 'else' without 'if'\033[0m" << endl; }
 		
 		Reset();
 		return;
@@ -118,7 +119,7 @@ void analyzer::PlusOrMinus(int *_counter, int *_reset, bool _isPlus)
 					
 	if(3 == *_counter)
 	{
-		cout << "\033[1;31mline " << m_lineNum << "\t- error, no operator " << (_isPlus ? "+++" : "---") << "\033[0m" << endl;
+		cout << "\033[1;31mline " << m_lineNum << "\t- error: no operator " << (_isPlus ? "+++" : "---") << "\033[0m" << endl;
 		(*_counter) = 0;
 	}
 					
@@ -129,7 +130,7 @@ void analyzer::CheckPreType(const string& _token)
 {
 	if(isPreType)
 	{
-		cout << "\033[1;31mline " << m_lineNum << "\t- error, illegal variable\033[0m" << endl;
+		cout << "\033[1;31mline " << m_lineNum << "\t- error: illegal variable\033[0m" << endl;
 		isPreType = false;
 	}
 }
@@ -140,11 +141,11 @@ void analyzer::CheckIfLlegalVar(const string& _token)
 	{
 		if(m_variables.find(_token) == m_variables.end()){ m_variables.insert(_token); }
 		
-		else{ cout << "\033[1;31mline " << m_lineNum << "\t- error, " << _token << " has already declared\033[0m" << endl; }
+		else{ cout << "\033[1;31mline " << m_lineNum << "\t- error: '" << _token << "' has already declared\033[0m" << endl; }
 	}
 	else
 	{
-		cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' illegal variable name\033[0m" << endl;
+		cout << "\033[1;31mline " << m_lineNum << "\t- error: '" << _token << "' illegal variable name\033[0m" << endl;
 	}
 }
 
@@ -152,18 +153,15 @@ void analyzer::CheckIfVarExist(const string& _token)
 {
 	if(m_keyWords.find(_token) == m_keyWords.end() && m_operators.find(_token) == m_operators.end() && m_predefineTokens.find(_token[0]) == string::npos)
 	{
-		if('_' == _token[0] || isalpha(_token[0]))
+		if(('_' == _token[0] || isalpha(_token[0])) && m_variables.find(_token) == m_variables.end())
 		{
-			if(m_variables.find(_token) == m_variables.end())
-			{
-				cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' was not declared\033[0m" << endl;
-			}
-			else
-			{
-				cout << "\033[1;31mline " << m_lineNum << "\t- error, '" << _token << "' unknown word\033[0m" << endl;
-			}
+			cout << "\033[1;31mline " << m_lineNum << "\t- error: '" << _token << "' was not declared\033[0m" << endl;
 		}
 		
+		else if(_token.find_first_not_of("0123456789") != string::npos)
+		{
+			cout << "\033[1;31mline " << m_lineNum << "\t- error: '" << _token << "' unknown word\033[0m" << endl;
+		}
 	}
 	
 }
@@ -194,7 +192,7 @@ void analyzer::BracketsClose(char _token)
 {
 	if(0 == m_countBrackets[_token])
 	{
-		cout << "\033[1;31mline " << m_lineNum << "\t- error, illegal '" 
+		cout << "\033[1;31mline " << m_lineNum << "\t- error: illegal '" 
 			<< (('(' == _token) ? ")" : (('[' == _token) ? "]" : "}")) << "'\033[0m" << endl;
 	}
 	

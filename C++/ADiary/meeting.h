@@ -11,17 +11,20 @@ const float biggerHour = 24;
 class meeting
 {
 	public:
-				
-		~meeting() {}
+		//meeting(const meeting&);
+		//meeting& operator=(const meeting&);
+			
+		virtual ~meeting() {}
+		
 		inline meeting(float _beginH, float _endH, const string& _subject);
 				
-		inline bool IsValidMeeting()const;
+		virtual inline bool IsValidMeeting()const;
 			
 		float GetBeginHour()const { return m_beginH; }
 		
 		float GetEndHour()const { return m_endH; }
 		
-		string GetSubject()const { return m_subject; }
+		const string& GetSubject()const { return m_subject; }
 		
 	private:
 			
@@ -44,9 +47,9 @@ bool meeting::IsValidMeeting()const
 
 ostream& operator<<(ostream& _os, const meeting& _meet)
 {
-	_os << "begin -> " <<  _meet.GetBeginHour() 
-		<< ", end -> " << _meet.GetEndHour() 
-			<< ", subject -> " << _meet.GetSubject() << endl;
+	_os << "begin hour -> " <<  _meet.GetBeginHour() << endl
+		<< "end hour -> " << _meet.GetEndHour() << endl
+			<< "subject -> " << _meet.GetSubject() << endl;
 			
 	return _os;
 }

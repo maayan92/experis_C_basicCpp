@@ -12,6 +12,9 @@ int main()
 	string subject, fileName = "ADiary.txt";
 	ADiary ad;
 	
+	ad.LoadFromFile(fileName);
+	system("clear");
+	
 	cout << endl << "\033[1;34m-------- Appointment Diary --------\033[0m" << endl;
 
 	while (cont) {
@@ -21,9 +24,7 @@ int main()
 		cout << "2 - Remove meeting " << endl;
 		cout << "3 - Find meeting " << endl;
 		cout << "4 - Get number of meetings " << endl;
-		cout << "5 - Load to file " << endl;
-		cout << "6 - Load from file " << endl;
-		cout << "7 - Clean appointment diary " << endl;
+		cout << "5 - Clean appointment diary " << endl;
 		
 		cout << "Any other number - stop " << endl;
 		
@@ -90,39 +91,7 @@ int main()
 			case 4:
 				cout << endl << "\033[1;31mnumber of meetings -> " << ad.GetNumOfMeetings() << "\033[0m" << endl; break;
 					
-			case 5:	
-				cout << endl << "\033[1;33mif the file opening fails an exception will occur\033[0m" << endl;
-				
-				try
-				{
-					ad.LoadToFile(fileName);
-				}
-				catch(TException<int> exc)
-				{
-					cout << "\033[1;32m" << exc.GetExcMessage() << endl;
-					cout << "at file -> " << exc.GetFileName() << endl;
-					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
-				}
-				
-				break;
-				
-			case 6:
-				cout << endl << "\033[1;33mif the file opening fails an exception will occur\033[0m" << endl;
-				
-				try
-				{
-					ad.LoadFromFile(fileName);
-				}
-				catch(TException<int> exc)
-				{
-					cout << "\033[1;32m" << exc.GetExcMessage() << endl;
-					cout << "at file -> " << exc.GetFileName() << endl;
-					cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
-				}
-				
-				break;
-				
-			case 7:
+			case 5:
 				ad.CleanAD();
 				
 				cout << endl << "\033[1;31m" << (!ad.GetNumOfMeetings() ? "diary cleaning succeeded" : "diary cleaning failed") << "\033[0m" << endl;
@@ -135,7 +104,16 @@ int main()
 		}
 	}
 	
-	ad.CleanAD();
-
+	try
+	{
+		ad.SaveToFile(fileName);
+	}
+	catch(TException<int> exc)
+	{
+		cout << "\033[1;32m" << exc.GetExcMessage() << endl;
+		cout << "at file -> " << exc.GetFileName() << endl;
+		cout << "at line -> " << exc.GetLineNumber() << "\033[0m" << endl;
+	}
+	
 	return 0;
 }

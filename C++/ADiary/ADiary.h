@@ -15,7 +15,7 @@ class ADiary
 	
 	// DTOR
 	
-		~ADiary() { CleanAD(); }
+		virtual ~ADiary() { CleanAD(); }
 	
 	// CTOR
 
@@ -31,9 +31,9 @@ class ADiary
 		
 		inline void CleanAD();
 		
-		void LoadToFile(const string& _fileName);
+		virtual void SaveToFile(const string& _fileName);
 		
-		void LoadFromFile(const string& _fileName);
+		virtual bool LoadFromFile(const string& _fileName);
 		
 		size_t GetNumOfMeetings()const { return m_ADiary.size(); }
 	
@@ -44,7 +44,7 @@ class ADiary
 		typedef map<float,meeting*>::iterator mapItr;
 		typedef map<float,meeting*>::const_iterator mapCItr;
 		
-		inline bool CheckOverLap(float _beginH, float _endH);
+		inline bool CheckOverLap(float _beginH, float _endH)const;
 
 };
 
@@ -52,6 +52,11 @@ class ADiary
 
 bool ADiary::InsertNewMeeting(float _beginH, const meeting* _newMeeting)
 {
+	if(!_newMeeting)
+	{
+		throw TException<int>(0,__FILE__,__LINE__,"invalid meeting!");
+	}
+	
 	if(!_newMeeting->IsValidMeeting())
 	{
 		throw TException<int>(0,__FILE__,__LINE__,"invalid meeting hours!");
@@ -90,23 +95,23 @@ const meeting* ADiary::FindMeeting(float _beginH)const
 void ADiary::CleanAD()
 {
 	mapItr itr = m_ADiary.begin();
-	meeting* remove = itr->second;
+	meeting* remove;
 	
 	while(itr != m_ADiary.end())
 	{
+		remove = itr->second;
+		
 		m_ADiary.erase(itr);
 		delete remove;
 		
 		itr = m_ADiary.begin();
-		remove = itr->second;
 	}
 	
 }
 
-void ADiary::LoadToFile(const string& _fileName)
+void ADiary::SaveToFile(const string& _fileName)
 {
-	ofstream diaryFile;
-	diaryFile.open(_fileName.c_str());
+	ofstream diaryFile(_fileName.c_str(),ios::out|ios::trunc);
 	
 	if(diaryFile.fail())
 	{
@@ -117,21 +122,19 @@ void ADiary::LoadToFile(const string& _fileName)
 	
 	while(itr != m_ADiary.end())
 	{
-		diaryFile << itr->second->GetBeginHour() << '\t' << itr->second->GetEndHour() << '\t' << itr->second->GetSubject() << endl;
+		diaryFile << itr->second->GetBeginHour() << '\t' << itr->second->GetEndHour() 
+				<< '\t' << itr->second->GetSubject() << endl;
 		
 		++itr;
 	}
 }
 
-void ADiary::LoadFromFile(const string& _fileName)
+bool ADiary::LoadFromFile(const string& _fileName)
 {
 	ifstream diaryFile;
 	diaryFile.open(_fileName.c_str());
 	
-	if(diaryFile.fail())
-	{
-		throw TException<int>(0,__FILE__,__LINE__,"failed to open file!");
-	}
+	if(diaryFile.fail()) { return false; }
 	
 	float begin, end;
 	string subject;
@@ -144,13 +147,15 @@ void ADiary::LoadFromFile(const string& _fileName)
 		
 		m_ADiary.insert(pair<float,meeting*>(begin,newMeet));
 	}
+	
+	return true;
 }
 
 // private functions
 
-bool ADiary::CheckOverLap(float _beginH, float _endH)
+bool ADiary::CheckOverLap(float _beginH, float _endH)const
 {
-	mapItr upperItr = m_ADiary.upper_bound(_beginH);
+	mapCItr upperItr = m_ADiary.upper_bound(_beginH);
 		
 	if(upperItr == m_ADiary.end())
 	{
@@ -162,11 +167,14 @@ bool ADiary::CheckOverLap(float _beginH, float _endH)
 		return false;
 	}
 	
-	--upperItr;
-	
-	if(upperItr != m_ADiary.end() && _beginH < upperItr->second->GetEndHour())
+	if(upperItr != m_ADiary.begin())
 	{
-		return false;
+		--upperItr;
+		
+		if(_beginH < upperItr->second->GetEndHour())
+		{
+			return false;
+		}
 	}
 	
 	return true;

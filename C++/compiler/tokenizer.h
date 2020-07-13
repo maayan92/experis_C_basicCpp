@@ -15,18 +15,21 @@ class tokenizer
 	
 		tokenizer():m_predefineTokens("()[]{};<>=+-*&"){}
 	
-		virtual queue<string>& DivideToTokens(string buffer);
-		
+		virtual queue<string>& DivideToTokens(const string& buffer);
+
+	protected:		
+
+		bool checkIfSpace(const char _first, const char _itr) { return (isspace(_first) || _first == _itr); }
+
 	private:
 
 		queue<string> m_tokens;
 		string m_predefineTokens;
-		typedef string::iterator strItr;
+		typedef string::const_iterator strItr;
 		
 		tokenizer(const tokenizer& _tokenize);
 		tokenizer& operator=(const tokenizer& _tokenize);
 		
-		static bool checkIfSpace(const char _first, const char _itr) { return (isspace(_first) || _first == _itr); }
 };
 
 

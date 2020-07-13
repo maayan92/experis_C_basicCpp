@@ -23,18 +23,6 @@ void compiler::Compilation(const string& _fileName)
 	RunCompiler(codeFile);
 }
 
-/////////////////
-void PrintQueue(queue<string>& tokens)
-{
-	while(!tokens.empty())
-	{
-		cout << tokens.front() << " ";
-		tokens.pop();
-	}
-	cout << endl;
-}
-////////////////
-
 void compiler::RunCompiler(ifstream& _codeFile)
 {
 	string buffer;
@@ -43,8 +31,6 @@ void compiler::RunCompiler(ifstream& _codeFile)
 	while(getline(_codeFile,buffer))
 	{
 		queue<string>& tokens = m_tokenize->DivideToTokens(buffer);
-		
-		//PrintQueue(tokens);
 		
 		m_analyze->AnalyzeTokens(tokens,lineNum);
 		++lineNum;

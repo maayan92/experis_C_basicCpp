@@ -21,6 +21,26 @@ class analyzer
 		void CheckBrackets();
 		
 		virtual void ResetAll();
+		
+	protected:
+		
+		void Initialize();
+		
+		void Reset();
+		
+		void CheckTokenCommand(const string& _token);
+		
+		bool IsBracket(const string& _token);
+		
+		void BracketsClose(char _token);
+		
+		void CheckIfLlegalVar(const string& _token);
+		
+		void CheckIfVarExist(const string& _token);
+		
+		void CheckPreType(const string& _token);
+		
+		void PlusOrMinus(int *_counter, int *_reset, bool _isPlus);
 	
 	private:
 	
@@ -38,16 +58,6 @@ class analyzer
 		int m_countPlus;
 		int m_countMinus;
 		int m_lineNum;
-		
-		void Initialize();
-		void Reset();
-		void CheckTokenCommand(const string& _token);
-		bool IsBracket(const string& _token);
-		void BracketsClose(char _token);
-		void CheckIfLlegalVar(const string& _token);
-		void CheckIfVarExist(const string& _token);
-		void CheckPreType(const string& _token);
-		void PlusOrMinus(int *_counter, int *_reset, bool _isPlus);
 };
 
 

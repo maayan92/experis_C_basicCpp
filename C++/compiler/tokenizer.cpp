@@ -1,7 +1,7 @@
 #include "tokenizer.h"
 #include <algorithm>
 
-queue<string>& tokenizer::DivideToTokens(string buffer)
+queue<string>& tokenizer::DivideToTokens(const string& buffer)
 {
 	string token;
 	

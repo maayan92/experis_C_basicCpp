@@ -14,6 +14,7 @@ void CopyCTORTest(const String& a_str){
 	
 	try{
 		String copyStr(a_str);
+		
 		std::cout << "copy CTOR test number " << ++testNum << ":\t\t"
 			<< ((copyStr.Length() == a_str.Length()) ? "SUCCEED" : "FAILED!") << std::endl;
 			
@@ -26,10 +27,15 @@ void OperatorAssignTest(const String& a_str, String& a_assignStr){
 	
 	static int testNum = 0;
 	
-	a_assignStr = a_str;
-	
-	std::cout << "assign operator test number " << ++testNum << ":\t\t" 
+	try{
+		a_assignStr = a_str;
+		
+		std::cout << "assign operator test number " << ++testNum << ":\t\t" 
 			<< ((a_assignStr.Length() == a_str.Length()) ? "SUCCEED" : "FAILED!") << std::endl;
+			
+	}catch(const char* exception){
+		std::cout << exception << std::endl;
+	}
 }
 
 void OperatorIsEqualTestTrue(const String& a_strFirst, const String& a_strSecond){
@@ -124,13 +130,6 @@ int main(){
 	
 	return 0;
 }
-
-
-
-
-
-
-
 
 
 

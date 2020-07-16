@@ -7,72 +7,87 @@
 #include <list>
 #include <utility>
 #include <algorithm>
+#include <assert.h>
 
 template<class KeyT, class ValueT>
 class Key {
 
-typedef bool(*comparePtr)(const KeyT&, const KeyT&);
+typedef bool(*ComparePtr)(const KeyT&, const KeyT&);
 
 public:
 	~Key() {}
-	Key(const KeyT& a_key, comparePtr a_compareFunc) : m_key(a_key), m_compareFunc(a_compareFunc) {}
+	Key(const KeyT& a_key, ComparePtr a_compareFunc);
 			
-	bool operator()(const std::pair<KeyT, ValueT>& m_pair)const { return m_compareFunc(m_pair.first, m_key); }
+	bool operator()(const std::pair<KeyT, ValueT>& m_pair) const;
 
 private:
 	KeyT m_key;
-	comparePtr m_compareFunc;
+	ComparePtr m_compareFunc;
 };
 
 template<class KeyT, class ValueT>
-class HashMap : public std::vector< std::list<std::pair<KeyT, ValueT> > > {
+Key<KeyT, ValueT>::Key(const KeyT& a_key, ComparePtr a_compareFunc)
+: m_key(a_key)
+, m_compareFunc(a_compareFunc) {
+}
 
-typedef size_t(*hashPtr)(const KeyT&);
-typedef bool(*comparePtr)(const KeyT&, const KeyT&);
-typedef std::list<std::pair<KeyT, ValueT> > t_list;
-typedef std::vector< std::list<std::pair<KeyT, ValueT> > > t_vector;
-typedef typename std::list<std::pair<KeyT, ValueT> >::iterator t_listIterator;
+template<class KeyT, class ValueT>
+bool Key<KeyT, ValueT>::operator()(const std::pair<KeyT, ValueT>& m_pair) const { 
+        return m_compareFunc(m_pair.first, m_key);
+}
+
+template<class KeyT, class ValueT>
+class HashMap : public std::vector<std::list<std::pair<KeyT, ValueT> > > {
+
+typedef size_t(*HashPtr)(const KeyT&);
+typedef bool(*ComparePtr)(const KeyT&, const KeyT&);
+typedef typename std::list<std::pair<KeyT, ValueT> > T_list;
+typedef typename std::vector< T_list > T_vector;
+typedef typename T_list::const_iterator Tc_iterator;
+typedef typename T_list::iterator T_iterator;
 
 public:
 	~HashMap() {}
 	
-	HashMap(hashPtr a_hashFunc, comparePtr a_compareFunc);
-	HashMap(hashPtr a_hashFunc, comparePtr a_compareFunc, unsigned int a_capacity);
+	HashMap(HashPtr a_hashFunc, ComparePtr a_compareFunc);
+	HashMap(HashPtr a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity);
 	HashMap(const HashMap& a_hashMap);
 	HashMap& operator=(const HashMap& a_hashMap);
 
 	bool Put(const KeyT &a_key, const ValueT &a_value);
-	bool Remove(const KeyT &a_key);
+	void Remove(const KeyT &a_key); //throw const char* exception if not found
 	
 	bool Has(const KeyT &a_key) const;
-	//??? Retrieve(const KeyT &a_key) const;
+	const ValueT& Retrieve(const KeyT &a_key) const; //throw const char* exception if not found, else return the value
 
 private:
 	static const unsigned int DEFAULT_CAPACITY = 16;
-
-	t_list& findList(const KeyT &a_key)const;
 	
-	hashPtr m_hashFunc;
-	comparePtr m_compareFunc;
+	void CheckMembersValidation(HashPtr a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity);
+
+	HashPtr m_hashFunc;
+	ComparePtr m_compareFunc;
 	unsigned int m_capacity;
-
-
 };
 
 template<class KeyT, class ValueT>
-HashMap<KeyT, ValueT>::HashMap(hashPtr a_hashFunc, comparePtr a_compareFunc)
+HashMap<KeyT, ValueT>::HashMap(HashPtr a_hashFunc, ComparePtr a_compareFunc)
 : m_hashFunc(a_hashFunc)
 , m_compareFunc(a_compareFunc)
 , m_capacity(DEFAULT_CAPACITY)
-, t_vector::vector(DEFAULT_CAPACITY) {
+, T_vector::vector(DEFAULT_CAPACITY) {
+
+        CheckMembersValidation(a_hashFunc, a_compareFunc, DEFAULT_CAPACITY);
 }
 
 template<class KeyT, class ValueT>
-HashMap<KeyT, ValueT>::HashMap(hashPtr a_hashFunc, comparePtr a_compareFunc, unsigned int a_capacity)
+HashMap<KeyT, ValueT>::HashMap(HashPtr a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity)
 : m_hashFunc(a_hashFunc)
 , m_compareFunc(a_compareFunc)
 , m_capacity(a_capacity)
-, t_vector::vector(a_capacity) {
+, T_vector::vector(a_capacity) {
+
+         CheckMembersValidation(a_hashFunc,a_compareFunc,a_capacity);
 }
 
 template<class KeyT, class ValueT>
@@ -80,7 +95,9 @@ HashMap<KeyT, ValueT>::HashMap(const HashMap<KeyT, ValueT>& a_hashMap)
 : m_hashFunc(a_hashMap.m_hashFunc)
 , m_compareFunc(a_hashMap.m_compareFunc)
 , m_capacity(a_hashMap.m_capacity)
-, t_vector::vector(a_hashMap) {
+, T_vector::vector(a_hashMap) {
+
+         CheckMembersValidation(a_hashMap.m_hashFunc, a_hashMap.m_compareFunc, a_hashMap.m_capacity);
 }
 
 template<class KeyT, class ValueT>
@@ -89,8 +106,9 @@ HashMap<KeyT, ValueT>& HashMap<KeyT, ValueT>::operator=(const HashMap<KeyT, Valu
 	if(this != &a_hashMap)
 	{
 		m_hashFunc = a_hashMap.m_hashFunc;
+		m_compareFunc = a_hashMap.m_compareFunc;
 		m_capacity = a_hashMap.m_capacity;
-		t_vector::operator=(a_hashMap);
+		this->operator=(a_hashMap);
 	}
 	return *this;
 }
@@ -98,8 +116,8 @@ HashMap<KeyT, ValueT>& HashMap<KeyT, ValueT>::operator=(const HashMap<KeyT, Valu
 template<class KeyT, class ValueT>
 bool HashMap<KeyT, ValueT>::Put(const KeyT &a_key, const ValueT &a_value) {
 
-	t_list &elementList = findList(a_key);
-	t_listIterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
+	T_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr != elementList.end()) {
 		return false;
@@ -110,35 +128,50 @@ bool HashMap<KeyT, ValueT>::Put(const KeyT &a_key, const ValueT &a_value) {
 }
 
 template<class KeyT, class ValueT>
-bool HashMap<KeyT, ValueT>::Remove(const KeyT &a_key) {
+void HashMap<KeyT, ValueT>::Remove(const KeyT &a_key) {
 	
-	t_list &elementList = findList(a_key);
-	t_listIterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
+	T_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr == elementList.end()) {
-		return false;
+		throw "key not found!";
 	}
 	
-	KeyT removedKey = itr->first;
 	elementList.remove(*itr);
-	
-	return true;
 }
 
 template<class KeyT, class ValueT>
 bool HashMap<KeyT, ValueT>::Has(const KeyT &a_key) const {
 	
-	t_list &elementList = findList(a_key);
-	t_listIterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	const T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
+	Tc_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	return (itr != elementList.end());
 }
 
-t_list& HashMap<KeyT, ValueT>::findList(const KeyT &a_key)const {
-
-	size_t position = m_hashFunc(a_key) % m_capacity;
+template<class KeyT, class ValueT>
+const ValueT& HashMap<KeyT, ValueT>::Retrieve(const KeyT &a_key) const {
+        
+        const T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
+	Tc_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
-	return (reference)at(position);
+	if(itr == elementList.end()) {
+		throw "key not found!";
+	}
+	
+	return (*itr).second;
+}
+
+template<class KeyT, class ValueT>
+void HashMap<KeyT, ValueT>::CheckMembersValidation(HashPtr a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity) {
+
+        assert(a_hashFunc == m_hashFunc);
+        assert(a_compareFunc == m_compareFunc);
+        assert(this->size() == m_capacity);
+        
+        for(typename T_vector::iterator first = this->begin() ; first != this->end() ; ++first) {
+                assert(*first == T_list());
+        }
 }
 
 #endif

@@ -43,8 +43,8 @@ typedef size_t(*HashPtr)(const KeyT&);
 typedef bool(*ComparePtr)(const KeyT&, const KeyT&);
 typedef typename std::list<std::pair<KeyT, ValueT> > T_list;
 typedef typename std::vector< T_list > T_vector;
-typedef typename T_list::const_iterator Tc_iterator;
-typedef typename T_list::iterator T_iterator;
+typedef typename T_list::const_iterator KeyValueC_iterator;
+typedef typename T_list::iterator KeyValue_iterator;
 
 public:
 	~HashMap() {}
@@ -117,7 +117,7 @@ template<class KeyT, class ValueT>
 bool HashMap<KeyT, ValueT>::Put(const KeyT &a_key, const ValueT &a_value) {
 
 	T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
-	T_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	KeyValue_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr != elementList.end()) {
 		return false;
@@ -127,14 +127,16 @@ bool HashMap<KeyT, ValueT>::Put(const KeyT &a_key, const ValueT &a_value) {
 	return true;
 }
 
+struct NotFound {};
+
 template<class KeyT, class ValueT>
 void HashMap<KeyT, ValueT>::Remove(const KeyT &a_key) {
 	
 	T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
-	T_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	KeyValue_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr == elementList.end()) {
-		throw "key not found!";
+		throw NotFound();
 	}
 	
 	elementList.remove(*itr);
@@ -144,7 +146,7 @@ template<class KeyT, class ValueT>
 bool HashMap<KeyT, ValueT>::Has(const KeyT &a_key) const {
 	
 	const T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
-	Tc_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	KeyValueC_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	return (itr != elementList.end());
 }
@@ -153,10 +155,10 @@ template<class KeyT, class ValueT>
 const ValueT& HashMap<KeyT, ValueT>::Retrieve(const KeyT &a_key) const {
         
         const T_list &elementList = this->at(m_hashFunc(a_key) % m_capacity);
-	Tc_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
+	KeyValueC_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr == elementList.end()) {
-		throw "key not found!";
+		throw NotFound();
 	}
 	
 	return (*itr).second;

@@ -65,7 +65,7 @@ static void RemoveTest(T_hashMap& a_hash, const std::string& a_key, bool a_IsKey
 	
 	try {
 	        a_hash.Remove(a_key);
-	} catch(const char* exception) {
+	} catch(const NotFound& exception) {
 	        if(!a_IsKeyExist) { std::cout << "SUCCEEDED" << "\033[0m" << std::endl; }
 	        else { std::cout << exception << std::endl; }
 	        return;
@@ -81,7 +81,7 @@ static void RetrieveTest(T_hashMap& a_hash, const std::string& a_key, bool a_IsK
 	
 	try {
 	        a_hash.Retrieve(a_key);
-	} catch(const char* exception) {
+	} catch(const NotFound& exception) {
 	        if(!a_IsKeyExist) { std::cout << "SUCCEEDED" << "\033[0m" << std::endl; }
 	        else { std::cout << exception << std::endl; }
 	        return;

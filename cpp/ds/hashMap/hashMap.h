@@ -127,8 +127,6 @@ bool HashMap<KeyT, ValueT>::Put(const KeyT &a_key, const ValueT &a_value) {
 	return true;
 }
 
-struct NotFound {};
-
 template<class KeyT, class ValueT>
 void HashMap<KeyT, ValueT>::Remove(const KeyT &a_key) {
 	
@@ -136,7 +134,7 @@ void HashMap<KeyT, ValueT>::Remove(const KeyT &a_key) {
 	KeyValue_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr == elementList.end()) {
-		throw NotFound();
+		throw "key not found!";
 	}
 	
 	elementList.remove(*itr);
@@ -158,7 +156,7 @@ const ValueT& HashMap<KeyT, ValueT>::Retrieve(const KeyT &a_key) const {
 	KeyValueC_iterator itr = std::find_if(elementList.begin(), elementList.end(), Key<KeyT, ValueT>(a_key, m_compareFunc));
 	
 	if(itr == elementList.end()) {
-		throw NotFound();
+		throw "key not found!";
 	}
 	
 	return (*itr).second;

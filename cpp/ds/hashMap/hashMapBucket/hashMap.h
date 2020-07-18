@@ -4,18 +4,17 @@
 #include "bucket.h"
 #include <vector>
 
-//typedef std::string KeyT;
-//typedef std::string ValueT;
+template<class KeyT, class ValueT>
+class HashMap : public std::vector< Bucket<KeyT, ValueT> > {
 typedef size_t(*HashPrt)(const KeyT&);
-
-class HashMap : public std::vector<Bucket> {
-typedef typename std::vector<Bucket> T_vector;
+typedef bool(*ComparePtr)(const KeyT&, const KeyT&);
+typedef typename std::vector< Bucket<KeyT, ValueT> > T_vector;
 public:
         ~HashMap() {}
-        HashMap(HashPrt a_hashFunc, BucketType::ComparePtr a_compareFunc);
-        //HashMap(HashPrt a_hashFunc, BucketType::ComparePtr a_compareFunc, unsigned int a_capacity); //TODO
-        //HashMap(const HashMap& a_hashMap);
-        //HashMap& operator=(const HashMap& a_hashMap);
+        HashMap(HashPrt a_hashFunc, ComparePtr a_compareFunc);
+        HashMap(HashPrt a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity);
+        HashMap(const HashMap<KeyT, ValueT>& a_hashMap);
+        HashMap& operator=(const HashMap<KeyT, ValueT>& a_hashMap);
         
         bool Put(const KeyT& a_key, const ValueT& a_value);
         bool Has(const KeyT& a_key) const;
@@ -26,54 +25,86 @@ private:
         static const unsigned int DEFAULT_CAPACITY = 16;
         
         unsigned int GetPosition(const KeyT& a_key) const;
-        void CheckMembersValidation(HashPrt a_hashFunc, BucketType::ComparePtr a_compareFunc, unsigned int a_capacity) const;
+        void CheckMembersValidation(HashPrt a_hashFunc, unsigned int a_capacity) const;
         
         unsigned int m_capacity;
         HashPrt m_hashFunc;
 };
 
-HashMap::HashMap(HashPrt a_hashFunc, BucketType::ComparePtr a_compareFunc)
+template<class KeyT, class ValueT>
+HashMap<KeyT, ValueT>::HashMap(HashPrt a_hashFunc, ComparePtr a_compareFunc)
 : m_capacity(DEFAULT_CAPACITY)
 , m_hashFunc(a_hashFunc)
-, vector(DEFAULT_CAPACITY, Bucket(a_compareFunc)) {
+, T_vector::vector(DEFAULT_CAPACITY, Bucket<KeyT, ValueT>(a_compareFunc)) {
 
-        CheckMembersValidation(a_hashFunc, a_compareFunc, DEFAULT_CAPACITY);
+        CheckMembersValidation(a_hashFunc, DEFAULT_CAPACITY);
 }
 
-bool HashMap::Put(const KeyT& a_key, const ValueT& a_value) {
+template<class KeyT, class ValueT>
+HashMap<KeyT, ValueT>::HashMap(HashPrt a_hashFunc, ComparePtr a_compareFunc, unsigned int a_capacity)
+: m_capacity(a_capacity)
+, m_hashFunc(a_hashFunc)
+, T_vector::vector(a_capacity, Bucket<KeyT, ValueT>(a_compareFunc)) {
+
+        CheckMembersValidation(a_hashFunc, a_capacity);
+}
+
+template<class KeyT, class ValueT>
+HashMap<KeyT, ValueT>::HashMap(const HashMap<KeyT, ValueT>& a_hashMap)
+: m_capacity(a_hashMap.m_capacity)
+, m_hashFunc(a_hashMap.m_hashFunc)
+, T_vector::vector(a_hashMap) {
+
+        CheckMembersValidation(a_hashMap.m_hashFunc, a_hashMap.m_capacity);
+}
+
+template<class KeyT, class ValueT>
+HashMap<KeyT, ValueT>& HashMap<KeyT, ValueT>::operator=(const HashMap<KeyT, ValueT>& a_hashMap) {
+
+        if(this != &a_hashMap) {
+                m_capacity = a_hashMap.m_capacity;
+                m_hashFunc = a_hashMap.m_hashFunc;
+                (*this) = a_hashMap;
+        }
+        return *this;
+}
+
+template<class KeyT, class ValueT>
+bool HashMap<KeyT, ValueT>::Put(const KeyT& a_key, const ValueT& a_value) {
 
         return (*this)[GetPosition(a_key)].Put(a_key, a_value);
 }
 
-bool HashMap::Has(const KeyT& a_key) const {
+template<class KeyT, class ValueT>
+bool HashMap<KeyT, ValueT>::Has(const KeyT& a_key) const {
 
         return (*this)[GetPosition(a_key)].Has(a_key);
 }
 
-void HashMap::Remove(const KeyT& a_key) {
+template<class KeyT, class ValueT>
+void HashMap<KeyT, ValueT>::Remove(const KeyT& a_key) {
 
         (*this)[GetPosition(a_key)].Remove(a_key);
 }
 
-const ValueT& HashMap::Retrieve(const KeyT& a_key) const {
+template<class KeyT, class ValueT>
+const ValueT& HashMap<KeyT, ValueT>::Retrieve(const KeyT& a_key) const {
 
         return (*this)[GetPosition(a_key)].Retrieve(a_key);
 }
 
-unsigned int HashMap::GetPosition(const KeyT& a_key) const {
+template<class KeyT, class ValueT>
+unsigned int HashMap<KeyT, ValueT>::GetPosition(const KeyT& a_key) const {
 
         return m_hashFunc(a_key) %  m_capacity;
 }
 
-void HashMap::CheckMembersValidation(HashPrt a_hashFunc, BucketType::ComparePtr a_compareFunc, unsigned int a_capacity) const {
+template<class KeyT, class ValueT>
+void HashMap<KeyT, ValueT>::CheckMembersValidation(HashPrt a_hashFunc, unsigned int a_capacity) const {
 
         assert(m_capacity == a_capacity);
-        //for(T_vector::iterator itr = this->T_vector::begin() ; itr != this->T_vector::end() ; ++itr) {
-                //assert(itr == Bucket(a_hashFunc, a_compareFunc));
-        //}
+        assert(m_hashFunc == a_hashFunc);
+        assert(this->size() == a_capacity);
 }
-
-
-
 
 #endif

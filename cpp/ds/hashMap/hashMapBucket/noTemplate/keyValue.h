@@ -3,13 +3,15 @@
 
 #include <iosfwd>
 
-template<class KeyT, class ValueT>
+typedef std::string KeyT;
+typedef std::string ValueT;
+
 class KeyValue {
 public:
         ~KeyValue() {}
         KeyValue(const KeyT& a_key, const ValueT& a_value);
-        KeyValue(const KeyValue<KeyT, ValueT>& a_keyValue);
-        KeyValue& operator=(const KeyValue<KeyT, ValueT>& a_keyValue);
+        KeyValue(const KeyValue& a_keyValue);
+        KeyValue& operator=(const KeyValue& a_keyValue);
         
         bool operator==(const KeyValue& a_keyValue);
 
@@ -22,8 +24,7 @@ private:
         ValueT m_value;
 };
 
-template<class KeyT, class ValueT>
-KeyValue<KeyT, ValueT>::KeyValue(const KeyT& a_key, const ValueT& a_value)
+KeyValue::KeyValue(const KeyT& a_key, const ValueT& a_value)
 : m_key(a_key)
 , m_value(a_value) {
 
@@ -31,8 +32,7 @@ KeyValue<KeyT, ValueT>::KeyValue(const KeyT& a_key, const ValueT& a_value)
         assert(m_value == a_value);
 }
 
-template<class KeyT, class ValueT>
-KeyValue<KeyT, ValueT>::KeyValue(const KeyValue& a_keyValue)
+KeyValue::KeyValue(const KeyValue& a_keyValue)
 : m_key(a_keyValue.m_key)
 , m_value(a_keyValue.m_value) {
 
@@ -40,8 +40,7 @@ KeyValue<KeyT, ValueT>::KeyValue(const KeyValue& a_keyValue)
         assert(m_value == a_keyValue.m_value);
 }
 
-template<class KeyT, class ValueT>
-KeyValue<KeyT, ValueT>& KeyValue<KeyT, ValueT>::operator=(const KeyValue& a_keyValue) {
+KeyValue& KeyValue::operator=(const KeyValue& a_keyValue) {
 
         if(this != &a_keyValue) {
                 m_key = a_keyValue.m_key;
@@ -50,8 +49,7 @@ KeyValue<KeyT, ValueT>& KeyValue<KeyT, ValueT>::operator=(const KeyValue& a_keyV
         return *this;
 }
 
-template<class KeyT, class ValueT>
-bool KeyValue<KeyT, ValueT>::operator==(const KeyValue& a_keyValue) {
+bool KeyValue::operator==(const KeyValue& a_keyValue) {
 
         return (m_key == a_keyValue.m_key && m_value == a_keyValue.m_value);
 }

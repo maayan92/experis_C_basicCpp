@@ -6,10 +6,10 @@
 template<class KeyT, class ValueT>
 class KeyValue {
 public:
-        ~KeyValue() {}
         KeyValue(const KeyT& a_key, const ValueT& a_value);
         KeyValue(const KeyValue<KeyT, ValueT>& a_keyValue);
         KeyValue& operator=(const KeyValue<KeyT, ValueT>& a_keyValue);
+        //~KeyValue() = default;
         
         bool operator==(const KeyValue& a_keyValue);
 

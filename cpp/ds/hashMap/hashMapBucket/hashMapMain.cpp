@@ -10,12 +10,7 @@ struct Hash {
 	        return sum;
         }
 };
-/*
-static bool Compare(const std::string &a_left, const std::string &a_right) {
 
-	return a_left == a_right;
-}
-*/
 static void CTORTest(const HashMap<std::string, std::string, Hash>& a_hash) {
 
 	static int testNumber = 0;

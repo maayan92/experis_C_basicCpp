@@ -5,27 +5,15 @@
 #include <list>
 #include <algorithm>
 #include <assert.h>
-//#include <exception>
+#include <exception>
 #include "keyValue.h"
 
-struct Exception{
+struct Exception : std::exception {
         Exception(const std::string& a_error) { m_error = a_error; }
         
         const std::string& GetError() { return m_error; }
         std::string m_error;
 };
-/*
-template<class KeyT>
-class EqualsKey {
-public:
-        //~EqualsKey() = default;
-        EqualsKey(const KeyT& a_key) : m_key(a_key) {}
-
-        bool operator()(const KeyValue<KeyT, ValueT>& a_keyValue) const { return a_keyValue.GetKey() == m_key; }
-private:
-        KeyT m_key;
-};
-*/
 
 template<class KeyT, class ValueT>
 struct EqualsKey {
@@ -36,14 +24,6 @@ struct EqualsKey {
         KeyT m_key;
 };
 
-/*
-template<class KeyT>
-struct Equals {
-        bool operator()(const KeyT& a_left, const KeyT& a_right) const {
-                return a_left == a_right;
-        }
-};
-*/
 template<class KeyT, class ValueT, class EqualsFunc = EqualsKey<KeyT, ValueT> >
 class Bucket {  
 typedef typename std::list< KeyValue<KeyT, ValueT> >::iterator KeyValue_iterator;

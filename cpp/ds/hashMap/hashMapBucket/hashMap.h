@@ -25,6 +25,8 @@ private:
         static const unsigned int DEFAULT_CAPACITY = 16;
         
         unsigned int GetPosition(const KeyT& a_key) const;
+        
+        struct HasIter;
 };
 
 template<class KeyT, class ValueT, class HashFunc, class EqualsFunc>
@@ -85,5 +87,27 @@ unsigned int HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::GetPosition(const KeyT
 
         return HashFunc()(a_key) % this->size();
 }
+
+// Iterator
+/*
+struct HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HasIter {
+        Iter(const Iter& a_itr) : m_itr(a_itr.m_itr) {}
+        bool operator!=(const Iter& a_itr);
+        Iter& operator++() {  }
+        KeyT& operator*() { return *m_itr; }
+        
+        Iter& Begin() { return &(*this)[(*this).size()]; }
+        Iter& End() { return &(*this)[0]; }
+        
+        KeyT* m_itr;
+};
+*/
+
+
+
+
+
+
+
 
 #endif

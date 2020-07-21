@@ -4,12 +4,7 @@ Vertex::Vertex(char a_name)
 : m_name(a_name)
 , m_vertexConnect() {
 }
-
-Vertex::Vertex(char a_name, Edges a_vertexConnect)
-: m_name(a_name)
-, m_vertexConnect(a_vertexConnect) {
-}
-
+s
 Vertex& Vertex::operator=(const Vertex& a_vertx) {
         
         if(this != &a_vertx) {

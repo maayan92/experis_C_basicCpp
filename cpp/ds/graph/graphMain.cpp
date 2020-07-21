@@ -2,9 +2,7 @@
 
 
 int main() {
-        std::list<Vertex> va, vb ,vc, vd; 
-        
-        Vertex a('a', va), b('b', vb), c('c', vc), d('d', vd);
+        Vertex a('a'), b('b'), c('c'), d('d');
        
         a.AddNewEdge(b);
         a.AddNewEdge(d);

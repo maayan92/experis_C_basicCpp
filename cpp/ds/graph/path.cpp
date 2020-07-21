@@ -29,7 +29,7 @@ Path::PathContainer Path::DFS(Vertex& a_begin, const Vertex& a_end) const {
         VisitedVertices visited;
         SetToContainers(a_begin.GetName(), visited, path);
 
-        while(!(a_begin == a_end)) {
+        while(!(a_begin == a_end || path.empty()) {
         
                 Vertex::VertexCItr itr = GetVertexIterator(a_begin, visited);
                 
@@ -45,4 +45,24 @@ Path::PathContainer Path::DFS(Vertex& a_begin, const Vertex& a_end) const {
         
         return path;
 }
+
+Path::VisitedVertices Path::BFS(const Vertex& a_begin, const Vertex& a_end) const {
+
+        if(!m_graph.Has(a_begin) || !m_graph.Has(a_end)) {
+                return path;
+        }
+        
+        
+        
+        
+        
+        
+}
+
+
+
+
+
+
+
 

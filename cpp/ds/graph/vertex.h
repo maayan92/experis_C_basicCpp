@@ -10,7 +10,6 @@ public:
         typedef Edges::const_iterator VertexCItr;
 
         Vertex(char a_name);
-        Vertex(char a_name, Edges a_vertexConnect);
         //Vertex(const Vertex& a_vrtx) = default;
         //~Vertex() = default;
         

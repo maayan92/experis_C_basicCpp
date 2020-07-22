@@ -5,77 +5,82 @@ static void VertexCTORTest() {
 
         Vertex vrtx('a');
         static int testNumber = 0;
-        std::cout << "vertex CTOR test " <<  ++testNumber << ": \t\t"
-                << ((vrtx.GetName() == 'a') ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << "vertex CTOR test " <<  ++testNumber << ": \t\t\033[1;31m"
+                << ((vrtx.GetName() == 'a') ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
 }
 
 static void VertexOperatorCompareTest(const Vertex& a_vrtxLeft, const Vertex& a_vrtxRight, bool a_isEqual) {
 
         static int testNumber = 0;
-        std::cout << "vertex operator== test " <<  ++testNumber << ": \t"
-                << ((a_isEqual == (a_vrtxLeft == a_vrtxRight)) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << "vertex operator== test " <<  ++testNumber << ": \t\033[1;31m"
+                << ((a_isEqual == (a_vrtxLeft == a_vrtxRight)) ? "SUCCEEDED" : "FAILED") 
+                        << "\033[0m" << std::endl;
 }
 
 static void VertexOperatorSmallerTest(const Vertex& a_vrtxLeft, const Vertex& a_vrtxRight, bool a_isSmaller) {
 
         static int testNumber = 0;
-        std::cout << "vertex operator< test " <<  ++testNumber << ": \t"
-                << ((a_isSmaller == (a_vrtxLeft < a_vrtxRight)) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << "vertex operator< test " <<  ++testNumber << ": \t\033[1;31m"
+                << ((a_isSmaller == (a_vrtxLeft < a_vrtxRight)) ? "SUCCEEDED" : "FAILED") 
+                        << "\033[0m" << std::endl;
 }
 
 static void VertexAddEdgeTest(Vertex& a_vrtx, const Vertex& a_vrtxToAdd, bool a_addSucceed) {
 
         static int testNumber = 0;
-        std::cout << "vertex add edge test " <<  ++testNumber << ": \t";
+        std::cout << "vertex add edge test " <<  ++testNumber << ": \t\033[1;31m";
         
         try {
                 a_vrtx.AddEdge(a_vrtxToAdd);
         }catch(const ExcEdgeExist& exc) {
-                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << std::endl;
+                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
                 return;
         }
         
-        std::cout << ((a_addSucceed == (a_vrtx.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << ((a_addSucceed == (a_vrtx.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") 
+                        << "\033[0m" << std::endl;
 }
 
 static void VertexHasTest(Vertex& a_vrtx, const Vertex& a_vrtxToAdd, bool a_has) {
 
         static int testNumber = 0;
-        std::cout << "vertex has test " <<  ++testNumber << ": \t\t"
-                << ((a_has == (a_vrtx.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << "vertex has test " <<  ++testNumber << ": \t\t\033[1;31m"
+                << ((a_has == (a_vrtx.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
 }
 
 static void GraphAddVertexTest(Graph& a_graph, const Vertex& a_vrtx, bool a_addSucceed) {
 
         static int testNumber = 0;
-        std::cout << "graph add vertex test " <<  ++testNumber << ": \t";
+        std::cout << "graph add vertex test " <<  ++testNumber << ": \t\033[1;31m";
         
         try {
                 a_graph.AddVertex(a_vrtx);
         }catch(const ExcVertexAlreadyExist& exc) {
-                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << std::endl;
+                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
                 return;
         }catch(const ExcFailedToAdd& exc) {
                 std::cout << "error occurred" << std::endl;
                 return;
         }
         
-        std::cout << ((a_addSucceed == (a_graph.Has(a_vrtx))) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << ((a_addSucceed == (a_graph.Has(a_vrtx))) ? "SUCCEEDED" : "FAILED") 
+                        << "\033[0m" << std::endl;
 }
 
 static void GraphAddEdgeTest(Graph& a_graph, Vertex& a_vrtx, Vertex& a_vrtxToAdd, bool a_addSucceed) {
 
         static int testNumber = 0;
-        std::cout << "graph add edge test " <<  ++testNumber << ": \t\t";
+        std::cout << "graph add edge test " <<  ++testNumber << ": \t\t\033[1;31m";
         
         try {
                 a_graph.AddEdge(a_vrtx, a_vrtxToAdd);
         }catch(const ExcVertexNotExist& exc) {
-                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << std::endl;
+                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
                 return;
         }
         
-        std::cout << ((a_addSucceed == (a_graph.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << ((a_addSucceed == (a_graph.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") 
+                        << "\033[0m" << std::endl;
 }
 
 static void DfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Vertex& a_src, const Vertex& a_dest) {
@@ -87,8 +92,22 @@ static void DfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Ve
         
         bool result = (path == pathResult);
         
-        std::cout << "path DFS test " <<  ++testNumber << ": \t\t"
-                << ((result) ? "SUCCEEDED" : "FAILED") << std::endl;
+        std::cout << "path DFS test " <<  ++testNumber << ": \t\t\033[1;31m"
+                << ((result) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
+        
+}
+
+static void BfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Vertex& a_src, const Vertex& a_dest) {
+
+        static int testNumber = 0;
+        
+        Path p(a_graph);
+        std::stack<char> path = p.Bfs(a_src, a_dest);
+        
+        bool result = (path == pathResult);
+        
+        std::cout << "path BFS test " <<  ++testNumber << ": \t\t\033[1;31m"
+                        << ((result) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
         
 }
 
@@ -129,34 +148,47 @@ int main() {
         ///// path tests:
         std::cout << std::endl << "----- path -----" << std::endl << std::endl;
         
+        Vertex vrtxPathA('a'), vrtxPathB('b'), vrtxPathC('c'), vrtxPathD('d');
         Graph graphForPath;
-        Vertex vrtxB('b');
         
-        graphForPath.AddVertex(vrtxA);
-        graphForPath.AddVertex(vrtxB);
-        graphForPath.AddVertex(vrtxC);
-        graphForPath.AddVertex(vrtxD);
+        graphForPath.AddVertex(vrtxPathA);
+        graphForPath.AddVertex(vrtxPathB);
+        graphForPath.AddVertex(vrtxPathC);
+        graphForPath.AddVertex(vrtxPathD);
         
-        graphForPath.AddEdge(vrtxA, vrtxB);
-        graphForPath.AddEdge(vrtxA, vrtxD);
-        graphForPath.AddEdge(vrtxB, vrtxC);
-        graphForPath.AddEdge(vrtxB, vrtxA);
-        graphForPath.AddEdge(vrtxD, vrtxB);
+        graphForPath.AddEdge(vrtxPathA, vrtxPathD);
+        graphForPath.AddEdge(vrtxPathA, vrtxPathB);
+        graphForPath.AddEdge(vrtxPathB, vrtxPathC);
+        graphForPath.AddEdge(vrtxPathB, vrtxPathA);
+        graphForPath.AddEdge(vrtxPathD, vrtxPathB);
         
         std::stack<char> result;
         
         Vertex notInGraph('s');
-        DfsTest(graphForPath, result, notInGraph, vrtxD);
+
+        // DFS:
+        DfsTest(graphForPath, result, notInGraph, vrtxPathD);
         
-        result.push(vrtxB.GetName());
+        result.push(vrtxPathB.GetName());
+        DfsTest(graphForPath, result, vrtxPathB, vrtxPathB);
         
-        DfsTest(graphForPath, result, vrtxB, vrtxB);
+        result.push(vrtxPathA.GetName());
+        result.push(vrtxPathD.GetName());
         
-        result.push(vrtxA.GetName());
-        result.push(vrtxD.GetName());
+        DfsTest(graphForPath, result, vrtxPathB, vrtxPathD);
+
+        // BFS:
+        std::stack<char> resultBfs;
+
+        BfsTest(graphForPath, resultBfs, notInGraph, vrtxPathD);
+        resultBfs.push(vrtxPathD.GetName());
+
+        BfsTest(graphForPath, resultBfs, vrtxPathD, vrtxPathD);
+
+        resultBfs.push(vrtxPathA.GetName());
+        resultBfs.push(vrtxPathB.GetName());
         
-        DfsTest(graphForPath, result, vrtxB, vrtxD);
-        
+        BfsTest(graphForPath, resultBfs, vrtxPathB, vrtxPathD);
    
         return 0;
 }

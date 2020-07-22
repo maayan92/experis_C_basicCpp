@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <vector>
 
-class ExcEdgeExist : public std::exception { };
+class ExcEdgeExist : public std::exception {};
 
-class ExcInvalidPosition : public std::exception { };
+class ExcInvalidPosition : public std::exception {};
 
 class Vertex {
         typedef std::vector<Vertex> Edges;

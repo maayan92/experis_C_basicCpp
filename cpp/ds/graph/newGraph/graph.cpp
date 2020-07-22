@@ -47,4 +47,3 @@ Vertex Graph::GetVertexByName(char a_name) {
         }
         return *vrtx;
 }
-

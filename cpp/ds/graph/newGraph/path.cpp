@@ -4,7 +4,7 @@ Path::Path(const Graph& a_graph)
 : m_graph(a_graph) {
 }
 
-void Path::addToContainersDfs(char a_name) {
+void Path::addToContainersDfs(VertexName a_name) {
 
         m_path.push(a_name);
         m_visited.insert(a_name);
@@ -12,7 +12,7 @@ void Path::addToContainersDfs(char a_name) {
 
 Path::PathStack Path::Dfs(Vertex& a_src, const Vertex& a_dest) {
 
-        ClearDfsContainers();
+        clearDfsContainers();
         if(m_graph.Has(a_src) || m_graph.Has(a_src)) {
                 m_path;
         }
@@ -26,11 +26,11 @@ Path::PathStack Path::Dfs(Vertex& a_src, const Vertex& a_dest) {
         Visited visited;
         addToContainersDfs(a_src.GetName());
         
-        DfsRec(a_src, a_dest);
+        dfsRec(a_src, a_dest);
         return m_path;
 }
 
-void Path::DfsRec(Vertex& a_src, const Vertex& a_dest) {
+void Path::dfsRec(Vertex& a_src, const Vertex& a_dest) {
         
         if(a_src == a_dest || m_path.empty()) {
                 return;
@@ -43,7 +43,7 @@ void Path::DfsRec(Vertex& a_src, const Vertex& a_dest) {
                 if(m_visited.end() == std::find(m_visited.begin(), m_visited.end(), vrtx.GetName())) {
                         vrtx = m_graph.GetVertexByName(vrtx.GetName());
                         addToContainersDfs(vrtx.GetName());
-                        DfsRec(vrtx, a_dest);
+                        dfsRec(vrtx, a_dest);
                 }
                 ++position;
         }
@@ -54,8 +54,8 @@ void Path::DfsRec(Vertex& a_src, const Vertex& a_dest) {
 
 Path::PathStack Path::Bfs(Vertex& a_src, const Vertex& a_dest) {
         
-        ClearContainers();
-        AddToContainersBfs(a_src.GetName(), a_src.GetName());
+        clearContainers();
+        addToContainersBfs(a_src.GetName(), a_src.GetName());
 
         if(!m_graph.Has(a_src) || !m_graph.Has(a_dest)) {
                 return m_path;
@@ -63,43 +63,43 @@ Path::PathStack Path::Bfs(Vertex& a_src, const Vertex& a_dest) {
         
         while(!m_goOverVertices.empty()) {
         
-                char vrtxName = m_goOverVertices.front();
+                VertexName vrtxName = m_goOverVertices.front();
                 m_goOverVertices.pop();
                 
                 if(vrtxName == a_dest.GetName()) {
-                        SetResult(vrtxName);
+                        setResult(vrtxName);
                         return m_path;
                 }
                 
-                GoOnVertexEdges(vrtxName);
+                goOnVertexEdges(vrtxName);
         }
 }
 
-void Path::AddToContainersBfs(char a_chlidName, char a_fatherName) {
+void Path::addToContainersBfs(VertexName a_chlidName, VertexName a_fatherName) {
         
         m_goOverVertices.push(a_chlidName);
         m_visited.insert(a_chlidName);
         m_childFather[a_chlidName] = a_fatherName;
 }
 
-void Path::GoOnVertexEdges(char a_vrtxName) {
+void Path::goOnVertexEdges(VertexName a_vrtxName) {
 
         unsigned int position = 0;
         Vertex vrtx = m_graph.GetVertexByName(a_vrtxName);
         
         while(position < vrtx.GetNumOfEdges()) {
         
-                char vrtxEdgeName = vrtx.GetVertexByPosition(position).GetName();
+                VertexName vrtxEdgeName = vrtx.GetVertexByPosition(position).GetName();
                 
                 if(m_visited.end() == std::find(m_visited.begin(), m_visited.end(), vrtxEdgeName)) {
-                        AddToContainersBfs(vrtxEdgeName, vrtx.GetName());
+                        addToContainersBfs(vrtxEdgeName, vrtx.GetName());
                 }
 
                 ++position;
         }
 }
 
-void Path::SetResult(char a_vrtxName) {
+void Path::setResult(VertexName a_vrtxName) {
 
         m_path.push(a_vrtxName);
         while(m_childFather[a_vrtxName] != a_vrtxName) {
@@ -108,20 +108,73 @@ void Path::SetResult(char a_vrtxName) {
         }
 }
 
-void Path::ClearContainers() {
+void Path::clearContainers() {
 
         m_childFather.clear();     
-        ClearDfsContainers();
+        clearDfsContainers();
         
         while(!m_goOverVertices.empty()) {
                m_goOverVertices.pop();
         }
 }
 
-void Path::ClearDfsContainers() {
+void Path::clearDfsContainers() {
         
         while(!m_path.empty()) {
                m_path.pop(); 
         }
         m_visited.clear();
 }
+
+/*
+
+ 1  function Dijkstra(Graph, source):
+ 2
+ 3      create vertex set Q
+ 4
+ 5      for each vertex v in Graph:             
+ 6          dist[v] ← INFINITY                  
+ 7          prev[v] ← UNDEFINED                 
+ 8          add v to Q                      
+10      dist[source] ← 0                        
+11      
+12      while Q is not empty:
+13          u ← vertex in Q with min dist[u]    
+14                                              
+15          remove u from Q 
+16          
+17          for each neighbor v of u:           // only v that are still in Q
+18              alt ← dist[u] + length(u, v)
+19              if alt < dist[v]:               
+20                  dist[v] ← alt 
+21                  prev[v] ← u 
+22
+23      return dist[], prev[]
+
+*/
+/*
+Path::PathStack Path::Dijkstra(Vertex& a_src, const Vertex& a_dest) {
+
+        SetVerticesWeight();
+        m_visited.push(a_src.GetName());
+        m_goOverVertices.push(a_src.GetName());
+
+        while(!m_goOverVertices.empty()) {
+
+                Vertex vrtx = FindVertexWithMinWeight();
+
+                if(vrtx == a_dest) { //TODO operator==
+                        SetDijkstraResult();
+                        return m_path;
+                }
+
+                SetWeightToVertexEdges(vrtx.GetName());
+        }
+}
+
+void Path::SetVerticesWeight() {
+
+        GetVertex
+        m_graph
+}
+*/

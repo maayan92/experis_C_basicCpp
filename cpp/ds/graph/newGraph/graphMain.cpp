@@ -77,18 +77,21 @@ static void GraphAddEdgeTest(Graph& a_graph, Vertex& a_vrtx, Vertex& a_vrtxToAdd
         }catch(const ExcVertexNotExist& exc) {
                 std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
                 return;
+        }catch(const ExcEdgeExist& exc) {
+                std::cout << ((!a_addSucceed) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
+                return;
         }
         
         std::cout << ((a_addSucceed == (a_graph.Has(a_vrtxToAdd))) ? "SUCCEEDED" : "FAILED") 
                         << "\033[0m" << std::endl;
 }
 
-static void DfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Vertex& a_src, const Vertex& a_dest) {
+static void DfsTest(const Graph& a_graph, const Path::PathStack& pathResult, Vertex& a_src, const Vertex& a_dest) {
 
         static int testNumber = 0;
         
         Path p(a_graph);
-        std::stack<char> path = p.Dfs(a_src, a_dest);
+        Path::PathStack path = p.Dfs(a_src, a_dest);
         
         bool result = (path == pathResult);
         
@@ -97,12 +100,12 @@ static void DfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Ve
         
 }
 
-static void BfsTest(const Graph& a_graph, const std::stack<char>& pathResult, Vertex& a_src, const Vertex& a_dest) {
+static void BfsTest(const Graph& a_graph, const Path::PathStack& pathResult, Vertex& a_src, const Vertex& a_dest) {
 
         static int testNumber = 0;
         
         Path p(a_graph);
-        std::stack<char> path = p.Bfs(a_src, a_dest);
+        Path::PathStack path = p.Bfs(a_src, a_dest);
         
         bool result = (path == pathResult);
         
@@ -162,7 +165,7 @@ int main() {
         graphForPath.AddEdge(vrtxPathB, vrtxPathA);
         graphForPath.AddEdge(vrtxPathD, vrtxPathB);
         
-        std::stack<char> result;
+        Path::PathStack result;
         
         Vertex notInGraph('s');
 
@@ -178,7 +181,7 @@ int main() {
         DfsTest(graphForPath, result, vrtxPathB, vrtxPathD);
 
         // BFS:
-        std::stack<char> resultBfs;
+        Path::PathStack resultBfs;
 
         BfsTest(graphForPath, resultBfs, notInGraph, vrtxPathD);
         resultBfs.push(vrtxPathD.GetName());

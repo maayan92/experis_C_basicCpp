@@ -13,6 +13,7 @@ class ExcFailedToAdd : public std::exception {};
 class Graph {
         typedef std::vector<Vertex> Vertices;
         typedef Vertices::iterator VerticesItr;
+        typedef Vertex::VertexName VertexName;
 public:
         //Graph() = default;
         //Graph(const Graph& a_graph) = default;
@@ -23,10 +24,11 @@ public:
         void AddEdge(Vertex& a_vrtxSrc, const Vertex& a_vrtxDest);
         bool Has(const Vertex& a_vrtx) const;
         
-        Vertex GetVertexByName(char a_name);
+        Vertex GetVertexByName(VertexName a_name);
 private:
+        Vertex* getVertexByNamePointer(VertexName a_name);
+        
         Vertices m_vertices;
-        Vertex* GetVertexByNamePointer(char a_name);
 };
 
 #endif

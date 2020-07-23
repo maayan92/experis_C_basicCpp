@@ -5,15 +5,18 @@
 #include <exception>
 #include <algorithm>
 #include <vector>
+#include <map>
 
 class ExcEdgeExist : public std::exception {};
 
 class ExcInvalidPosition : public std::exception {};
 
 class Vertex {
-        typedef std::vector<Vertex> Edges;
 public:
-        Vertex(char a_name);
+        typedef std::pair<Vertex, unsigned int> Edge;
+        typedef std::vector< Edge > Edges;
+        typedef char VertexName;
+        Vertex(VertexName a_name);
         //Vertex(const Vertex& a_vrtx) = default;
         //Vertex& operator=(const Vertex& a_vrtx) = default;
         //~Vertex() = default;
@@ -23,12 +26,13 @@ public:
         void AddEdge(const Vertex& a_vrtx);
         bool Has(const Vertex& a_vrtx) const;
         
-        char GetName() const;
+        VertexName GetName() const;
         Vertex GetVertexByPosition(unsigned int a_position) const;
         unsigned int GetNumOfEdges() const { return m_edges.size(); }
 private:
-        char m_name;
+        VertexName m_name;
         Edges m_edges;
+        //Edges m_edges 
 };
 
 #endif

@@ -7,11 +7,12 @@
 #include <queue>
 
 class Path {
-        typedef std::map<char,char> ChildFather;
-        typedef std::queue<char> GoOverVertices;
+        typedef Vertex::VertexName VertexName;
+        typedef std::map<VertexName,VertexName> ChildFather;
+        typedef std::queue<VertexName> GoOverVertices;
 public:
-        typedef std::stack<char> PathStack;
-        typedef std::set<char> Visited;
+        typedef std::stack<VertexName> PathStack;
+        typedef std::set<VertexName> Visited;
 
         Path(const Graph& a_graph);
         //Path(const Path& a_path) = default;
@@ -21,14 +22,14 @@ public:
         PathStack Dfs(Vertex& a_src, const Vertex& a_dest);
         PathStack Bfs(Vertex& a_src, const Vertex& a_dest);
 private:
-        void DfsRec(Vertex& a_src, const Vertex& a_dest);
-        void addToContainersDfs(char a_name);
-        void ClearDfsContainers();
+        void dfsRec(Vertex& a_src, const Vertex& a_dest);
+        void addToContainersDfs(VertexName a_name);
+        void clearDfsContainers();
         
-        void AddToContainersBfs(char a_chlidName, char a_fatherName);
-        void GoOnVertexEdges(char a_vrtxName);
-        void SetResult(char a_vrtxName);
-        void ClearContainers();
+        void addToContainersBfs(VertexName a_chlidName, VertexName a_fatherName);
+        void goOnVertexEdges(VertexName a_vrtxName);
+        void setResult(VertexName a_vrtxName);
+        void clearContainers();
         
         Graph m_graph;
         ChildFather m_childFather;

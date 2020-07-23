@@ -12,7 +12,7 @@ void Graph::AddEdge(Vertex& a_vrtxSrc, const Vertex& a_vrtxDest) {
 
         if(!Has(a_vrtxDest)) { throw ExcVertexNotExist(); }
         
-        Vertex* vrtxSrc = GetVertexByNamePointer(a_vrtxSrc.GetName());
+        Vertex* vrtxSrc = getVertexByNamePointer(a_vrtxSrc.GetName());
         
         if(!vrtxSrc) { throw ExcVertexNotExist(); }
         
@@ -24,7 +24,7 @@ bool Graph::Has(const Vertex& a_vrtx) const {
         return (m_vertices.end() != std::find(m_vertices.begin(), m_vertices.end(), a_vrtx));
 }
 
-Vertex* Graph::GetVertexByNamePointer(char a_name) {
+Vertex* Graph::getVertexByNamePointer(VertexName a_name) {
         
         unsigned int position = 0;
         
@@ -39,9 +39,9 @@ Vertex* Graph::GetVertexByNamePointer(char a_name) {
         return 0;
 }
 
-Vertex Graph::GetVertexByName(char a_name) {
+Vertex Graph::GetVertexByName(VertexName a_name) {
         
-        Vertex* vrtx = GetVertexByNamePointer(a_name);
+        Vertex* vrtx = getVertexByNamePointer(a_name);
         if(!vrtx) {
                 throw ExcVertexNotExist();
         }

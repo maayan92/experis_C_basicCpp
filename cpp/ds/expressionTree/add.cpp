@@ -10,13 +10,13 @@ int AddOp::Calculate() const {
     return this->GetLeftExprTree()->Calculate() + this->GetRightExprTree()->Calculate();
 }
 
-void AddOp::Print() const {
+void AddOp::Print(std::ostream& a_os) const {
     
-    std::cout << " ( ";
-    this->GetLeftExprTree()->Print();
-    std::cout << " + ";
-    this->GetRightExprTree()->Print();
-    std::cout << " ) ";
+    a_os << "(";
+    this->GetLeftExprTree()->Print(a_os);
+    a_os << " + ";
+    this->GetRightExprTree()->Print(a_os);
+    a_os << ")";
 }
 
 } // experis

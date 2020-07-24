@@ -1,22 +1,28 @@
 TARGET= main.out 
 CC= g++ 
 CFLAGS= -ansi -pedantic -g -I./ 
-INC= operator.h add.h number.h exprTree.h
-OBJS= number.o add.o mul.o main.o
+INC= operator.h add.h mul.h number.h exprTree.h
+OBJS= number.o add.o mul.o operator.o exprTree.o main.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
 
-number.o: number.cpp $(INC)
+operator.o: operator.cpp $(INC)
+	$(CC) $(CFLAGS) -c operator.cpp
+
+exprTree.o: exprTree.cpp 
+	$(CC) $(CFLAGS) -c exprTree.cpp
+
+number.o: number.cpp
 	$(CC) $(CFLAGS) -c number.cpp
 
-add.o: add.cpp $(INC)
+add.o: add.cpp
 	$(CC) $(CFLAGS) -c add.cpp
 
-mul.o: mul.cpp $(INC)
+mul.o: mul.cpp
 	$(CC) $(CFLAGS) -c mul.cpp
 
-main.o: main.cpp $(INC)
+main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
 clean:

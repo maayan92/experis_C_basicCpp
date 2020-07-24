@@ -10,8 +10,8 @@ inline int Number::Calculate() const {
     return m_value;
 }
 
-void Number::Print() const {
-    std::cout << m_value << ' ';
+void Number::Print(std::ostream& a_os) const {
+    a_os << m_value ;
 }
 
 } // experis

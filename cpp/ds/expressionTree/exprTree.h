@@ -12,10 +12,10 @@ public:
     //ExprTree() = default;
     //ExprTree(const ExprTree& a_exprTree) = default;
     //ExprTree& operator=(const ExprTree& a_exprTree) = default;
-    virtual ~ExprTree() {}
+    virtual ~ExprTree() = 0;
 
     virtual int Calculate() const = 0;
-    virtual void Print() const = 0;
+    virtual void Print(std::ostream& a_os) const = 0;
 };
 
 } // experis

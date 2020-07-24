@@ -10,14 +10,13 @@ int MulOp::Calculate() const {
     return this->GetLeftExprTree()->Calculate() * this->GetRightExprTree()->Calculate();
 }
 
-void MulOp::Print() const {
+void MulOp::Print(std::ostream& a_os) const {
     
-    std::cout << " ( ";
-    this->GetLeftExprTree()->Print();
-    std::cout << " * ";
-    this->GetRightExprTree()->Print();
-    std::cout << " ) ";
+    a_os << "(";
+    this->GetLeftExprTree()->Print(a_os);
+    a_os << " * ";
+    this->GetRightExprTree()->Print(a_os);
+    a_os << ")";
 }
-
 
 } // experis

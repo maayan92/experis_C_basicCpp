@@ -13,7 +13,7 @@ public:
     virtual ~Number() {}
 
     virtual int Calculate() const;
-    virtual void Print() const; // TODO stringstream
+    virtual void Print(std::ostream& a_os) const; // TODO stringstream
 
 private:
     int m_value;

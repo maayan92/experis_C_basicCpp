@@ -1,7 +1,14 @@
 #include "path.hpp"
 
+const unsigned int INFINITI = 0xfffffffff;
+
 Path::Path(const Graph& a_graph)
-: m_graph(a_graph) {
+: m_graph(a_graph)
+, m_childFather()
+, m_goOverVertices()
+, m_visited()
+, m_path()
+, m_childFatherWeight() {
 }
 
 void Path::addToContainersDfs(VertexName a_name) {
@@ -39,7 +46,7 @@ void Path::dfsRec(Vertex& a_src, const Vertex& a_dest) {
         unsigned int position = 0;
         while(position < a_src.GetNumOfEdges()) {
         
-                Vertex vrtx = a_src.GetVertexByPosition(position);
+                Vertex vrtx = a_src.GetEdgeByPosition(position);
                 if(m_visited.end() == std::find(m_visited.begin(), m_visited.end(), vrtx.GetName())) {
                         vrtx = m_graph.GetVertexByName(vrtx.GetName());
                         addToContainersDfs(vrtx.GetName());
@@ -89,7 +96,7 @@ void Path::goOnVertexEdges(VertexName a_vrtxName) {
         
         while(position < vrtx.GetNumOfEdges()) {
         
-                VertexName vrtxEdgeName = vrtx.GetVertexByPosition(position).GetName();
+                VertexName vrtxEdgeName = vrtx.GetEdgeByPosition(position).GetName();
                 
                 if(m_visited.end() == std::find(m_visited.begin(), m_visited.end(), vrtxEdgeName)) {
                         addToContainersBfs(vrtxEdgeName, vrtx.GetName());
@@ -126,55 +133,88 @@ void Path::clearDfsContainers() {
         m_visited.clear();
 }
 
-/*
-
- 1  function Dijkstra(Graph, source):
- 2
- 3      create vertex set Q
- 4
- 5      for each vertex v in Graph:             
- 6          dist[v] ← INFINITY                  
- 7          prev[v] ← UNDEFINED                 
- 8          add v to Q                      
-10      dist[source] ← 0                        
-11      
-12      while Q is not empty:
-13          u ← vertex in Q with min dist[u]    
-14                                              
-15          remove u from Q 
-16          
-17          for each neighbor v of u:           // only v that are still in Q
-18              alt ← dist[u] + length(u, v)
-19              if alt < dist[v]:               
-20                  dist[v] ← alt 
-21                  prev[v] ← u 
-22
-23      return dist[], prev[]
-
-*/
-/*
 Path::PathStack Path::Dijkstra(Vertex& a_src, const Vertex& a_dest) {
 
-        SetVerticesWeight();
-        m_visited.push(a_src.GetName());
+        // clean containers
+        clearDfsContainers();
+        m_childFatherWeight.clear();
+        if(!m_graph.Has(a_src) || !m_graph.Has(a_dest)) {
+                m_path;
+        }
+        
+        setVerticesWeight(a_src);
+
+        m_visited.insert(a_src.GetName());
         m_goOverVertices.push(a_src.GetName());
 
         while(!m_goOverVertices.empty()) {
 
-                Vertex vrtx = FindVertexWithMinWeight();
+                VertexName vrtxName = findVertexWithMinWeight();
+                m_visited.insert(vrtxName);
 
-                if(vrtx == a_dest) { //TODO operator==
-                        SetDijkstraResult();
+                if(vrtxName == a_dest.GetName()) {
+                        setDijkstraResult(vrtxName);
                         return m_path;
                 }
 
-                SetWeightToVertexEdges(vrtx.GetName());
+                setWeightToVertexEdges(vrtxName);
         }
 }
 
-void Path::SetVerticesWeight() {
+void Path::setVerticesWeight(Vertex& a_src) {
 
-        GetVertex
-        m_graph
+        unsigned int position = 0;
+        while(position < m_graph.GetNumberOfVertices()) {
+
+                Vertex vrtx = m_graph.GetVertexPosition(position);
+                m_childFatherWeight[vrtx.GetName()] = NameWeight(vrtx.GetName(), INFINITI);
+        
+                ++position;
+        }
+        m_childFatherWeight[a_src.GetName()] = NameWeight(a_src.GetName(), 0);
 }
-*/
+
+
+Path::VertexName Path::findVertexWithMinWeight() {
+
+        return min_element(m_childFatherWeight.begin(), m_childFatherWeight.end(), FindMin())->first;
+}
+
+void Path::setWeightToVertexEdges(VertexName a_vrtxName) {
+
+        Vertex vrtx = m_graph.GetVertexByName(a_vrtxName);
+        unsigned int position = 0;
+
+        while(position < vrtx.GetNumOfEdges()) {
+
+                Vertex vrtxChild = m_graph.GetVertexByName(a_vrtxName);
+                EdgeWeight edgeWeight = vrtxChild.GetVertexWeightByPosition(position);
+                EdgeWeight newWeight = m_childFatherWeight[a_vrtxName].m_weight + edgeWeight;
+                
+                if(checkIfNeedToUpdateEdge(vrtx, vrtxChild, newWeight)) {
+                        m_childFatherWeight[vrtxChild.GetName()].m_weight = newWeight;
+                        m_childFatherWeight[vrtxChild.GetName()].m_name = a_vrtxName;
+                }
+
+                ++position;
+        }
+}
+
+bool Path::checkIfNeedToUpdateEdge(Vertex& a_vrtx, Vertex& a_vrtxChild, EdgeWeight a_newWeight) {
+
+        VertexName vrtxName = a_vrtx.GetName();
+
+        bool isWeightSmaller = (a_newWeight < m_childFatherWeight[a_vrtxChild.GetName()].m_weight);
+        bool isNotVisited = (m_visited.end() == std::find(m_visited.begin(), m_visited.end(), vrtxName));
+        
+        return (isNotVisited && isWeightSmaller);
+}
+
+void Path::setDijkstraResult(VertexName& a_vrtxName) {
+
+        m_path.push(a_vrtxName);
+        while(m_childFatherWeight[a_vrtxName].m_name != a_vrtxName) {
+                m_path.push(m_childFatherWeight[a_vrtxName].m_name);
+                a_vrtxName = m_childFatherWeight[a_vrtxName].m_name;
+        }
+}

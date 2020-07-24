@@ -25,6 +25,9 @@ public:
         bool Has(const Vertex& a_vrtx) const;
         
         Vertex GetVertexByName(VertexName a_name);
+        Vertex GetVertexPosition(unsigned int m_position);
+        unsigned int GetNumberOfVertices() { return m_vertices.size(); }
+
 private:
         Vertex* getVertexByNamePointer(VertexName a_name);
         

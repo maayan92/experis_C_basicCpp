@@ -36,10 +36,18 @@ Vertex::VertexName Vertex::GetName() const {
         return m_name;
 }
 
-Vertex Vertex::GetVertexByPosition(unsigned int a_position) const {
+Vertex Vertex::GetEdgeByPosition(unsigned int a_position) const {
         
         if(a_position >= m_edges.size()) {
                 throw ExcInvalidPosition();
         }
         return m_edges[a_position].first;
+}
+
+Vertex::EdgeWeight Vertex::GetVertexWeightByPosition(unsigned int a_position) const {
+        
+        if(a_position >= m_edges.size()) {
+                throw ExcInvalidPosition();
+        }
+        return m_edges[a_position].second;
 }

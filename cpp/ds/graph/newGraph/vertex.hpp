@@ -13,7 +13,8 @@ class ExcInvalidPosition : public std::exception {};
 
 class Vertex {
 public:
-        typedef std::pair<Vertex, unsigned int> Edge;
+        typedef unsigned int EdgeWeight;
+        typedef std::pair<Vertex, EdgeWeight> Edge;
         typedef std::vector< Edge > Edges;
         typedef char VertexName;
         Vertex(VertexName a_name);
@@ -27,8 +28,9 @@ public:
         bool Has(const Vertex& a_vrtx) const;
         
         VertexName GetName() const;
-        Vertex GetVertexByPosition(unsigned int a_position) const;
+        Vertex GetEdgeByPosition(unsigned int a_position) const;
         unsigned int GetNumOfEdges() const { return m_edges.size(); }
+        EdgeWeight GetVertexWeightByPosition(unsigned int a_position) const;
 private:
         VertexName m_name;
         Edges m_edges;

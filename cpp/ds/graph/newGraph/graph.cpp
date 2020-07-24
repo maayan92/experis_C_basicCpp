@@ -47,3 +47,12 @@ Vertex Graph::GetVertexByName(VertexName a_name) {
         }
         return *vrtx;
 }
+
+Vertex Graph::GetVertexPosition(unsigned int m_position) {
+
+        if(m_position >= m_vertices.size()) {
+                throw ExcInvalidPosition();
+        }
+
+        return m_vertices[m_position];
+}

@@ -3,7 +3,8 @@
 namespace experis {
 
 Number::Number(int a_value)
-: m_value(a_value) {
+: ExprTree()
+, m_value(a_value) {
 }
 
 inline int Number::Calculate() const {

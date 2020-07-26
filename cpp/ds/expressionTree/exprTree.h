@@ -20,4 +20,10 @@ public:
 
 } // experis
 
+namespace experis{
+
+inline ExprTree::~ExprTree() { }
+
+} // experis
+
 #endif

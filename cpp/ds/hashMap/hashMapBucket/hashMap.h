@@ -6,7 +6,8 @@
 
 template<class KeyT, class ValueT, class HashFunc, class EqualsFunc = EqualsKey<KeyT, ValueT> >
 class HashMap : public std::vector< Bucket<KeyT, ValueT, EqualsFunc> > {
-typedef typename std::vector< Bucket<KeyT, ValueT, EqualsFunc> > T_vector;
+        typedef typename std::vector< Bucket<KeyT, ValueT, EqualsFunc> > Vector;
+        friend class HasIter<KeyT>;
 public:
         //a_compareFunc - if NULL then undefined behaviour.
         //a_size - if 0 or less then undefined behaviour.
@@ -31,14 +32,14 @@ private:
 
 template<class KeyT, class ValueT, class HashFunc, class EqualsFunc>
 HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HashMap()
-: T_vector::vector(DEFAULT_CAPACITY, Bucket<KeyT, ValueT, EqualsFunc>()) {
+: Vector::vector(DEFAULT_CAPACITY, Bucket<KeyT, ValueT, EqualsFunc>()) {
 
         assert(this->size() == DEFAULT_CAPACITY);
 }
 
 template<class KeyT, class ValueT, class HashFunc, class EqualsFunc>
 HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HashMap(unsigned int a_size)
-: T_vector::vector(a_size, Bucket<KeyT, ValueT, EqualsFunc>()) {
+: Vector::vector(a_size, Bucket<KeyT, ValueT, EqualsFunc>()) {
 
         assert(a_size > 0);
         assert(this->size() == a_size);
@@ -46,7 +47,7 @@ HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HashMap(unsigned int a_size)
 
 template<class KeyT, class ValueT, class HashFunc, class EqualsFunc>
 HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HashMap(const HashMap<KeyT, ValueT, HashFunc, EqualsFunc>& a_hashMap)
-: T_vector::vector(a_hashMap) {
+: Vector::vector(a_hashMap) {
 
         assert(this->size() == a_hashMap.size());
 }
@@ -89,20 +90,39 @@ unsigned int HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::GetPosition(const KeyT
 }
 
 // Iterator
-/*
-struct HashMap<KeyT, ValueT, HashFunc, EqualsFunc>::HasIter {
-        Iter(const Iter& a_itr) : m_itr(a_itr.m_itr) {}
+template<class KeyT>
+class HasIter {
+public:
+        HasIter(KeyT* a_itr);
+        //HasIter(const HasIter& a_itr) = default;
+        //~HasIter() = default;
+
         bool operator!=(const Iter& a_itr);
-        Iter& operator++() {  }
+        HasIter& operator++();
         KeyT& operator*() { return *m_itr; }
         
-        Iter& Begin() { return &(*this)[(*this).size()]; }
-        Iter& End() { return &(*this)[0]; }
-        
-        KeyT* m_itr;
-};
-*/
+        HasIter& Begin() { return &(*this)[0]; m_position = 1; }
+        HasIter& End() { return 0; }
 
+private:
+        KeyT* m_itr;
+        unsigned int m_position;
+};
+
+template<class KeyT>
+HasIter<KeyT>::HasIter(KeyT* a_itr)
+: m_itr(a_itr)
+, m_position(0) {
+}
+
+template<class KeyT>
+HasIter<KeyT>& HasIter<KeyT>::operator++() {
+        
+        if(m_position ) {
+                return 0;
+        }
+        return &(*this)[m_position++];
+}
 
 
 

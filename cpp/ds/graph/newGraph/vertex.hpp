@@ -17,6 +17,7 @@ public:
         typedef std::pair<Vertex, EdgeWeight> Edge;
         typedef std::vector< Edge > Edges;
         typedef char VertexName;
+        
         Vertex(VertexName a_name);
         //Vertex(const Vertex& a_vrtx) = default;
         //Vertex& operator=(const Vertex& a_vrtx) = default;
@@ -31,10 +32,13 @@ public:
         Vertex GetEdgeByPosition(unsigned int a_position) const;
         unsigned int GetNumOfEdges() const { return m_edges.size(); }
         EdgeWeight GetVertexWeightByPosition(unsigned int a_position) const;
+
+        void AddEdgeWithWeight(const Vertex& a_vrtx, const EdgeWeight& a_weight);
 private:
+        void addNewEdge(const Vertex& a_vrtx, const EdgeWeight& a_weight);
+        
         VertexName m_name;
         Edges m_edges;
-        //Edges m_edges 
 };
 
 #endif

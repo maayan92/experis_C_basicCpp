@@ -11,8 +11,8 @@ public:
     //Operator(const Operator& a_operator) = default;
     //Operator& operator=(const Operator& a_operator) = default;
 
-    virtual int Calculate() const = 0;
-    virtual void Print(std::ostream& a_os) const = 0;
+    //virtual int Calculate() const = 0;
+    //virtual void Print(std::ostream& a_os) const = 0;
 
 protected:
     virtual ~Operator() = 0; // a_left and a_right are destroyed in the DTOR.

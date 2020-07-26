@@ -14,7 +14,7 @@ public:
     NameWeight(const VertexName& a_name, const EdgeWeight& m_weight);
     //NameWeight(const NameWeight& a_nameWeight) = default;
     //NameWeight& operator=(const NameWeight& a_nameWeight) = default;
-    ~NameWeight() {}
+    //~NameWeight() = default;
 
 private:
     VertexName m_name;

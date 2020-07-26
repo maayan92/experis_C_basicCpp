@@ -13,11 +13,7 @@ Vertex::Vertex(VertexName a_name)
 }
 
 void Vertex::AddEdge(const Vertex& a_vrtx) {
-
-        if(Has(a_vrtx)) {
-                throw ExcEdgeExist();
-        }
-        m_edges.push_back(Edge(a_vrtx, 0));
+        addNewEdge(a_vrtx, 0);
 }
 
 bool Vertex::Has(const Vertex& a_vrtx) const {
@@ -50,4 +46,16 @@ Vertex::EdgeWeight Vertex::GetVertexWeightByPosition(unsigned int a_position) co
                 throw ExcInvalidPosition();
         }
         return m_edges[a_position].second;
+}
+
+void Vertex::AddEdgeWithWeight(const Vertex& a_vrtx, const EdgeWeight& a_weight) {
+        addNewEdge(a_vrtx, a_weight);
+}
+
+void Vertex::addNewEdge(const Vertex& a_vrtx, const EdgeWeight& a_weight) {
+
+        if(Has(a_vrtx)) {
+                throw ExcEdgeExist();
+        }
+        m_edges.push_back(Edge(a_vrtx, a_weight));
 }

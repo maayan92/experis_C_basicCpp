@@ -2,7 +2,7 @@ TARGET= main.out
 CC= g++ 
 CFLAGS= -ansi -pedantic -g -I./ 
 INC= operator.h add.h mul.h number.h exprTree.h
-OBJS= number.o add.o mul.o operator.o exprTree.o main.o
+OBJS= number.o add.o mul.o operator.o main.o
 
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)

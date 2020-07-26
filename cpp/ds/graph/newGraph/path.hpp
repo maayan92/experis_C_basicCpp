@@ -12,6 +12,7 @@ class Path {
         typedef Vertex::EdgeWeight EdgeWeight;
         typedef std::map<VertexName,VertexName> ChildFather;
         typedef std::map<VertexName, NameWeight> ChildFatherWeight;
+        typedef ChildFatherWeight::iterator ChildFatherWeightItr;
         typedef std::queue<VertexName> GoOverVertices;
         typedef std::set<VertexName> Visited;
 public:
@@ -27,8 +28,6 @@ public:
         PathStack Dijkstra(Vertex& a_src, const Vertex& a_dest);
 
 private:
-        struct FindMin;
-        
         void dfsRec(Vertex& a_src, const Vertex& a_dest);
         void addToContainersDfs(VertexName a_name);
         void clearDfsContainers();
@@ -41,7 +40,7 @@ private:
         void setVerticesWeight(Vertex& a_src);
         VertexName findVertexWithMinWeight();
         void setWeightToVertexEdges(VertexName a_vrtxName);
-        bool checkIfNeedToUpdateEdge(Vertex& a_vrtx, Vertex& a_vrtxChild, EdgeWeight a_newWeight);
+        bool checkIfNeedToUpdateEdge(Vertex& a_vrtxChild, EdgeWeight a_newWeight);
         void setDijkstraResult(VertexName& a_vrtxName);
         
         Graph m_graph;
@@ -50,13 +49,6 @@ private:
         Visited m_visited;
         PathStack m_path;
         ChildFatherWeight m_childFatherWeight;
-};
-
-struct Path::FindMin {
-        typedef std::pair<VertexName, NameWeight> PathAndWeight;
-        bool operator()(const PathAndWeight& a_left, const PathAndWeight& a_right) {
-                return a_left.second.m_weight < a_right.second.m_weight;
-        }
 };
 
 #endif

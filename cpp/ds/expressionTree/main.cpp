@@ -19,15 +19,15 @@ void TestCreateExprTree(ExprTree *a_expr, const char* a_str, size_t a_sum) {
     
 }
 
-void TestExprTrePrintToFile(ExprTree *a_expr, size_t a_sum, std::ofstream& a_file) {
+void TestExprTrePrintToFile(ExprTree *a_expr, std::stringstream& a_result) {
     
     static int testNum = 0;
-    
-    a_expr->Print(a_file);
-    a_file << std::endl;
+   
+    std::stringstream out;
+    a_expr->Print(out);
 
     std::cout << "print to file test " <<  ++testNum << ": \t\t\t \033[1;31m"
-            << ((a_expr->Calculate() == a_sum) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
+            << ((out.str() == a_result.str()) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
 }
 
 
@@ -56,9 +56,11 @@ int main() {
                             new Number(27));
     TestCreateExprTree(exprSecond, "expression tree", 100);
 
-    std::ofstream file("exprTree.txt");
-    TestExprTrePrintToFile(exprfirst, 23, file);
-    TestExprTrePrintToFile(exprSecond, 100, file);
+    std::stringstream str("(3 + (4 * 5))");
+    TestExprTrePrintToFile(exprfirst, str);
+
+    str.str("((1 + (9 * (2 + (3 * 2)))) + 27)");
+    TestExprTrePrintToFile(exprSecond, str);
 
     delete exprfirst;
     delete exprSecond;

@@ -14,6 +14,7 @@ class Graph {
         typedef std::vector<Vertex> Vertices;
         typedef Vertices::iterator VerticesItr;
         typedef Vertex::VertexName VertexName;
+        typedef Vertex::EdgeWeight EdgeWeight;
 public:
         //Graph() = default;
         //Graph(const Graph& a_graph) = default;
@@ -25,8 +26,10 @@ public:
         bool Has(const Vertex& a_vrtx) const;
         
         Vertex GetVertexByName(VertexName a_name);
-        Vertex GetVertexPosition(unsigned int m_position);
-        unsigned int GetNumberOfVertices() { return m_vertices.size(); }
+        Vertex GetVertexByPosition(unsigned int m_position);
+        unsigned int NumberOfVertices() { return m_vertices.size(); }
+
+        void AddEdgeWithWeight(Vertex& a_vrtxSrc, const Vertex& a_vrtxDest, const EdgeWeight& a_weight);
 
 private:
         Vertex* getVertexByNamePointer(VertexName a_name);

@@ -114,6 +114,20 @@ static void BfsTest(const Graph& a_graph, const Path::PathStack& pathResult, Ver
         
 }
 
+static void DijkstraTest(const Graph& a_graph, const Path::PathStack& pathResult, Vertex& a_src, const Vertex& a_dest) {
+
+        static int testNumber = 0;
+        
+        Path p(a_graph);
+        Path::PathStack path = p.Dijkstra(a_src, a_dest);
+        
+        bool result = (path == pathResult);
+        
+        std::cout << "path Dijkstra test " <<  ++testNumber << ": \t\t\033[1;31m"
+                        << ((result) ? "SUCCEEDED" : "FAILED") << "\033[0m" << std::endl;
+        
+}
+
 int main() {
 
         ///// vertex tests:
@@ -159,11 +173,11 @@ int main() {
         graphForPath.AddVertex(vrtxPathC);
         graphForPath.AddVertex(vrtxPathD);
         
-        graphForPath.AddEdge(vrtxPathA, vrtxPathD);
-        graphForPath.AddEdge(vrtxPathA, vrtxPathB);
-        graphForPath.AddEdge(vrtxPathB, vrtxPathC);
-        graphForPath.AddEdge(vrtxPathB, vrtxPathA);
-        graphForPath.AddEdge(vrtxPathD, vrtxPathB);
+        graphForPath.AddEdgeWithWeight(vrtxPathA, vrtxPathD, 1);
+        graphForPath.AddEdgeWithWeight(vrtxPathA, vrtxPathB, 5);
+        graphForPath.AddEdgeWithWeight(vrtxPathB, vrtxPathC, 4);
+        graphForPath.AddEdgeWithWeight(vrtxPathB, vrtxPathA, 3);
+        graphForPath.AddEdgeWithWeight(vrtxPathD, vrtxPathB, 2);
         
         Path::PathStack result;
         
@@ -193,7 +207,19 @@ int main() {
         
         BfsTest(graphForPath, resultBfs, vrtxPathB, vrtxPathD);
 
-        Path::PathStack = Dijkstra()
-   
+        // Dijkstra:
+
+        Path::PathStack resultDijkstra;
+
+        DijkstraTest(graphForPath, resultDijkstra, notInGraph, vrtxPathD);
+        resultDijkstra.push(vrtxPathB.GetName());
+
+        DijkstraTest(graphForPath, resultDijkstra, vrtxPathB, vrtxPathB);
+
+        resultDijkstra.push(vrtxPathD.GetName());
+        resultDijkstra.push(vrtxPathA.GetName());
+        
+        DijkstraTest(graphForPath, resultDijkstra, vrtxPathA, vrtxPathB);
+
         return 0;
 }

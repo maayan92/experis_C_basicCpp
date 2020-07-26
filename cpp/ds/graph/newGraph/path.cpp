@@ -1,6 +1,6 @@
 #include "path.hpp"
 
-const unsigned int INFINITI = 0xfffffffff;
+const unsigned int INFINITI = 0xfffff;
 
 Path::Path(const Graph& a_graph)
 : m_graph(a_graph)

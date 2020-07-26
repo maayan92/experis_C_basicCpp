@@ -1,7 +1,7 @@
 TARGET= graphMain.out 
 CC= g++ 
 CFLAGS= -ansi -pedantic -g -I./ 
-INC= graph.hpp vertex.hpp path.hpp
+INC= graph.hpp vertex.hpp path.hpp nameWeight.hpp
 OBJS= vertex.o graph.o path.o graphMain.o
 
 $(TARGET): $(OBJS)

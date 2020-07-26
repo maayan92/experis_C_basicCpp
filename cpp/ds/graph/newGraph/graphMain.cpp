@@ -192,6 +192,8 @@ int main() {
         resultBfs.push(vrtxPathB.GetName());
         
         BfsTest(graphForPath, resultBfs, vrtxPathB, vrtxPathD);
+
+        Path::PathStack = Dijkstra()
    
         return 0;
 }

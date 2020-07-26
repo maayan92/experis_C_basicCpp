@@ -10,12 +10,13 @@ public:
     Operator(ExprTree* a_left, ExprTree* a_right);
     //Operator(const Operator& a_operator) = default;
     //Operator& operator=(const Operator& a_operator) = default;
-    virtual ~Operator() = 0;
 
     virtual int Calculate() const = 0;
     virtual void Print(std::ostream& a_os) const = 0;
 
 protected:
+    virtual ~Operator() = 0; // a_left and a_right are destroyed in the DTOR.
+   
     ExprTree* GetLeftExprTree() const { return m_left; }
     ExprTree* GetRightExprTree() const { return m_right; }
 

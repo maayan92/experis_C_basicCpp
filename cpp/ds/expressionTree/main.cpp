@@ -10,41 +10,11 @@ typedef experis::AddOp AddOp;
 typedef experis::MulOp MulOp;
 typedef experis::Number Number;
 
-void TestCreateNumber() {
-    experis::Number *num = new experis::Number(5);
-    static int testNum = 0;
-
-    std::cout << "number create test " <<  ++testNum << ": \t\t\t \033[1;31m"
-            << ((num->Calculate() == 5) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
-
-    delete num;
-}
-
-void TestCreateAddOp() {
-    AddOp *add = new AddOp(new Number(1), new Number(3)); 
-    static int testNum = 0;
-
-    std::cout << "add expression test " <<  ++testNum << ": \t\t\t \033[1;31m"
-            << ((add->Calculate() == 4) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
-
-    delete add;
-}
-
-void TestCreateMulOp() {
-    MulOp *mul = new MulOp(new Number(1), new Number(3)); 
-    static int testNum = 0;
-
-    std::cout << "multiple expression create test " <<  ++testNum << ": \t \033[1;31m"
-            << ((mul->Calculate() == 3) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
-
-    delete mul;
-}
-
-void TestCreateExprTree(ExprTree *a_expr, size_t a_sum) {
+void TestCreateExprTree(ExprTree *a_expr, const char* a_str, size_t a_sum) {
     
     static int testNum = 0;
 
-    std::cout << "expression tree create test " <<  ++testNum << ": \t\t \033[1;31m"
+    std::cout << a_str << " create test " <<  ++testNum << ": \t\t \033[1;31m"
             << ((a_expr->Calculate() == a_sum) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
     
 }
@@ -62,13 +32,21 @@ void TestExprTrePrintToFile(ExprTree *a_expr, size_t a_sum, std::ofstream& a_fil
 
 
 int main() {
+    
+    ExprTree *exprNumber = new Number(5);
+    TestCreateExprTree(new Number(5), "expression num",  5);
+    delete exprNumber;
 
-    TestCreateNumber();
-    TestCreateAddOp();
-    TestCreateMulOp();
+    ExprTree *exprAdd = new AddOp(new Number(1), new Number(3));
+    TestCreateExprTree(exprAdd, "expression add", 4);
+    delete exprAdd;
+
+    ExprTree *exprMul = new MulOp(new Number(1), new Number(3));
+    TestCreateExprTree(exprMul, "expression mul", 3);
+    delete exprMul;
 
     ExprTree *exprfirst = new AddOp(new Number(3), new MulOp(new Number(4), new Number(5)));
-    TestCreateExprTree(exprfirst, 23);
+    TestCreateExprTree(exprfirst, "expression tree", 23);
 
     ExprTree *exprSecond = new AddOp(new AddOp(new Number(1),
                                     new MulOp(new Number(9),
@@ -76,7 +54,7 @@ int main() {
                                                     new MulOp(new Number(3),
                                                             new Number(2))))),
                             new Number(27));
-    TestCreateExprTree(exprSecond, 100);
+    TestCreateExprTree(exprSecond, "expression tree", 100);
 
     std::ofstream file("exprTree.txt");
     TestExprTrePrintToFile(exprfirst, 23, file);

@@ -7,21 +7,15 @@
 #include <map>
 #include <queue>
 
-struct Path::FindMin {
-        bool operator()(const NameWeight& a_left, const NameWeight& a_right) {
-                return a_left.m_weight < a_right.m_weight;
-        }
-};
-
 class Path {
         typedef Vertex::VertexName VertexName;
         typedef Vertex::EdgeWeight EdgeWeight;
         typedef std::map<VertexName,VertexName> ChildFather;
         typedef std::map<VertexName, NameWeight> ChildFatherWeight;
         typedef std::queue<VertexName> GoOverVertices;
+        typedef std::set<VertexName> Visited;
 public:
         typedef std::stack<VertexName> PathStack;
-        typedef std::set<VertexName> Visited;
 
         Path(const Graph& a_graph);
         //Path(const Path& a_path) = default;
@@ -56,6 +50,13 @@ private:
         Visited m_visited;
         PathStack m_path;
         ChildFatherWeight m_childFatherWeight;
+};
+
+struct Path::FindMin {
+        typedef std::pair<VertexName, NameWeight> PathAndWeight;
+        bool operator()(const PathAndWeight& a_left, const PathAndWeight& a_right) {
+                return a_left.second.m_weight < a_right.second.m_weight;
+        }
 };
 
 #endif

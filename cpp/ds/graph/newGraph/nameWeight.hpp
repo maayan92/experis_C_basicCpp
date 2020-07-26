@@ -10,11 +10,10 @@ class NameWeight {
     typedef Vertex::VertexName VertexName;
     typedef Vertex::EdgeWeight EdgeWeight;
 public:
+    NameWeight() {}
     NameWeight(const VertexName& a_name, const EdgeWeight& m_weight);
     //NameWeight(const NameWeight& a_nameWeight) = default;
     //NameWeight& operator=(const NameWeight& a_nameWeight) = default;
-
-protected:
     ~NameWeight() {}
 
 private:
@@ -27,7 +26,7 @@ private:
 
 //namespace experis {
 
-NameWeight::NameWeight(const VertexName& a_name, const EdgeWeight& a_weight)
+inline NameWeight::NameWeight(const VertexName& a_name, const EdgeWeight& a_weight)
 : m_name(a_name)
 , m_weight(a_weight) {
 }

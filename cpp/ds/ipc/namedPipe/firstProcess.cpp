@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <time.h>
 
+namespace experis {
+
 const int MSG_SIZE = 20;
 
 static void CheckMessage(char *a_msgRecieve, char *a_msgSend) {
@@ -54,6 +56,8 @@ static void Communicate(char *a_fifo) {
     RecieveMessage(a_fifo, msgSend);
 }
 
+} // experis
+
 int main() {
 
     char *fifo = "fifo";
@@ -62,7 +66,7 @@ int main() {
         std::cout << "open fifo pipe failed!" << std::endl;
     }
 
-    Communicate(fifo);
+    experis::Communicate(fifo);
     unlink(fifo);
 
     return 0; 

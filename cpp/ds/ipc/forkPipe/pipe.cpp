@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <time.h>
 
+namespace experis {
+
 const int MSG_SIZE = 20;
 const int READ = 0;
 const int WRITE = 1;
@@ -79,8 +81,10 @@ void ForkPipe() {
     }
 }
 
+} //experis
+
 int main() {
-    ForkPipe();
+    experis::ForkPipe();
 
     return 0;
 }

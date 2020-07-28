@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+namespace experis {
+
 const int MSG_SIZE = 20;
 
 static void SendMessage(char *a_fifo, char *a_message) {
@@ -37,11 +39,13 @@ static void Communicate(char *a_fifo) {
     SendMessage(a_fifo, message);
 }
 
+} // experis
+
 int main() {
 
     char *fifo = "fifo";
   
-    Communicate(fifo);
+    experis::Communicate(fifo);
 
     return 0; 
 }

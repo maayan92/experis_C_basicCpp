@@ -10,15 +10,15 @@ const int SHM_SIZE = 1000;
 
 class ExcCreateFailed : std::exception {
 public:  
-    const char* what() const throw() { return "shared memory create failed!"; }
+    const char* what() const throw() { return "failed shared memory create!"; }
 };
 class ExcAttachingFailed : std::exception {
 public:
-    const char* what() const throw() { return "shared memory attaching failed!"; }
+    const char* what() const throw() { return "failed shared memory attaching!"; }
 };
 class ExcDetachingFailed : std::exception {
 public:
-    const char* what() const throw() { return "shared memory detaching failed!"; }
+    const char* what() const throw() { return "failed shared memory detaching!"; }
 };
 
 struct MemoryStructure {

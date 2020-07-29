@@ -22,7 +22,6 @@ MemoryStructure* AttachingSharedMemory(int a_shmid) {
     if(!sharedMemAddr) {
         throw ExcAttachingFailed();
     }
-    throw ExcAttachingFailed();
 
     return sharedMemAddr;
 }

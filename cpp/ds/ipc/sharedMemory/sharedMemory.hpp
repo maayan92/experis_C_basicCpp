@@ -8,13 +8,18 @@ namespace experis {
 
 const int SHM_SIZE = 1000;
 
-enum {
-    CREATE_SHM_FAILED = -1
+class ExcCreateFailed : std::exception {
+public:  
+    const char* what() const throw() { return "shared memory create failed!"; }
 };
-
-class ExcCreateFailed : std::exception {};
-class ExcAttachingFailed : std::exception {};
-class ExcDetachingFailed : std::exception {};
+class ExcAttachingFailed : std::exception {
+public:
+    const char* what() const throw() { return "shared memory attaching failed!"; }
+};
+class ExcDetachingFailed : std::exception {
+public:
+    const char* what() const throw() { return "shared memory detaching failed!"; }
+};
 
 struct MemoryStructure {
 		unsigned long readidx;

@@ -16,15 +16,30 @@ void FillNumbers(MemoryStructure *a_sharedMemAddr) {
 
 int main() {
 
-    int shmid = experis::CreateSharedMemory("sharedMemory");
+    try {
+        int shmid = experis::CreateSharedMemory("sharedMemory");
 
-    experis::MemoryStructure *sharedMemAddr = experis::AttachingSharedMemory(shmid);
+        experis::MemoryStructure *sharedMemAddr = experis::AttachingSharedMemory(shmid);
+
+        //lock
+        experis::FillNumbers(sharedMemAddr);
+        //unlock
+
+        experis::DetachingSharedMemory(sharedMemAddr);
+        
+    }catch(const experis::ExcCreateFailed& exc) {
+        exc.what();
+    }
+    catch(const experis::ExcAttachingFailed& exc) {
+        exc.what();
+    }
+    catch(const experis::ExcDetachingFailed& exc) {
+        exc.what();
+    }
+
     
-    //lock
-    experis::FillNumbers(sharedMemAddr);
-    //unlock
-
-    experis::DetachingSharedMemory(sharedMemAddr);
+    
+    
 
     return 0;
 }

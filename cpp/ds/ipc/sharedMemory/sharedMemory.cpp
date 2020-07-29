@@ -12,8 +12,6 @@ int CreateSharedMemory(const char* a_fileName) {
     int shmid = shmget(key, sizeof(MemoryStructure), 0644|IPC_CREAT);
     if (shmid == -1) {
         throw ExcCreateFailed();
-        //std::cout << "Shared memory create failed!" << std::endl;
-        //return CREATE_SHM_FAILED;
     }
     
     return shmid;
@@ -23,9 +21,8 @@ MemoryStructure* AttachingSharedMemory(int a_shmid) {
     MemoryStructure *sharedMemAddr = (MemoryStructure*)shmat(a_shmid, NULL, 0);
     if(!sharedMemAddr) {
         throw ExcAttachingFailed();
-        //std::cout << "Shared memory attaching failed!" << std::endl;
-        //return 0;
     }
+    throw ExcAttachingFailed();
 
     return sharedMemAddr;
 }
@@ -33,7 +30,6 @@ MemoryStructure* AttachingSharedMemory(int a_shmid) {
 void DetachingSharedMemory(MemoryStructure *a_sharedMemAddr) {
     if(0 > shmdt(a_sharedMemAddr)) {
         throw ExcDetachingFailed();
-        //std::cout << "shared memory detaching failed!" << std::endl;
     }
 }
 

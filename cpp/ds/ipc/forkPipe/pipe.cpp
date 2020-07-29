@@ -60,7 +60,6 @@ static void FatherCode(int *a_fd) {
 }
 
 void ForkPipe() {
-    pid_t pid;
     int fd[2];
 
     if(-1 == pipe(fd)) {
@@ -68,7 +67,7 @@ void ForkPipe() {
         return;
     }
 
-    pid = fork();
+    pid_t pid = fork();
     if(pid == 0) { // child
         ChildCode(fd);
     }

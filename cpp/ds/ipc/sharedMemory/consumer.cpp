@@ -29,13 +29,18 @@ void WriteResultToSharedMemory(MemoryStructure *a_sharedMemAddr, long a_num, boo
 }
 
 void RunConsumer(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
-    sem_wait(a_semaphore);
+    while(a_sharedMemAddr->readidx < SHM_SIZE) {
+       
+        sem_wait(a_semaphore);
+        long number = ReadNumberFromSharedMemory(a_sharedMemAddr);
+        sem_post(a_semaphore);
 
-    long number = ReadNumberFromSharedMemory(a_sharedMemAddr);
-    bool isPrime = experis::CheckIfPrimeNumber(number);
-    WriteResultToSharedMemory(a_sharedMemAddr, number, isPrime);
+        bool isPrime = experis::CheckIfPrimeNumber(number);
 
-    sem_post(a_semaphore);
+        sem_wait(a_semaphore);
+        WriteResultToSharedMemory(a_sharedMemAddr, number, isPrime);
+        sem_post(a_semaphore);
+    }
 }
 
 } // experis
@@ -46,12 +51,12 @@ int main() {
 
         experis::MemoryStructure *sharedMemAddr = experis::AttachingSharedMemory(shmid);
 
-        sem_t *semaphore = sem_open("/readWriteSem", O_CREAT, 0644, 0);
+        sem_t *semaphore = sem_open("/readWriteSem", O_CREAT);
         if (semaphore == SEM_FAILED) {
             std::cout << "Failed to open semphore" << std::endl;
            return 1;
         }
-        
+        sem_post(semaphore);
         RunConsumer(sharedMemAddr, semaphore);
 
         sem_close(semaphore);

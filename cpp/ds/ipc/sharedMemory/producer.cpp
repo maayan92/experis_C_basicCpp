@@ -6,10 +6,12 @@
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>        /* For mode constants */
 #include <semaphore.h>
+#include <time.h>
 
 namespace experis {
 
 void FillNumbersToSharedMemory(MemoryStructure *a_sharedMemAddr) {
+    srand(time(NULL));
     for(int i = 0; i < SHM_SIZE ; ++i) {
         a_sharedMemAddr->nums[i] = (rand() + 1) % 1000;
     }
@@ -34,12 +36,12 @@ void WaitForConsumerToSetResult(MemoryStructure *a_sharedMemAddr, sem_t *a_semap
 }
 
 void RunProducer(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
-    sem_post(a_semaphore);
     sem_wait(a_semaphore);
     experis::FillNumbersToSharedMemory(a_sharedMemAddr);
     sem_post(a_semaphore);
 
     experis::WaitForConsumerToSetResult(a_sharedMemAddr, a_semaphore);
+
     PrintResultFromSharedMemory(a_sharedMemAddr);
 }
 
@@ -58,7 +60,9 @@ int main() {
             std::cout << "failed to open semphore" << std::endl;
             return 1;
         }
-
+        sem_wait(semaphore);
+        sem_wait(semaphore);
+        sem_wait(semaphore);
         RunProducer(sharedMemAddr, semaphore);
         
         sem_close(semaphore);

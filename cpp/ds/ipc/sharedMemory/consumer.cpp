@@ -3,6 +3,7 @@
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>        /* For mode constants */
 #include <semaphore.h>
+#include <assert.h>
 
 namespace experis {
 
@@ -18,28 +19,32 @@ bool CheckIfPrimeNumber(long a_number) {
     return true;
 }
 
-long ReadNumberFromSharedMemory(MemoryStructure *a_sharedMemAddr) {
-    return a_sharedMemAddr->nums[a_sharedMemAddr->readidx++];
+unsigned long ReadNumberFromSharedMemory(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
+    sem_wait(a_semaphore);
+    if(a_sharedMemAddr->readidx >= SHM_SIZE) {
+        return 0;
+    }
+    long num =  a_sharedMemAddr->nums[a_sharedMemAddr->readidx++];
+    sem_post(a_semaphore);
+
+    return num;
 }
 
-void WriteResultToSharedMemory(MemoryStructure *a_sharedMemAddr, long a_num, bool a_isPrime) {
+void WriteResultToSharedMemory(MemoryStructure *a_sharedMemAddr, long a_num, bool a_isPrime, sem_t *a_semaphore) {
+    sem_wait(a_semaphore);
     a_sharedMemAddr->result[a_sharedMemAddr->writeidx].isPrime = a_isPrime;
     a_sharedMemAddr->result[a_sharedMemAddr->writeidx].orignum = a_num;
     ++a_sharedMemAddr->writeidx;
+    sem_post(a_semaphore);
 }
 
 void RunConsumer(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
     while(a_sharedMemAddr->readidx < SHM_SIZE) {
-       
-        sem_wait(a_semaphore);
-        long number = ReadNumberFromSharedMemory(a_sharedMemAddr);
-        sem_post(a_semaphore);
+        unsigned long number = ReadNumberFromSharedMemory(a_sharedMemAddr, a_semaphore);
+        if(!number) { break; }
 
         bool isPrime = experis::CheckIfPrimeNumber(number);
-
-        sem_wait(a_semaphore);
-        WriteResultToSharedMemory(a_sharedMemAddr, number, isPrime);
-        sem_post(a_semaphore);
+        WriteResultToSharedMemory(a_sharedMemAddr, number, isPrime, a_semaphore);
     }
 }
 
@@ -56,14 +61,18 @@ int main() {
             std::cout << "Failed to open semphore" << std::endl;
            return 1;
         }
-        sem_post(semaphore);
+        int status = sem_post(semaphore);
+        assert(0 == status);
         RunConsumer(sharedMemAddr, semaphore);
 
         sem_close(semaphore);
         sem_unlink("/readWriteSem");
         experis::DetachingSharedMemory(sharedMemAddr);
         
-    }catch(const experis::ExcCreateFailed& exc) {
+    }catch(const experis::ExcGetShmKeyFailed& exc) {
+        std::cout << exc.what() << std::endl;
+    }
+    catch(const experis::ExcCreateFailed& exc) {
         std::cout << exc.what() << std::endl;
     }
     catch(const experis::ExcAttachingFailed& exc) {

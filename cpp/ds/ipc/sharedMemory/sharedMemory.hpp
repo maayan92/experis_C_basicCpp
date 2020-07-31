@@ -8,14 +8,21 @@ namespace experis {
 
 const int SHM_SIZE = 1000;
 
+class ExcGetShmKeyFailed : std::exception {
+public:  
+    const char* what() const throw() { return "failed shared memory create!"; }
+};
+
 class ExcCreateFailed : std::exception {
 public:  
     const char* what() const throw() { return "failed shared memory create!"; }
 };
+
 class ExcAttachingFailed : std::exception {
 public:
     const char* what() const throw() { return "failed shared memory attaching!"; }
 };
+
 class ExcDetachingFailed : std::exception {
 public:
     const char* what() const throw() { return "failed shared memory detaching!"; }
@@ -34,7 +41,6 @@ struct MemoryStructure {
 int CreateSharedMemory(const char* a_fileName);
 MemoryStructure* AttachingSharedMemory(int a_shmid);
 void DetachingSharedMemory(MemoryStructure *a_sharedMemAddr);
-
 
 } // experis
 

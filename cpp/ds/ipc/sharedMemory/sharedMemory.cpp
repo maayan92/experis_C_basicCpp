@@ -7,9 +7,12 @@ namespace experis {
 
 int CreateSharedMemory(const char* a_fileName) {
     std::ofstream file(a_fileName);
-    key_t key = ftok(a_fileName,65);
+    key_t shmKey = ftok(a_fileName,65);
+    if(0 > shmKey) {
+        throw ExcGetShmKeyFailed();
+    }
 
-    int shmid = shmget(key, sizeof(MemoryStructure), 0644|IPC_CREAT);
+    int shmid = shmget(shmKey, sizeof(MemoryStructure), 0644|IPC_CREAT);
     if (shmid == -1) {
         throw ExcCreateFailed();
     }
@@ -19,7 +22,7 @@ int CreateSharedMemory(const char* a_fileName) {
 
 MemoryStructure* AttachingSharedMemory(int a_shmid) {
     MemoryStructure *sharedMemAddr = (MemoryStructure*)shmat(a_shmid, NULL, 0);
-    if(!sharedMemAddr) {
+    if(sharedMemAddr == ((void*)-1)) {
         throw ExcAttachingFailed();
     }
 

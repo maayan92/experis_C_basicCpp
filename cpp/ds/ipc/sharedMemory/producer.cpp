@@ -13,7 +13,7 @@ namespace experis {
 void FillNumbersToSharedMemory(MemoryStructure *a_sharedMemAddr) {
     srand(time(NULL));
     for(int i = 0; i < SHM_SIZE ; ++i) {
-        a_sharedMemAddr->nums[i] = (rand() + 1) % 1000;
+        a_sharedMemAddr->nums[i] = random();
     }
 }
 
@@ -26,8 +26,8 @@ void PrintResultFromSharedMemory(MemoryStructure *a_sharedMemAddr) {
 }
 
 void WaitForConsumerToSetResult(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
-    long prevWriteIdx = 0;
-    long curWriteIdx;
+    unsigned long prevWriteIdx = 0;
+    unsigned long curWriteIdx;
     do {
         sem_wait(a_semaphore);
         curWriteIdx = a_sharedMemAddr->writeidx;
@@ -45,6 +45,12 @@ void RunProducer(MemoryStructure *a_sharedMemAddr, sem_t *a_semaphore) {
     PrintResultFromSharedMemory(a_sharedMemAddr);
 }
 
+void WaitForConsumers(sem_t *a_semaphore) {
+    sem_wait(a_semaphore);
+    sem_wait(a_semaphore);
+    sem_wait(a_semaphore);
+}
+
 } // experis
 
 int main() {
@@ -60,16 +66,17 @@ int main() {
             std::cout << "failed to open semphore" << std::endl;
             return 1;
         }
-        sem_wait(semaphore);
-        sem_wait(semaphore);
-        sem_wait(semaphore);
+        experis::WaitForConsumers(semaphore);
         RunProducer(sharedMemAddr, semaphore);
         
         sem_close(semaphore);
         sem_unlink("/readWriteSem");
         experis::DetachingSharedMemory(sharedMemAddr);
         
-    }catch(const experis::ExcCreateFailed& exc) {
+    }catch(const experis::ExcGetShmKeyFailed& exc) {
+        std::cout << exc.what() << std::endl;
+    }
+    catch(const experis::ExcCreateFailed& exc) {
         std::cout << exc.what() << std::endl;
     }
     catch(const experis::ExcAttachingFailed& exc) {

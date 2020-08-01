@@ -5,14 +5,18 @@
 
 namespace experis {
 
-class Tolower : Manipulator {
+class Tolower : public Manipulator {
 public:
+    // inherits from Manipulator:
+    //void Manipulation(Tokenizer::Tokens& m_buffer);
+    
     //Tolower() = default;
     //Tolower(const Tolower& a_tolower) = default;
     //Tolower& operator=(const Tolower& a_tolower) = default;
-    //virtual ~Tolower() = default;
     
-    virtual void Manipulation(Tokenizer::Tokens& m_buffer);
+    virtual void TokenManipulation(std::string& a_token);
+private:
+    virtual ~Tolower() {}
 };
 
 } // experis

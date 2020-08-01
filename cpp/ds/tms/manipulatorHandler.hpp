@@ -2,9 +2,14 @@
 #define __MANIPULATOR_HANDLER_H__
 
 #include <vector>
+#include <exception>
 #include "manipulator.hpp"
 
 namespace experis {
+
+class ExcNullInput : public std::exception {
+    const char* what() const throw() { return "NULL input!"; }
+};
 
 class ManipulatorHandler {
     typedef std::vector<Manipulator*> Manipulators;
@@ -15,8 +20,9 @@ public:
     //ManipulatorHandler& operator=(const ManipulatorHandler& a_manipulator) = default;
     ~ManipulatorHandler();
 
-    void DoAllManipulation();
-    std::string GatBuffer() const;
+    // bad_alloc exception is thrown on failure.
+    void AddManipulator(const Manipulator* a_manipulator);
+    Tokenizer::Tokens DoAllManipulation();
 
 private:
     Manipulators m_manipulators;

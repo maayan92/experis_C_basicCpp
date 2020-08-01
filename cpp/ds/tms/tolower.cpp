@@ -2,12 +2,10 @@
 
 namespace experis {
 
-void Tolower::Manipulation(Tokenizer::Tokens& m_buffer) {
-    //for(int i = 0 ; i < a_str.size() ; ++i) {
-    //    a_str[i] = tolower(a_str[i]);
-    //}
-
-    //return a_str;
+void Tolower::TokenManipulation(std::string& a_token) {
+    for(int i = 0 ; i < a_token.size() ; ++i) {
+        a_token[i] = tolower(a_token[i]);
+    }
 }
 
 } // experis

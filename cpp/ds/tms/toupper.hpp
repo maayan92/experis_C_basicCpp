@@ -11,11 +11,11 @@ public:
     //void Manipulation(Tokenizer::Tokens& m_buffer);
     
     //Toupper() = default;
-    //Toupper(const Toup& a_toup) = default;
-    //Toupper& operator=(const Toup& a_toup) = default;
+    //Toupper(const Toupper& a_toupper) = default;
     
     virtual void TokenManipulation(std::string& a_token);
 private:
+    Toupper& operator=(const Toupper& a_toupper);
     virtual ~Toupper() {}
 };
 

@@ -43,7 +43,11 @@ void Tokenizer::DivideLineIntoTokens(std::string& a_wordFromFile) {
 void Tokenizer::SetTokensToFile(std::ostream& a_outFile) const {
     for(size_t position = 0 ; position < m_tokens.size() ; ++position) {
         a_outFile <<  m_tokens[position];
-    }    
+    }
+}
+
+const Tokenizer::Tokens& Tokenizer::GetTokens() const {
+    return m_tokens;
 }
 
 } // experis

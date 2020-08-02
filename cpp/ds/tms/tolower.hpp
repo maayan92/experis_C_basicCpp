@@ -12,10 +12,10 @@ public:
     
     //Tolower() = default;
     //Tolower(const Tolower& a_tolower) = default;
-    //Tolower& operator=(const Tolower& a_tolower) = default;
     
     virtual void TokenManipulation(std::string& a_token);
 private:
+    Tolower& operator=(const Tolower& a_tolower);
     virtual ~Tolower() {}
 };
 

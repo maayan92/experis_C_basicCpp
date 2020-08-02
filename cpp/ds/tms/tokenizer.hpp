@@ -19,6 +19,7 @@ public:
 
     Tokens& DivideIntoTokens(std::ifstream& a_inputFile);
     void SetTokensToFile(std::ostream& a_outFile) const;
+    const Tokens& GetTokens() const;
 
 private:
     void DivideLineIntoTokens(std::string& a_wordFromFile);

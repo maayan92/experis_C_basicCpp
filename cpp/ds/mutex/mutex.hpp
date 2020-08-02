@@ -3,31 +3,42 @@
 
 #include <pthread.h>
 #include <exception>
-#include <assert.h>
+#include "uncopyable.hpp"
 
 namespace experis {
 
-class ExcMutexInitFailed : public std::exception {
+class ExcNotEnoughPermission : public std::exception {
 public:
-    virtual const char* what() const throw() { return "mutex initialization failed!"; }
+    virtual const char* what() const throw() { 
+        return "initialization error - not enough permission!";
+    }
 };
 
-class ExcLockFailed : public std::exception {
+class ExcNotEnoughSyncResources : public std::exception {
 public:
-    virtual const char* what() const throw() { return "mutex lock failed!"; }
+    virtual const char* what() const throw() {
+        return "initialization error - not enough synchronize resources";
+    }
 };
 
-class ExcUnLockFailed : public std::exception {
+class ExcMutexIsAlreadyLocked : public std::exception {
 public:
-    virtual const char* what() const throw() { return "mutex unlock failed!"; }
+    virtual const char* what() const throw() {
+        return "lock error - mutex is already locked!";
+    }
 };
 
-class Mutex {
+class ExcDoesNotOwnCurrentMutex : public std::exception {
+public:
+    virtual const char* what() const throw() {
+        return "unlock error - doesn't own current mutex!";
+    }
+};
+
+class Mutex : private Uncopyable{
 public:
     Mutex();
-    //Mutex(const Mutex& a_mutex) = default;
     ~Mutex();
-    //Mutex& operator=(const Mutex& a_mutex) = default;
 
     void Lock();
     void Unlock();

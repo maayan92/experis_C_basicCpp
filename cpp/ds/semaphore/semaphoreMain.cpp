@@ -10,16 +10,7 @@ int main() {
         semaphore.Post();
         semaphoreBinary.Wait();
         semaphoreBinary.Post();
-    }catch(const experis::ExcValueTooBig& exc) {
-        std::cout << exc.what() << std::endl;
-    }
-    catch(const experis::ExcInterruptedBySignalHandler& exc) {
-        std::cout << exc.what() << std::endl;
-    }
-    catch(const experis::ExcTimeOutBeforeLocked& exc) {
-        std::cout << exc.what() << std::endl;
-    }
-    catch(const experis::ExcMaximumAllowableValue& exc) {
+    }catch(const std::exception& exc) {
         std::cout << exc.what() << std::endl;
     }
     

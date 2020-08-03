@@ -1,7 +1,6 @@
 #include "tolower.hpp"
 #include "toupper.hpp"
 #include "manipulatorHandler.hpp"
-#include <sstream>
 
 namespace experis { 
 
@@ -45,15 +44,6 @@ static void TestTokenizerDivideToTokens(std::ifstream& a_file) {
     std::cout << "tokenizer divide into tokens test " <<  ++testNum << ": \t \033[1;31m"
             << ((resultCompare == result) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
 
-}
-
-static void TestTokenizerSetTokensToStream(Tokenizer& a_tokenizer, std::stringstream& a_str) {
-    std::stringstream outResult;
-    a_tokenizer.SetTokensToFile(outResult);
-
-    static size_t testNum = 0;
-    std::cout << "tokenizer tokens to stream test " <<  ++testNum << ": \t \033[1;31m"
-            << ((a_str.str() == outResult.str()) ? "SUCCESS" : "FAILED") << "\033[0m" << std::endl;
 }
 
 static void TestTolower(Tokenizer::Tokens& a_tokens) {
@@ -100,7 +90,7 @@ static void TestManipulatorHandler(Tokenizer::Tokens& a_tokens) {
 
 } // experis
 
-int main(int argc, char* argv[]) {
+int main(int a_argc, char* a_argv[]) {
 
     std::ifstream file("file.txt");
 
@@ -114,9 +104,6 @@ int main(int argc, char* argv[]) {
     experis::Tokenizer tokenizer(s);
     experis::Tokenizer::Tokens result = tokenizer.DivideIntoTokens(file);
 
-    std::stringstream str("I FORgot bla!Bla Pfg\nheLLo()hh wor0LD\n");
-    experis::TestTokenizerSetTokensToStream(tokenizer, str);
-    
     //test tolower:
     experis::TestTolower(result);
 
@@ -127,6 +114,6 @@ int main(int argc, char* argv[]) {
     experis::TestManipulatorHandler(result);
 
     file.close();
-
+    
     return 0;
 }

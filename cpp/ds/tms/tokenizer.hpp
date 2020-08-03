@@ -17,8 +17,7 @@ public:
     //~Tokenizer() = default;
     //Tokenizer& operator=(const Tokenizer& a_tokenizer) = default;
 
-    Tokens& DivideIntoTokens(std::ifstream& a_inputFile);
-    void SetTokensToFile(std::ostream& a_outFile) const;
+    Tokens& DivideIntoTokens(std::istream& a_inputFile);
     const Tokens& GetTokens() const;
 
 private:

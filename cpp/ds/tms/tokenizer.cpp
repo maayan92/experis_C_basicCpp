@@ -11,7 +11,7 @@ static bool checkIfSpace(const char _first, const char _itr) {
     return (isspace(_first) || _first == _itr);
 }
 
-Tokenizer::Tokens& Tokenizer::DivideIntoTokens(std::ifstream& a_inputFile) {
+Tokenizer::Tokens& Tokenizer::DivideIntoTokens(std::istream& a_inputFile) {
 	std::string wordFromFile;
 	while(getline(a_inputFile, wordFromFile)) {
         DivideLineIntoTokens(wordFromFile);
@@ -38,12 +38,6 @@ void Tokenizer::DivideLineIntoTokens(std::string& a_wordFromFile) {
 
     token = std::string(wordItrFrom,wordItrTo);
 	if(0 < token.size()) { m_tokens.push_back(token); }
-}
-
-void Tokenizer::SetTokensToFile(std::ostream& a_outFile) const {
-    for(size_t position = 0 ; position < m_tokens.size() ; ++position) {
-        a_outFile <<  m_tokens[position];
-    }
 }
 
 const Tokenizer::Tokens& Tokenizer::GetTokens() const {

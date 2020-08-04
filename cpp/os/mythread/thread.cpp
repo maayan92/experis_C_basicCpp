@@ -6,6 +6,8 @@ namespace experis {
 
 static void* RunnableDo(void* a_threadAction) {
     ((Runnable*)a_threadAction)->Do();
+
+    return NULL;
 }
 
 Thread::Thread(Runnable &a_threadAction)
@@ -34,16 +36,14 @@ void Thread::Join() {
     if(!m_hasJoined) {
         int status = pthread_join(m_thread, NULL);
         if(0 != status) {
-            switch(status) {
-                case EINVAL:
-                    throw ExcThreadNotJoinable();
-                case EDEADLK:
-                    throw ExcDeadlockDetected();
-                case ESRCH:
-                    throw ExcThreadNotExist();
-                default:
-                    assert(!"undocumented error for pthread_join");
+            assert(ESRCH != status);
+            if(EINVAL == status) {
+                throw ExcThreadNotJoinable();
             }
+            if(EDEADLK == status) {
+                throw ExcDeadlockDetected();
+            }
+            assert(!"undocumented error for pthread_join");
         }
         m_hasJoined = true;
     }

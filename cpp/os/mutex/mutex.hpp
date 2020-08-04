@@ -42,6 +42,7 @@ public:
 
     void Lock();
     void Unlock();
+    pthread_mutex_t& GetMutex();
 
 private:
     pthread_mutex_t m_locker;

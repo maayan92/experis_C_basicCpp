@@ -10,8 +10,8 @@ Mutex::Mutex()
 , Uncopyable() {
     int status = pthread_mutex_init(&m_locker, NULL);
     if(0 != status) {
-        assert(status != EINVAL);
-        assert(status != EBUSY);
+        assert(EINVAL != status);
+        assert(EBUSY != status);
 
         if(EPERM == status) {
             throw ExcNotEnoughPermission();
@@ -34,9 +34,9 @@ Mutex::~Mutex() { // one error is possible
 void Mutex::Lock() {
     int status = pthread_mutex_lock(&m_locker);
     if(0 != status) {
-        assert(status != EINVAL);
-        assert(status != EBUSY);
-        assert(status != EAGAIN);
+        assert(EINVAL != status);
+        assert(EBUSY != status);
+        assert(EAGAIN != status);
         
         if(EDEADLK == status) {
             throw ExcMutexIsAlreadyLocked();
@@ -48,15 +48,16 @@ void Mutex::Lock() {
 void Mutex::Unlock() {
     int status = pthread_mutex_unlock(&m_locker);
     if(0 != status) {
-        assert(status != EINVAL);
-        assert(status != EBUSY);
-        assert(status != EAGAIN);
-        
-        if(EPERM == status) {
-            throw ExcDoesNotOwnCurrentMutex();
-        }
+        assert(EINVAL != status);
+        assert(EBUSY != status);
+        assert(EAGAIN != status);
+        assert(EPERM != status);
         assert(!"undocumented error for pthread_mutex_unlock");
     }
+}
+
+pthread_mutex_t& Mutex::GetMutex() {
+    return m_locker;
 }
 
 } // experis

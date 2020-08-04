@@ -54,10 +54,7 @@ void Semaphore::Post() {
     int status = sem_post(&m_semaphore);
     if(-1 == status) {
         assert(EINVAL != errno);
-
-        if(EOVERFLOW == errno) {
-            throw ExcMaximumAllowableValue();
-        }
+        assert(EOVERFLOW != errno);
         assert(!"undocumented error for sem_post");
     }
 }

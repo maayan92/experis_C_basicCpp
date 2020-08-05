@@ -23,7 +23,7 @@ ConditionVariable::ConditionVariable()
     }
 }
 
-ConditionVariable::~ConditionVariable() {
+ConditionVariable::~ConditionVariable() throw() {
     int status = pthread_cond_destroy(&m_condVar);
     if(0 != status) {
         assert(EINVAL != status);
@@ -43,12 +43,18 @@ void ConditionVariable::Wait(MutexLocker &a_mutex) {
 
 void ConditionVariable::NotifyOne() {
     int status = pthread_cond_signal(&m_condVar);
-    assert(0 == status);
+    if(0 != status) {
+        assert(EINVAL != status);
+        assert(!"undocumented error for pthread_cond_signal");
+    }
 }
 
 void ConditionVariable::NotifyAll() {
     int status = pthread_cond_broadcast(&m_condVar);
-    assert(0 == status);
+    if(0 != status) {
+        assert(EINVAL != status);
+        assert(!"undocumented error for pthread_cond_broadcast");
+    }
 }
 
 } // experis

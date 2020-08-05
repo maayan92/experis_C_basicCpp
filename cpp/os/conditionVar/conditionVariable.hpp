@@ -8,7 +8,7 @@ namespace experis {
 class ConditionVariable : private Uncopyable {
 public:
     ConditionVariable();
-    ~ConditionVariable();
+    ~ConditionVariable() throw();
 
     void NotifyOne();
     void NotifyAll();

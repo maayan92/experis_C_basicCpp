@@ -34,7 +34,7 @@ static MYSQL* ConnectToDB(const char* a_dbName) {
         PrintError(mySqlInit, "mysql_init");
      	return NULL;
   	}
-	mySqlConnect = mysql_real_connect(mySqlInit, "localhost", "maayan", "Nghhi4715", a_dbName, 0, NULL, 0);
+	mySqlConnect = mysql_real_connect(mySqlInit, "localhost", "maayan", "123456", a_dbName, 0, NULL, 0);
 	if(NULL == mySqlConnect) {
         PrintError(mySqlInit, "mysql_real_connect");
      	return NULL;

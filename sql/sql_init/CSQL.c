@@ -21,7 +21,7 @@ int main ()
   	} else {
 		puts("mysql_init Succedded");
 	}
-	Retval = mysql_real_connect(MySql, "localhost", "maayan", "Nghhi4715", "myDB", 0, NULL, 0);
+	Retval = mysql_real_connect(MySql, "localhost", "maayan", "123456", "myDB", 0, NULL, 0);
 	if(NULL == Retval) {
 		fprintf(stderr, "mysql_real_connect failed error: %d Msg: %s\n", mysql_errno(MySql), mysql_error(MySql));
 		mysql_close(MySql);

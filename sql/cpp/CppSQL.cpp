@@ -16,7 +16,7 @@ int main(void) {
     driver = get_driver_instance();
 
     sql::Connection* con;
-    con = driver->connect("localhost", "maayan", "Nghhi4715"); // tcp: // 127.0.0.1:3306
+    con = driver->connect("localhost", "maayan", "123456"); // tcp: // 127.0.0.1:3306
     cout << "con->isValid: " << con->isValid() << endl;
     cout << "con->getClientInfo: " << con->getClientInfo() << endl;
 

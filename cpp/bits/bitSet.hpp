@@ -3,15 +3,14 @@
 
 #include <iostream>
 #include <algorithm>
+#include "bitwiseOperations.hpp"
+#include "lut.hpp"
 
 namespace experis {
-typedef unsigned long BitsSetType;
 
 template<size_t N>
 class BitSet {
 public:
-    static const size_t BITS_SIZE = sizeof(BitsSetType)*8;
-
     BitSet();
     //BitSet(const BitSet& a_bitSet) = default;
     //~BitSet() = default;
@@ -31,8 +30,10 @@ public:
     //MysteryClass operator[](size_t a_bitidx);
     bool operator[](size_t a_bitidx) const;
 
-    BitSet& operator>>(size_t a_numOfBits);
-    BitSet& operator<<(size_t a_numOfBits);
+    BitSet operator>>(size_t a_numOfBits);
+    BitSet operator<<(size_t a_numOfBits);
+    //BitSet& operator>>=(size_t a_numOfBits);
+    //BitSet& operator<<=(size_t a_numOfBits);
 
     //other mem functions:
     BitSet& Set(size_t a_bitNum);
@@ -40,15 +41,17 @@ public:
     BitSet& Flip(size_t a_bitNum);
     BitSet& TurnAllOn();
     BitSet& TurnAllOff();
-    //size_t Count() const;
+    size_t Count() const;
     bool IsAllOn() const;
     bool IsAllOff() const;
     size_t Size() const { return N; }
 
 private:
+    class CountOnBits;
+
     static const size_t NUM_BLOCKS = (N / BITS_SIZE) + (((N % BITS_SIZE) != 0) ? 1 : 0);
-    //static const Lut lut;
     
+    Lut m_lut;
     BitsSetType m_bits[NUM_BLOCKS];
 };
 
@@ -56,35 +59,12 @@ private:
 
 namespace experis {
 
-static BitsSetType andOperator(BitsSetType a_left, BitsSetType a_right) {
-    return a_left & a_right;
-}
-
-static BitsSetType orOperator(BitsSetType a_left, BitsSetType a_right) {
-    return a_left | a_right;
-}
-
-static BitsSetType xorOperator(BitsSetType a_left, BitsSetType a_right) {
-    return a_left ^ a_right;
-}
-
-static BitsSetType tildaOperator(BitsSetType a_element) {
-    return ~a_element;
-}
-
-static BitsSetType turnOff(BitsSetType a_element) {
-    return a_element & 0;
-}
-
-static BitsSetType turnOn(BitsSetType a_element) {
-    return a_element | ~(0);
-}
-
 // CTOR:
 
 template<size_t N>
 BitSet<N>::BitSet()
-: m_bits() {
+: m_bits()
+, m_lut() {
 }
 
 // operations:
@@ -122,8 +102,8 @@ BitSet<N> BitSet<N>::operator^(const BitSet& a_bitSet) const {
 
 template<size_t N>
 BitSet<N>& BitSet<N>::operator~() {
-    std::transform (m_bits, m_bits + NUM_BLOCKS, m_bits, tildaOperator);
-    m_bits[NUM_BLOCKS - 1] >>= (BITS_SIZE - (N % BITS_SIZE));
+    std::transform (m_bits, m_bits + NUM_BLOCKS, m_bits, tildeOperator);
+    m_bits[NUM_BLOCKS - 1] &= ((BitsSetType)~(0) >> (BITS_SIZE - (N % BITS_SIZE)));
     return *this;
 }
 
@@ -151,53 +131,55 @@ bool BitSet<N>::operator[](size_t a_bitidx) const {
 }
 
 template<size_t N>
-class ShiftLeft {
-public:
-    ShiftLeft(size_t a_numOfBits) : m_numOfBits(a_numOfBits) {}
-    BitsSetType operator()(BitsSetType a_left, BitsSetType a_right) {
-        BitsSetType result = (~(0) & (a_left >> (m_numOfBits % BitSet<N>::BITS_SIZE)));
-        return result | (a_right << (BitSet<N>::BITS_SIZE - (m_numOfBits % BitSet<N>::BITS_SIZE)));
-    }
-private:
-    size_t m_numOfBits;
-};
-
-template<size_t N>
-BitSet<N>& BitSet<N>::operator>>(size_t a_numOfBits) {
-    size_t setFromPos = (a_numOfBits / BITS_SIZE);
+BitSet<N> BitSet<N>::operator>>(size_t a_numOfBits) {
+    BitSet<N> bitSetResult;
+    size_t setFromPos = a_numOfBits / BITS_SIZE;
     std::transform (m_bits + setFromPos, m_bits + (NUM_BLOCKS - 1)
-                    , m_bits + (setFromPos + 1), m_bits, ShiftLeft<N>(a_numOfBits));
+                    , m_bits + (setFromPos + 1), bitSetResult.m_bits, ShiftRight(a_numOfBits));
 
     ++setFromPos;
-    m_bits[NUM_BLOCKS - setFromPos] = (~(0) & (m_bits[NUM_BLOCKS - setFromPos] >> (a_numOfBits % BITS_SIZE)));
-    std::transform(m_bits + (NUM_BLOCKS - setFromPos + 1), m_bits + NUM_BLOCKS, m_bits, turnOff);
-
-    return *this;
+    bitSetResult.m_bits[NUM_BLOCKS - setFromPos] = (~(0) & (m_bits[NUM_BLOCKS - setFromPos] >> (a_numOfBits % BITS_SIZE)));
+    return bitSetResult;
 }
 
 template<size_t N>
-BitSet<N>& BitSet<N>::operator<<(size_t a_numOfBits) {
-    
-    return *this;
+BitSet<N> BitSet<N>::operator<<(size_t a_numOfBits) {
+    BitSet<N> bitSetResult;
+    size_t setFromPos = a_numOfBits / BITS_SIZE;
+    std::transform (m_bits, m_bits + (NUM_BLOCKS - 1 - setFromPos), m_bits + setFromPos
+                        , bitSetResult.m_bits + setFromPos + 1, ShiftLeft(a_numOfBits));
+
+    bitSetResult.m_bits[setFromPos] = m_bits[0] << (a_numOfBits % BITS_SIZE);
+    bitSetResult.m_bits[NUM_BLOCKS-1] &= ((BitsSetType)~(0) >> (BITS_SIZE - (N % BITS_SIZE)));
+    return bitSetResult;
 }
 
 // other mem functions
 
 template<size_t N>
 BitSet<N>& BitSet<N>::Set(size_t a_bitNum) {
-    m_bits[a_bitNum / BITS_SIZE] |= (1 << a_bitNum % BITS_SIZE);
+    if(a_bitNum <= N) { 
+        m_bits[a_bitNum / BITS_SIZE] |= (1 << a_bitNum % BITS_SIZE);
+    }
+
     return *this;
 }
 
 template<size_t N>
 BitSet<N>& BitSet<N>::Clear(size_t a_bitNum) {
-    m_bits[a_bitNum / BITS_SIZE] &= ~(1 << a_bitNum % BITS_SIZE);
+    if(a_bitNum <= N) { 
+        m_bits[a_bitNum / BITS_SIZE] &= ~(1 << a_bitNum % BITS_SIZE);
+    }
+
     return *this;
 }
 
 template<size_t N>
 BitSet<N>& BitSet<N>::Flip(size_t a_bitNum) {
-    m_bits[a_bitNum / BITS_SIZE] ^= (1 << a_bitNum % BITS_SIZE);
+    if(a_bitNum <= N) { 
+        m_bits[a_bitNum / BITS_SIZE] ^= (1 << a_bitNum % BITS_SIZE);
+    }
+
     return *this;
 }
 
@@ -213,14 +195,29 @@ BitSet<N>& BitSet<N>::TurnAllOff() {
     std::transform(m_bits, m_bits + NUM_BLOCKS, m_bits, turnOff);
     return *this;
 }
-/*
+
+template<size_t N>
+class BitSet<N>::CountOnBits {
+public:
+    CountOnBits() : m_sum() {}
+    unsigned long operator()(BitsSetType a_bits) {
+        for (size_t i = 0; i < sizeof(BitsSetType); i++) {
+            a_bits >>= (BYTE_IN_BITS * i);
+            m_sum += m_lut.GetLutResultByPosition(a_bits & 0xff);
+        }
+    }
+private:
+    size_t m_sum;
+};
+
 template<size_t N>
 size_t BitSet<N>::Count() const {
+    std::transform(m_bits, m_bits + NUM_BLOCKS, m_bits, CountOnBits());
     BitsSetType mask = turnOn(m_bits[0]);
     size_t count = 0;
     return (count + (m_bits[0] & mask));
 }
-*/
+
 
 template<size_t N>
 bool BitSet<N>::IsAllOn() const {

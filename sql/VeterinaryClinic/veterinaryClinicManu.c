@@ -69,14 +69,13 @@ static void PrintResult(MYSQL_RES *a_result) {
 
     for (int i = 0; i < numberOfColumns; ++i) {
         field = mysql_fetch_field(a_result);
-        printf("\033[1;31m%-10s |", field->name);
+        printf("\033[1;31m| %-10s", field->name);
     }
     printf("\033[0m\n");
     for (int i = 0; i < numberOfRows; ++i) {
         row = mysql_fetch_row(a_result);
-        printf("|");
         for (int j = 0; j < numberOfColumns; ++j) {
-            printf("%-10s |", row[j]);
+            printf("| %-10s", row[j]);
         }
         printf("\n");
     }
@@ -164,7 +163,7 @@ int main() {
                 printf("insert pet's id:");
                 scanf("%d", &petId);
 
-                sprintf(query, "select * from pets where petId = %d;", petId); 
+                sprintf(query, "select * from pets where petId = %d;", petId);
                 queryResult = SetQuery(mySql, query);
                 break;
             
@@ -206,7 +205,8 @@ int main() {
             if(result) { 
                 PrintResult(result);
             }
+            mysql_free_result(result);
         }
-
     } while(action != EXIT);
+    mysql_close(mySql);
 }

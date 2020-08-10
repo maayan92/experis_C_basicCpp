@@ -1,51 +1,148 @@
 #include "bitSet.hpp"
 
-typedef experis::BitSet<61> BitSet;
+typedef experis::BitSet<68> BitSet;
+
+namespace experis { 
+
+static void PrintTestResult(const char* a_testFunc, bool a_result, int& a_testNum, const char* a_tabs) {
+    std::cout << a_testFunc << ", test number " <<  ++a_testNum << a_tabs
+            << (a_result ? "\033[1;31mSUCCESS" : "\033[1;32mFAILED") 
+                << "\033[0m" << std::endl;
+}
+
+static void TestCreateBitSet(){
+    BitSet<68> bitSet;
+    static int testNum = 0;
+    PrintTestResult("create bitset", bitSet.Size() == 68, testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorEqual(BitSet<N>& a_bitSetLeft, BitSet<N>& a_bitSetRight, bool a_equal){
+    static int testNum = 0;
+    PrintTestResult("operator==", a_equal == (a_bitSetLeft == a_bitSetRight), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorNotEqual(BitSet<N>& a_bitSetLeft, BitSet<N>& a_bitSetRight, bool a_notEqual){
+    static int testNum = 0;
+    PrintTestResult("operator!=", a_notEqual == (a_bitSetLeft != a_bitSetRight), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorAnd(BitSet<N>& a_bitSetLeft, BitSet<N>& a_bitSetRight, BitSet<N>& a_bitSetResult){
+    static int testNum = 0;
+    PrintTestResult("operator&", a_bitSetResult == (a_bitSetLeft & a_bitSetRight), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorOr(BitSet<N>& a_bitSetLeft, BitSet<N>& a_bitSetRight, BitSet<N>& a_bitSetResult){
+    static int testNum = 0;
+    PrintTestResult("operator|", a_bitSetResult == (a_bitSetLeft | a_bitSetRight), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorXor(BitSet<N>& a_bitSetLeft, BitSet<N>& a_bitSetRight, BitSet<N>& a_bitSetResult){
+    static int testNum = 0;
+    PrintTestResult("operator^", a_bitSetResult == (a_bitSetLeft ^ a_bitSetRight), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorTilde(BitSet<N>& a_bitSet, BitSet<N>& a_bitSetResult){
+    static int testNum = 0;
+    PrintTestResult("operator~", a_bitSetResult == (~a_bitSet), testNum, ":\t");
+}
+
+template<size_t N>
+static void TestOperatorSubscript(BitSet<N>& a_bitSet, size_t a_position, bool a_isOn){
+    static int testNum = 0;
+    PrintTestResult("operator[]", a_isOn == a_bitSet[a_position], testNum, ":\t");
+}
+
+template<size_t N>
+static void TestSet(BitSet<N>& a_bitSet, size_t a_position){
+    static int testNum = 0;
+    PrintTestResult("set", a_bitSet.Set(a_position)[a_position], testNum, ":\t\t");
+}
+
+template<size_t N>
+static void TestClear(BitSet<N>& a_bitSet, size_t a_position){
+    static int testNum = 0;
+    PrintTestResult("clear", !a_bitSet.Clear(a_position)[a_position], testNum, ":\t\t");
+}
+
+template<size_t N>
+static void TestFlip(BitSet<N>& a_bitSet, size_t a_position, bool a_isOn){
+    static int testNum = 0;
+    PrintTestResult("flip", a_isOn == a_bitSet.Flip(a_position)[a_position], testNum, ":\t\t");
+}
+
+} // experis
 
 int main() {
 
-    BitSet b1;
-    BitSet b2(b1);
+    // test create
+    experis::TestCreateBitSet();
 
-    //experis::Lut lut;
+    BitSet bitSetLeft;
+    BitSet bitSetRight(bitSetLeft);
 
-    //b1 = b2;
+    // test operator==
+    experis::TestOperatorEqual(bitSetLeft, bitSetRight, true);
+    bitSetRight.Set(64);
+    experis::TestOperatorEqual(bitSetLeft, bitSetRight, false);
 
-    std::cout << (b1 == b2) << std::endl;
-    std::cout << (b1 != b2) << std::endl;
+    // test operator!=
+    experis::TestOperatorNotEqual(bitSetLeft, bitSetRight, true);
+    bitSetRight.Flip(64);
+    experis::TestOperatorNotEqual(bitSetLeft, bitSetRight, false);
 
-    BitSet resultAnd = b1 & b2;
-    BitSet resultOr = b1 | b2;
-    BitSet resultXor = b1 ^ b2;
- 
-    ~b1;
-    b1 &= b2;
-    b1 |= b2;
-    b1 ^= b2;
-    b1.Set(12); // 12 is the bit number
-    b1.Clear(45);
-    b1.Flip(12);
-    b1.TurnAllOn();
-    std::cout << "is all on? -> " << b1.IsAllOn() << std::endl;
-    b1.TurnAllOff();
-    std::cout << "is all off? -> " << b1.IsAllOff() << std::endl;
+    // test operator&
+    BitSet bitSetResult;
+    experis::TestOperatorAnd(bitSetLeft, bitSetRight, bitSetResult);
 
-    //std::cout << "count" << b1.Count() << std::endl; // number of bits turned on
+    bitSetLeft.Flip(12);
+    bitSetRight.Flip(60);
+    experis::TestOperatorAnd(bitSetLeft, bitSetRight, bitSetResult);
 
-    std::cout << "size -> " << b1.Size() << std::endl;
-    b2.Flip(6);
+    bitSetLeft.Flip(60);
+    bitSetResult.Flip(60);
+    experis::TestOperatorAnd(bitSetLeft, bitSetRight, bitSetResult);
+    
+    // test operator|
+    bitSetResult.Flip(12);
+    experis::TestOperatorOr(bitSetLeft, bitSetRight, bitSetResult);
+    
+    // test operator^
+    bitSetResult.Flip(60);
+    experis::TestOperatorXor(bitSetLeft, bitSetRight, bitSetResult);
 
-    b2 >> 5;
-    std::cout << b2[1] << std::endl;
+    // test operator~
+    bitSetResult.TurnAllOn();
+    bitSetResult.Flip(60);
+    experis::TestOperatorTilde(bitSetRight, bitSetResult);
+
+    // test operator[]
+    experis::TestOperatorSubscript(bitSetRight, 12, true);
+    experis::TestOperatorSubscript(bitSetRight, 60, false);
+
+    // test set
+    experis::TestSet(bitSetRight, 12);
+    experis::TestSet(bitSetRight, 60);
+
+    experis::TestClear(bitSetRight, 12);
+    experis::TestClear(bitSetRight, 60);
+
+    experis::TestFlip(bitSetRight, 12, true);
+    experis::TestFlip(bitSetRight, 12, false);
 
 /*
+    //std::cout << "count" << bitSetLeft.Count() << std::endl; // number of bits turned on
 
     //-------------------------------------------------
-    b1[4] = true;
+    bitSetLeft[4] = true;
     //-------------------------------------------------
-    b1 >> 376;
-    b1 <<= 100;
-    b1 >>= 376;
+    bitSetLeft <<= 100;
+    bitSetLeft >>= 376;
 */
 
 

@@ -1,0 +1,16 @@
+#ifndef _ADT_ERROR_H_
+#define _ADT_ERROR_H_
+
+
+typedef enum 
+{
+    OK,
+    ERROR_WRONG_INPUT,
+    ERROR_OVERFLOW,
+    ERROR_UNDERFLOW,
+    ERROR_DUPLICATE_DATA,
+    ERROR_NOT_INITIALIZED,
+    ERROR_ALLOCATION_FAILED
+}ErrorCode;
+
+#endif

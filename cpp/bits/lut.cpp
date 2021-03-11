@@ -20,7 +20,7 @@ void Lut::buildLut() {
     }
 }
 
-unsigned int Lut::GetLutResultByPosition(size_t a_position) {
+unsigned int Lut::GetLutResultByPosition(size_t a_position) const {
     return m_lutTable[a_position];
 }
 

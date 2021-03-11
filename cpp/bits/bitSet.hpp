@@ -47,8 +47,9 @@ public:
     size_t Size() const { return N; }
 
 private:
-    class CountOnBits;
+    size_t countBits(BitsSetType a_bits) const;
 
+    class CountOnBits;
     static const size_t NUM_BLOCKS = (N / BITS_SIZE) + (((N % BITS_SIZE) != 0) ? 1 : 0);
     
     Lut m_lut;
@@ -197,25 +198,12 @@ BitSet<N>& BitSet<N>::TurnAllOff() {
 }
 
 template<size_t N>
-class BitSet<N>::CountOnBits {
-public:
-    CountOnBits() : m_sum() {}
-    unsigned long operator()(BitsSetType a_bits) {
-        for (size_t i = 0; i < sizeof(BitsSetType); i++) {
-            a_bits >>= (BYTE_IN_BITS * i);
-            m_sum += m_lut.GetLutResultByPosition(a_bits & 0xff);
-        }
-    }
-private:
-    size_t m_sum;
-};
-
-template<size_t N>
 size_t BitSet<N>::Count() const {
-    std::transform(m_bits, m_bits + NUM_BLOCKS, m_bits, CountOnBits());
-    BitsSetType mask = turnOn(m_bits[0]);
-    size_t count = 0;
-    return (count + (m_bits[0] & mask));
+    size_t sum = 0;
+    for (size_t i = 0; i < NUM_BLOCKS; i++) {
+        sum += countBits(m_bits[i]);
+    }
+    return sum;
 }
 
 
@@ -231,6 +219,18 @@ bool BitSet<N>::IsAllOff() const {
     BitSet<N> bitSetAllOn;
     bitSetAllOn.TurnAllOff();
     return (bitSetAllOn == *this);
+}
+
+// private funcrion:
+
+template<size_t N>
+size_t BitSet<N>::countBits(BitsSetType a_bits) const {
+    size_t sum = 0;
+    for (size_t i = 0; i < sizeof(BitsSetType); i++) {
+        sum += m_lut.GetLutResultByPosition((a_bits & 0xff));
+        a_bits >>= BYTE_IN_BITS;
+    }
+    return sum;
 }
 
 } // experis

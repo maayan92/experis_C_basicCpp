@@ -14,7 +14,7 @@ public:
     //~Lut() = default;
     //Lut& operator=(const Lut& a_lut) = default;
 
-    unsigned int GetLutResultByPosition(size_t a_position);
+    unsigned int GetLutResultByPosition(size_t a_position) const;
 
 private:
     void buildLut();

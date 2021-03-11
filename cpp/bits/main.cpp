@@ -76,6 +76,8 @@ static void TestFlip(BitSet<N>& a_bitSet, size_t a_position, bool a_isOn){
     PrintTestResult("flip", a_isOn == a_bitSet.Flip(a_position)[a_position], testNum, ":\t\t");
 }
 
+
+
 } // experis
 
 int main() {
@@ -130,13 +132,14 @@ int main() {
     experis::TestSet(bitSetRight, 60);
 
     experis::TestClear(bitSetRight, 12);
-    experis::TestClear(bitSetRight, 60);
+    experis::TestClear(bitSetRight, 12);
 
     experis::TestFlip(bitSetRight, 12, true);
-    experis::TestFlip(bitSetRight, 12, false);
+    experis::TestFlip(bitSetRight, 60, false);
+    std::cout << "count " << bitSetLeft.Count() << std::endl; // number of bits turned on
+    std::cout << "count " << bitSetRight.Count() << std::endl; // number of bits turned on
 
 /*
-    //std::cout << "count" << bitSetLeft.Count() << std::endl; // number of bits turned on
 
     //-------------------------------------------------
     bitSetLeft[4] = true;

@@ -2,7 +2,7 @@
 
 namespace experis {
 
-typedef unsigned long BitsSetType;
+typedef size_t BitsSetType;
 static const int BYTE_IN_BITS = 8;
 static const size_t BITS_SIZE = sizeof(BitsSetType)*BYTE_IN_BITS;
 
